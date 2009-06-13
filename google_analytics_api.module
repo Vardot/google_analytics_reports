@@ -1,0 +1,43 @@
+<?php
+// $Id$
+
+// define any constants
+define(GOOGLE_ANALYTICS_API_CLIENLOGIN, 0);
+define(GOOGLE_ANALYTICS_API_AUTHSUB, 1);
+
+// help hook
+//function google_analytics_api_help($path, $arg);
+
+// menu hook
+// (admin area hook)
+//function google_analytics_api_menu();
+
+// permissions hook
+//function google_analytics_api_perm();
+
+// callback to authorize with whichever method
+//function google_analytics_api_login();
+
+// return current token information
+//function google_analytics_api_current_token();
+
+// return current authorization method
+//function google_analytics_api_current_login_method();
+
+// set current ClientAuth credentials
+//function google_analytics_api_set_clientauth_info($email, $password);
+
+// return current ClientLogin credentials
+//function google_analytics_api_get_clientauth_info();
+
+// programatically login with ClientLogin
+//function google_analytics_api_login_clientauth($email=null, $password=null);
+
+// programatically trigger a login with AuthSub
+//function google_analytics_api_login_authsub();
+
+// callback to request account data (including profiles)
+//function google_analytics_api_account_data();
+
+// callback to request report data
+//function google_analytics_api_report_data($dimensions, $metrics, $sort_metric, $filter, $start_date, $end_date, $start_index, $max_results);

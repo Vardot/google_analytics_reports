@@ -1,0 +1,7 @@
+; $Id$
+
+name = Google Analytics API
+description = TBA
+package = TBA
+version = 0.01
+core = 6.x
