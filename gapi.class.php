@@ -823,19 +823,17 @@ class gapiAuthSub extends gapiAuthMethod {
         'Content-Type' => 'application/x-www-form-urlencoded',
         'Authorization' => 'AuthSub token="' . $_GET['token'] . '"'
       );
-      gapi::httpRequest(self::session_token_url, false, false, $headers);
+      $response = gapi::httpRequest(self::session_token_url, false, false, $headers);
+
+      // Convert newline delimited variables into url format then import to array
+      parse_str(str_replace(array("\n", "\r\n"), '&', $response['body']), $auth_token);
+
+      if (substr($response['code'], 0, 1) != '2' || !is_array($auth_token) || empty($auth_token['Auth'])) {
+        throw new Exception('GAPI: Failed to authenticate user. Error: "' . strip_tags($response['body']) . '"');
+      }
+
+      $this->auth_token = $auth_token['Token'];
     }
-
-    $response = gapi::httpRequest(self::request_url, null, $post_variables);
-
-    // Convert newline delimited variables into url format then import to array
-    parse_str(str_replace(array("\n", "\r\n"), '&', $response['body']), $auth_token);
-
-    if (substr($response['code'], 0, 1) != '2' || !is_array($auth_token) || empty($auth_token['Auth'])) {
-      throw new Exception('GAPI: Failed to authenticate user. Error: "' . strip_tags($response['body']) . '"');
-    }
-
-    $this->auth_token = $auth_token['Token'];
   }
 
   /**
