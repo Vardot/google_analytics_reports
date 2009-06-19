@@ -27,11 +27,8 @@
  */
 
 class gapi {
-  const http_interface = 'auto'; //'auto': autodetect, 'curl' or 'fopen'
-
   const account_data_url = 'https://www.google.com/analytics/feeds/accounts/default';
   const report_data_url = 'https://www.google.com/analytics/feeds/data';
-  const interface_name = 'GAPI-1.2';
   const dev_mode = false;
 
   private $auth_method = null;
@@ -61,6 +58,12 @@ class gapi {
   public function getAuthToken() {
     return $this->auth_method->getAuthToken();
   }
+  public function getTokenInfo() {
+    return $this->auth_method->getTokenInfo();
+  }
+  public function revokeToken() {
+    return $this->auth_method->revokeToken();
+  }
 
   /**
    * Request account data from Google Analytics
@@ -69,7 +72,12 @@ class gapi {
    * @param Int $max_results OPTIONAL: Max results returned
    */
   public function requestAccountData($start_index=1, $max_results=20) {
-    $response = gapi::httpRequest(gapi::account_data_url, array('start-index'=>$start_index, 'max-results'=>$max_results), null, $auth_method->generateAuthHeader());
+    $post_variables = array(
+      'start-index' => $start_index,
+      'max-results' => $max_results,
+      );
+    $url = new gapiUrl(gapi::account_data_url);
+    $response = $url->post($post_variables, null, $auth_method->generateAuthHeader());
 
     if (substr($response['code'], 0, 1) == '2') {
       return $this->accountObjectMapper($response['body']);
@@ -173,7 +181,8 @@ class gapi {
 
     $parameters['prettyprint'] = gapi::dev_mode ? 'true' : 'false';
 
-    $response = gapi::httpRequest(gapi::report_data_url, $parameters, null, $this->auth_method->generateAuthHeader());
+    $url = new gapiUrl(gapi::report_data_url);
+    $response = $url->get($parameters, $this->auth_method->generateAuthHeader());
 
     //HTTP 2xx
     if (substr($response['code'], 0, 1) == '2') {
@@ -323,171 +332,12 @@ class gapi {
   }
 
   /**
-   * Perform http redirect
-   * 
-   *
-   * @param Array $get_variables
-   */
-  public static function httpRedirect($url, $get_variables=null) {
-    if (is_array($get_variables)) {
-      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
-    }
-    else {
-      $get_variables = null;
-    }
-
-    header('Location: ' . $url . $get_variables);
-  }
-
-  /**
-   * Perform http request
-   * 
-   *
-   * @param Array $get_variables
-   * @param Array $post_variables
-   * @param Array $headers
-   */
-  public static function httpRequest($url, $get_variables=null, $post_variables=null, $headers=null) {
-    $interface = gapi::http_interface;
-
-    if (gapi::http_interface =='auto') {
-      if (function_exists('curl_exec')) {
-        $interface = 'curl';
-      }
-      else {
-        $interface = 'fopen';
-      }
-    }
-
-    switch ($interface) 
-    {
-      case 'curl':
-        return gapi::curlRequest($url, $get_variables, $post_variables, $headers);
-      case 'fopen':
-        return gapi::fopenRequest($url, $get_variables, $post_variables, $headers);
-      default:
-        throw new Exception('Invalid http interface defined. No such interface "' . gapi::http_interface . '"');
-    }
-  }
-
-  /**
-   * HTTP request using PHP CURL functions
-   * Requires curl library installed and configured for PHP
-   * 
-   * @param Array $get_variables
-   * @param Array $post_variables
-   * @param Array $headers
-   */
-  public static function curlRequest($url, $get_variables=null, $post_variables=null, $headers=null) {
-    $ch = curl_init();
-
-    if (is_array($get_variables)) {
-      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
-    }
-    else {
-      $get_variables = null;
-    }
-
-    curl_setopt($ch, CURLOPT_URL, $url . $get_variables);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //CURL doesn't like google's cert
-
-    if (is_array($post_variables)) {
-      curl_setopt($ch, CURLOPT_POST, true);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $post_variables);
-    }
-
-    if (is_array($headers)) {
-      curl_setopt($ch, CURLOPT_HTTPHEADER,$headers);
-    }
-
-    $response = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    curl_close($ch);
-
-    return array('body'=>$response, 'code'=>$code);
-  }
-
-  /**
-   * HTTP request using native PHP fopen function
-   * Requires PHP openSSL
-   *
-   * @param Array $get_variables
-   * @param Array $post_variables
-   * @param Array $headers
-   */
-  private static function fopenRequest($url, $get_variables=null, $post_variables=null, $headers=null) {
-    $http_options = array('method'=>'GET', 'timeout'=>3);
-
-    if (is_array($headers)) {
-      $headers = implode("\r\n", $headers) . "\r\n";
-    }
-    else {
-      $headers = '';
-    }
-
-    if (is_array($get_variables)) {
-      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
-    }
-    else {
-      $get_variables = null;
-    }
-
-    if (is_array($post_variables)) {
-      $post_variables = str_replace('&amp;', '&', urldecode(http_build_query($post_variables)));
-      $http_options['method'] = 'POST';
-      $headers = "Content-type: application/x-www-form-urlencoded\r\n" . "Content-Length: " . strlen($post_variables) . "\r\n" . $headers;
-      $http_options['header'] = $headers;
-      $http_options['content'] = $post_variables;
-    }
-    else {
-      $post_variables = '';
-      $http_options['header'] = $headers;
-    }
-
-    $context = stream_context_create(array('http'=>$http_options));
-    $response = @file_get_contents($url . $get_variables, null, $context);
-
-    return array('body'=>$response!==false?$response:'Request failed, fopen provides no further information', 'code'=>$response!==false?'200':'400');
-  }
-
-  /**
-   * Case insensitive array_key_exists function, also returns
-   * matching key.
-   *
-   * @param String $key
-   * @param Array $search
-   * @return String Matching array key
-   */
-  public static function array_key_exists_nc($key, $search) {
-    if (array_key_exists($key, $search)) {
-      return $key;
-    }
-    if (!(is_string($key) && is_array($search))) {
-      return false;
-    }
-    $key = strtolower($key);
-    foreach ($search as $k => $v) {
-      if (strtolower($k) == $key) {
-        return $k;
-      }
-    }
-    return false;
-  }
-
-  /**
    * Get Results
    *
    * @return Array
    */
   public function getResults() {
-    if (is_array($this->results)) {
-      return $this->results;
-    }
-    else {
-      return;
-    }
+    return is_array($this->results) ? $this->results : false;
   }
 
 
@@ -517,13 +367,13 @@ class gapi {
 
     $name = preg_replace('/^get/', '', $name);
 
-    $parameter_key = gapi::array_key_exists_nc($name, $this->report_root_parameters);
+    $parameter_key = array_key_exists_nc($name, $this->report_root_parameters);
 
     if ($parameter_key) {
       return $this->report_root_parameters[$parameter_key];
     }
 
-    $aggregate_metric_key = gapi::array_key_exists_nc($name, $this->report_aggregate_metrics);
+    $aggregate_metric_key = array_key_exists_nc($name, $this->report_aggregate_metrics);
 
     if ($aggregate_metric_key) {
       return $this->report_aggregate_metrics[$aggregate_metric_key];
@@ -552,12 +402,8 @@ class gapiAccountEntry {
    * @return String
    */
   public function __toString() {
-    if (isset($this->properties['title'])) {
-      return $this->properties['title'];
-    }
-    else {
-      return;
-    }
+    return isset($this->properties['title']) ?
+      $this->properties['title']: false;
   }
 
   /**
@@ -584,7 +430,7 @@ class gapiAccountEntry {
 
     $name = preg_replace('/^get/', '', $name);
 
-    $property_key = gapi::array_key_exists_nc($name, $this->properties);
+    $property_key = array_key_exists_nc($name, $this->properties);
 
     if ($property_key) {
       return $this->properties[$property_key];
@@ -619,12 +465,8 @@ class gapiReportEntry {
    * @return String
    */
   public function __toString() {
-    if (is_array($this->dimensions)) {
-      return implode(' ', $this->dimensions);
-    }
-    else {
-      return '';
-    }
+    return is_array($this->dimensions) ? 
+      implode(' ', $this->dimensions) : '';
   }
 
   /**
@@ -661,13 +503,13 @@ class gapiReportEntry {
 
     $name = preg_replace('/^get/', '', $name);
 
-    $metric_key = gapi::array_key_exists_nc($name, $this->metrics);
+    $metric_key = array_key_exists_nc($name, $this->metrics);
 
     if ($metric_key) {
       return $this->metrics[$metric_key];
     }
 
-    $dimension_key = gapi::array_key_exists_nc($name, $this->dimensions);
+    $dimension_key = array_key_exists_nc($name, $this->dimensions);
 
     if ($dimension_key) {
       return $this->dimensions[$dimension_key];
@@ -686,6 +528,10 @@ class gapiReportEntry {
 abstract class gapiAuthMethod {
   protected $auth_token = null;
 
+  public function __construct($auth_token=null) {
+    $this->auth_token = $auth_token;
+  }
+
   /**
    * Return the auth token, used for storing the auth token in the user session
    *
@@ -695,10 +541,12 @@ abstract class gapiAuthMethod {
     return $this->auth_token;
   }
 
-  protected abstract function getMethodName();
+  protected static abstract function getMethodName();
+  protected static abstract function getTokenName();
 
-  public static function newWithToken($auth_token) {
-    $auth_token = new gapiAuthToken($auth_token);
+  public static function withToken($auth_token) {
+    $class_name = get_called_class();
+    return new gapi(new $class_name($auth_token));
   }
 
   /**
@@ -706,8 +554,16 @@ abstract class gapiAuthMethod {
    *
    * @return Array
    */
-  public function generateAuthHeader() {
-    return array('Authorization: ' . $this->getMethodName() . ' auth=' . $this->auth_token);
+  public function generateAuthHeader($token=null) {
+    if ($token == null)
+      $token = $this->auth_token;
+    return array('Authorization' => $this->getMethodName() . ' ' . $this->getTokenName() . '=' . $token);
+  }
+
+  protected function parseBody($content) {
+    // Convert newline delimited variables into url format then import to array
+    parse_str(str_replace(array("\n", "\r\n"), '&', $content), $array);
+    return $array;
   }
 }
 
@@ -726,7 +582,7 @@ class gapiClientLogin extends gapiAuthMethod {
    * @param String $email
    * @param String $password
    */
-  protected function fetchToken($email, $password) {
+  protected function getToken($email, $password) {
     $post_variables = array(
       'accountType' => 'GOOGLE',
       'Email' => $email,
@@ -735,16 +591,16 @@ class gapiClientLogin extends gapiAuthMethod {
       'service' => 'analytics'
     );
 
-    $response = gapi::httpRequest(self::request_url, null, $post_variables);
-
-    //Convert newline delimited variables into url format then import to array
-    parse_str(str_replace(array("\n", "\r\n"), '&', $response['body']), $auth_token);
+    $url = new gapiUrl(self::request_url);
+    $response = $url->post(null, $post_variables);
+    $auth_token = $this->parseBody($response['body']);
 
     if (substr($response['code'], 0, 1) != '2' || !is_array($auth_token) || empty($auth_token['Auth'])) {
       throw new Exception('GAPI: Failed to authenticate user. Error: "' . strip_tags($response['body']) . '"');
     }
 
     $this->auth_token = $auth_token['Auth'];
+    return $this->auth_token;
   }
 
   /**
@@ -752,8 +608,11 @@ class gapiClientLogin extends gapiAuthMethod {
    *
    * @return String
    */
-  protected function getMethodName() {
+  protected static function getMethodName() {
     return 'GoogleLogin';
+  }
+  protected static function getTokenName() {
+    return 'auth';
   }
 
   /**
@@ -765,7 +624,7 @@ class gapiClientLogin extends gapiAuthMethod {
    */
   public static function authenticateUser($email, $password) {
     $auth_method = new gapiClientLogin();
-    $auth_method->fetchToken($email, $password);
+    $auth_method->getToken($email, $password);
     return new gapi($auth_method);
   }
 }
@@ -783,12 +642,114 @@ class gapiAuthSub extends gapiAuthMethod {
   const revoke_token_url = 'https://www.google.com/accounts/AuthSubRevokeToken';
   const token_info_url = 'https://www.google.com/accounts/AuthSubTokenInfo';
 
+  protected function getRequestUrl($return_url=null) {
+    if ($return_url == null) {
+      $return_url = gapiUrl::current_url();
+    }
+
+    $get_variables = array(
+        'next' => $return_url,
+        'scope' => self::scope_url,
+        'secure' => 0,
+        'session' => 1
+      );
+
+      $url = new gapiUrl(self::request_url);
+      return $url->getUrl($get_variables);
+  }
+
+  public function performRequest($return_url=null) {
+    $url = new gapiUrl($this->getRequestUrl($return_url));
+    $url->redirect();
+  }
+
+  public function getSessionToken() {
+    $url = new gapiUrl(self::session_token_url);
+    $response = $url->get(false, $this->generateAuthHeader($_GET['token']));
+    $auth_token = $this->parseBody($response['body']);
+
+    if (substr($response['code'], 0, 1) != '2' || !is_array($auth_token) || empty($auth_token['Token'])) {
+      throw new Exception('GAPI: Failed to authenticate user. Error: "' . strip_tags($response['body']) . '"');
+    }
+
+    $this->auth_token = $auth_token['Token'];
+    return $this->auth_token;
+  }
+
+  public function getTokenInfo() {
+    $url = new gapiUrl(self::token_info_url);
+    $response = $url->get(false, $this->generateAuthHeader($this->auth_token));
+    $info = $this->parseBody($response['body']);
+
+    if (substr($response['code'], 0, 1) != '2' || !is_array($info)) {
+      throw new Exception('GAPI: Failed to retrieve token info. Error: "' . strip_tags($response['body']) . '"');
+    }
+
+    return $info;
+  }
+
+  public function revokeToken() {
+    $url = new gapiUrl(self::revoke_token_url);
+    $response = $url->get(false, $this->generateAuthHeader($this->auth_token));
+    $result = $this->parseBody($response['body']);
+
+    if (substr($response['code'], 0, 1) != '2' || !is_array($result)) {
+      throw new Exception('GAPI: Failed to revoke token. Error: "' . strip_tags($response['body']) . '"');
+    }
+
+    return $result;
+  }
+
+  /**
+   * Return the authentication method name
+   *
+   * @return String
+   */
+  protected static function getMethodName() {
+    return 'AuthSub';
+  }
+  protected static function getTokenName() {
+    return 'token';
+  }
+
+  /**
+   * Generate authentication token header for all requests
+   *
+   * @return Array
+   */
+  public function generateAuthHeader($token=null) {
+    if ($token == null)
+      $token = $this->auth_token;
+    return array('Authorization' => $this->getMethodName() . ' token=' . $token);
+  }
+
+  /**
+   * Authenticate and return a seeded gapi instance
+   *
+   * @return gapi
+   */
+  public static function authenticateUser($return_url=null) {
+    $auth_method = new gapiAuthSub();
+    if (!isset($_GET['token']))
+      $auth_method->performRequest();
+    else
+      $auth_method->getSessionToken();
+    return new gapi($auth_method);
+  }
+}
+
+class gapiUrl {
+  const http_interface = 'auto'; //'auto': autodetect, 'curl' or 'fopen'
+  const interface_name = 'GAPI-1.2';
+
+  private $url = null;
+
   /**
    * Get the current page url
    *
    * @return String
    */
-  function current_url() {
+  public static function current_url() {
     $https = $_SERVER['HTTPS'] == 'on';
     $url = $https ? 'https://' : 'http://';
     $url .= $_SERVER['SERVER_NAME'];
@@ -800,59 +761,181 @@ class gapiAuthSub extends gapiAuthMethod {
     return $url;
   }
 
+  public function __construct($url) {
+    $this->url = $url;
+  }
+
   /**
-   * Authenticate Google Account with ClientLogin
+   * Perform http redirect
+   * 
    *
-   * @param String $return_url
+   * @param Array $get_variables
    */
-  protected function fetchToken($return_url=null) {
-    if (!isset($_GET['token'])) {
-      if ($return_url == null) {
-        $return_url = $this->current_url();
-      }
+  public function redirect($get_variables=null) {
+    return header('Location: ' . $this->getUrl($get_variables));
+  }
 
-      $get_variables = array(
-        'next' => $return_url,
-        'scope' => self::scope_url,
-        'secure' => 0,
-        'session' => 1
-      );
-      gapi::httpRedirect(self::request_url, $get_variables);
+  public function getUrl($get_variables=null) {
+    if (is_array($get_variables)) {
+      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
     } else {
-      $headers = array(
-        'Content-Type' => 'application/x-www-form-urlencoded',
-        'Authorization' => 'AuthSub token="' . $_GET['token'] . '"'
-      );
-      $response = gapi::httpRequest(self::session_token_url, false, false, $headers);
+      $get_variables = null;
+    }
 
-      // Convert newline delimited variables into url format then import to array
-      parse_str(str_replace(array("\n", "\r\n"), '&', $response['body']), $auth_token);
+    return $this->url . $get_variables;
+  }
 
-      if (substr($response['code'], 0, 1) != '2' || !is_array($auth_token) || empty($auth_token['Auth'])) {
-        throw new Exception('GAPI: Failed to authenticate user. Error: "' . strip_tags($response['body']) . '"');
-      }
+  public function post($get_variables=null, $post_variables=null, $headers=null) {
+    return $this->request($get_variables, $post_variables, $headers);
+  }
 
-      $this->auth_token = $auth_token['Token'];
+  public function get($get_variables=null, $headers=null) {
+    return $this->request($get_variables, null, $headers);
+  }
+
+  /**
+   * Perform http request
+   * 
+   *
+   * @param Array $get_variables
+   * @param Array $post_variables
+   * @param Array $headers
+   */
+  public function request($get_variables=null, $post_variables=null, $headers=null) {
+    $interface = self::http_interface;
+
+    if (self::http_interface == 'auto')
+      $interface = function_exists('curl_exec') ? 'curl' : 'fopen';
+
+    switch ($interface) {
+      case 'curl':
+        return $this->curlRequest($get_variables, $post_variables, $headers);
+      case 'fopen':
+        return $this->fopenRequest($get_variables, $post_variables, $headers);
+      default:
+        throw new Exception('Invalid http interface defined. No such interface "' . self::http_interface . '"');
     }
   }
 
   /**
-   * Return the authentication method name
-   *
-   * @return String
+   * HTTP request using PHP CURL functions
+   * Requires curl library installed and configured for PHP
+   * 
+   * @param Array $get_variables
+   * @param Array $post_variables
+   * @param Array $headers
    */
-  protected function getMethodName() {
-    return 'AuthSub';
+  private function curlRequest($get_variables=null, $post_variables=null, $headers=null) {
+    $ch = curl_init();
+
+    if (is_array($get_variables)) {
+      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
+    } else {
+      $get_variables = null;
+    }
+
+    curl_setopt($ch, CURLOPT_URL, $this->url . $get_variables);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //CURL doesn't like google's cert
+
+    if (is_array($post_variables)) {
+      curl_setopt($ch, CURLOPT_POST, true);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $post_variables);
+    }
+
+    if (is_array($headers)) {
+      $string_headers = array();
+      foreach ($headers as $key => $value) {
+        $string_headers[] = "$key: $value";
+      }
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $string_headers);
+    }
+
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    curl_close($ch);
+
+    return array('body' => $response, 'code' => $code);
   }
 
   /**
-   * Authenticate and return a seeded gapi instance
+   * HTTP request using native PHP fopen function
+   * Requires PHP openSSL
    *
-   * @return gapi
+   * @param Array $get_variables
+   * @param Array $post_variables
+   * @param Array $headers
    */
-  public static function authenticateUser($return_url=null) {
-    $auth_method = new gapiAuthSub();
-    $auth_method->fetchToken();
-    return new gapi($auth_method);
+  private function fopenRequest($get_variables=null, $post_variables=null, $headers=null) {
+    $http_options = array('method'=>'GET', 'timeout'=>3);
+
+    if (is_array($headers)) {
+      $headers = implode("\r\n", $headers) . "\r\n";
+    }
+    else {
+      $headers = '';
+    }
+
+    if (is_array($get_variables)) {
+      $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
+    }
+    else {
+      $get_variables = null;
+    }
+
+    if (is_array($post_variables)) {
+      $post_variables = str_replace('&amp;', '&', urldecode(http_build_query($post_variables)));
+      $http_options['method'] = 'POST';
+      $headers = "Content-type: application/x-www-form-urlencoded\r\n" . "Content-Length: " . strlen($post_variables) . "\r\n" . $headers;
+      $http_options['header'] = $headers;
+      $http_options['content'] = $post_variables;
+    }
+    else {
+      $post_variables = '';
+      $http_options['header'] = $headers;
+    }
+
+    $context = stream_context_create(array('http'=>$http_options));
+    $response = @file_get_contents($this->url . $get_variables, null, $context);
+
+    return array('body'=>$response!==false?$response:'Request failed, fopen provides no further information', 'code'=>$response!==false?'200':'400');
   }
+}
+
+if (!function_exists('get_called_class')) {
+  function get_called_class()
+  {
+    $bt = debug_backtrace();
+    $lines = file($bt[1]['file']);
+    preg_match('/([a-zA-Z0-9\_]+)::'.$bt[1]['function'].'/',
+               $lines[$bt[1]['line']-1],
+               $matches);
+    return $matches[1];
+  }
+}
+
+
+/**
+ * Case insensitive array_key_exists function, also returns
+ * matching key.
+ *
+ * @param String $key
+ * @param Array $search
+ * @return String Matching array key
+ */
+function array_key_exists_nc($key, $search) {
+  if (array_key_exists($key, $search)) {
+    return $key;
+  }
+  if (!(is_string($key) && is_array($search))) {
+    return false;
+  }
+  $key = strtolower($key);
+  foreach ($search as $k => $v) {
+    if (strtolower($k) == $key) {
+      return $k;
+    }
+  }
+  return false;
 }
