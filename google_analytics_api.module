@@ -1,24 +1,187 @@
 <?php
 // $Id$
 
+require 'gapi.class.php';
+
 // help hook
 //function google_analytics_api_help($path, $arg);
 
-// menu hook
-// (admin area hook)
-//function google_analytics_api_menu();
+/**
+ * Implementation of hook_menu().
+ */
+function google_analytics_api_menu() {
+  $items['admin/settings/google_analytics_api'] = array(
+    'title' => 'Google Analytics API settings',
+    'description' => 'Manage the currently logged in Analytics account',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('google_analytics_api_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
 
-// permissions hook
-//function google_analytics_api_perm();
+  return $items;
+}
 
-// return current token information
-//function google_analytics_api_current_token();
+/**
+ * The admin form.
+ */
+function google_analytics_api_admin() {
+  $form = array();
 
-// programatically trigger a login
-//function google_analytics_api_login();
+  if (google_analytics_api_check_token()) {
+    $form['login_status'] = array(
+      '#value' => 'Currently you are logged in. ',
+      '#weight' => -10,
+    );
+    $form['logout'] = array(
+      '#type' => 'submit',
+      '#value' => 'Logout',
+      '#weight' => -5,
+    );
+    $form['account_id'] = array(
+      '#type' => 'select',
+      '#title' => 'Profile',
+      '#options' => google_analytics_api_admin_account_data_options(),
+      '#default_value' => variable_get('google_analytics_api_profile_id', 0),
+      '#description' => t('Choose your website\'s profile'),
+      '#required' => TRUE,
+      '#weight' => -2,
+    );
+    $form['buttons']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Save configuration',
+      '#weight' => -1,
+    );
+  } else {
+    $form['logout_status'] = array(
+      '#value' => 'You may not access statistics without logging in. ',
+      '#weight' => -10,
+    );
+    $form['buttons']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Login to a Google account',
+    );
+  }
 
-// callback to request account data (including profiles)
-//function google_analytics_api_account_data();
+  return $form;
+}
+
+/*
+ * Returns an associative array of profile IDs and their names for an account.
+ */
+function google_analytics_api_admin_account_data_options() {
+    $accounts = google_analytics_api_account_data();
+    $options = array();
+    $i = 0;
+    foreach ($accounts as $account)
+      $options[$account->getProfileId()] = $account->getTitle() . ' (' . $account->getProfileId() . ')';
+    return $options;
+}
+
+/*
+ * Admin form callback, run on submission of any buttons.
+ */
+function google_analytics_api_admin_submit($form, &$form_state) {
+  if (variable_get('google_analytics_api_token', null)) {
+    if ($form_state['clicked_button']['#value'] == 'Logout') {
+      drupal_set_message(t('You have been logged out of your Google account.'));
+      return google_analytics_api_logout();
+    } elseif ($form_state['clicked_button']['#value'] == 'Save configuration') {
+      variable_set('google_analytics_api_profile_id', intval($form_state['values']['account_id']));
+    }
+  } else {
+    return google_analytics_api_authenticate();
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function google_analytics_api_perm() {
+  return array('manage Google Analytics authentication', 'access Google Analytics data');
+}
+
+/**
+ * Check for a returned token in the URL.
+ */
+function google_analytics_api_check_token() {
+  $gapi = gapiAuthSub::checkToken();
+  if ($gapi) {
+    variable_set('google_analytics_api_token', $gapi->getToken());
+    $accounts = google_analytics_api_account_data();
+    $id = $accounts[0]->getProfileId();
+    variable_set('google_analytics_api_profile_id', $id);
+    drupal_set_message(t('You have been logged into your Google account.'));
+    header('Location: ' . gapiUrl::currentUrlWithoutGet());
+    exit;
+  }
+  return google_analytics_api_current_token(true);
+}
+
+/**
+ * Return current token string.
+ */
+function google_analytics_api_current_token($silent=false) {
+  $token = variable_get('google_analytics_api_token', null);
+  if (!$token && !$silent)
+    drupal_set_message(t('A Google Analytics API method has been called that requires a Google account be logged in.  Please visit the preferences page to do so.'));
+  return $token;
+}
+
+/**
+ * Return current profile ID.
+ */
+function google_analytics_api_current_profile_id($silent=false) {
+  $profile_id = variable_get('google_analytics_api_profile_id', null);
+  if (!$profile_id && !$silent)
+    drupal_set_message(t('A method has been called that requires a Google Analytics Profile.  Please visit the preferences page to set one.'));
+  return $profile_id;
+}
+
+/*
+ * Programatically trigger a login.
+ */
+function google_analytics_api_authenticate() {
+  return gapiAuthSub::authenticate();
+}
+
+/*
+ * Programatically trigger a logout.
+ */
+function google_analytics_api_logout() {
+  try {
+    google_analytics_api_gapi()->revokeToken();
+  } catch (Exception $e) { }
+  variable_set('google_analytics_api_token', null);
+  variable_set('google_analytics_api_profile_id', null);
+}
+
+/*
+ * Return a gapi object built from the currently stored token.
+ */
+function google_analytics_api_gapi() {
+  $token = google_analytics_api_current_token();
+  if ($token)
+    return gapiAuthSub::withToken($token);
+  return false;
+}
+
+/*
+ * Request account data (profile IDs and names).
+ */
+function google_analytics_api_account_data() {
+  try {
+    $data = google_analytics_api_gapi()->requestAccountData();
+  } catch (Exception $e) {
+    return google_analytics_api_logout();
+  }
+  return $data;
+}
 
 // callback to request report data
-//function google_analytics_api_report_data($dimensions, $metrics, $sort_metric, $filter, $start_date, $end_date, $start_index, $max_results);
+function google_analytics_api_report_data($dimensions, $metrics, $sort_metric, $filter, $start_date, $end_date, $start_index, $max_results) {
+  return google_analytics_api_gapi()->requestReportData(
+    variable_get('google_analytics_api_profile_id', 0),
+    $dimensions, $metrics, $sort_metric, $filter,
+    $start_date, $end_date, $start_index, $max_results);
+}

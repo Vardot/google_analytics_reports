@@ -20,7 +20,7 @@ function google_analytics_api_uninstall() {
 function google_analytics_api_schema() {
   $schema['google_analytics_api_table'] = array(
     'description' => 'Table description.',
-    'fields' = array(),
+    'fields' => array(),
     'primary key' => array(),
     'indexes' => array(),
   );

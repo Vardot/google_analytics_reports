@@ -22,13 +22,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * @author Stig Manning <stig@sdm.co.nz>
- * @version 1.2
+ * @author Joel Kitching <jkitching@mailbolt.com>
+ * @version 1.3
  * 
  */
 
 class gapi {
   const account_data_url = 'https://www.google.com/analytics/feeds/accounts/default';
   const report_data_url = 'https://www.google.com/analytics/feeds/data';
+  const interface_name = 'GAPI-1.3';
   const dev_mode = false;
 
   private $auth_method = null;
@@ -41,7 +43,7 @@ class gapi {
   /**
    * Constructor function for all new gapi instances
    * 
-   * Pass the constructor an auth method instance
+   * Pass the constructor a concrete gapiAuthMethod instance
    *
    * @param gapiAuthMethod $auth_method
    * @return gapi
@@ -51,16 +53,28 @@ class gapi {
   }
 
   /**
-   * Return the auth token, used for storing the auth token in the user session
+   * Return the auth token string retrieved by Google
    *
    * @return String
    */
-  public function getAuthToken() {
-    return $this->auth_method->getAuthToken();
+  public function getToken() {
+    return $this->auth_method->getToken();
   }
+
+  /**
+   * Return the auth token information from the Google service
+   *
+   * @return Array
+   */
   public function getTokenInfo() {
     return $this->auth_method->getTokenInfo();
   }
+
+  /**
+   * Revoke the current auth token, rendering it invalid for future requests
+   *
+   * @return Boolean
+   */
   public function revokeToken() {
     return $this->auth_method->revokeToken();
   }
@@ -77,12 +91,11 @@ class gapi {
       'max-results' => $max_results,
       );
     $url = new gapiUrl(gapi::account_data_url);
-    $response = $url->post($post_variables, null, $auth_method->generateAuthHeader());
+    $response = $url->post($post_variables, null, $this->auth_method->generateAuthHeader());
 
     if (substr($response['code'], 0, 1) == '2') {
       return $this->accountObjectMapper($response['body']);
-    }
-    else {
+    } else {
       throw new Exception('GAPI: Failed to request account data. Error: "' . strip_tags($response['body']) . '"');
     }
   }
@@ -104,7 +117,7 @@ class gapi {
    * @param Int $start_index OPTIONAL: Start index of results
    * @param Int $max_results OPTIONAL: Max results returned
    */
-  public function requestReportData($report_id, $dimensions, $metrics, $sort_metric=null, $filter=null, $start_date=null, $end_date=null, $start_index=1, $max_results=30) {
+  public function requestReportData($report_id, $dimensions=null, $metrics, $sort_metric=null, $filter=null, $start_date=null, $end_date=null, $start_index=1, $max_results=30) {
     $parameters = array('ids'=>'ga:' . $report_id);
 
     if (is_array($dimensions)) {
@@ -113,8 +126,7 @@ class gapi {
         $dimensions_string .= ',ga:' . $dimesion;
       }
       $parameters['dimensions'] = substr($dimensions_string, 1);
-    }
-    else {
+    } elseif ($dimensions !== null) {
       $parameters['dimensions'] = 'ga:'.$dimensions;
     }
 
@@ -124,15 +136,13 @@ class gapi {
         $metrics_string .= ',ga:' . $metric;
       }
       $parameters['metrics'] = substr($metrics_string, 1);
-    }
-    else {
+    } else {
       $parameters['metrics'] = 'ga:'.$metrics;
     }
 
     if ($sort_metric==null&&isset($parameters['metrics'])) {
       $parameters['sort'] = $parameters['metrics'];
-    }
-    elseif (is_array($sort_metric)) {
+    } elseif (is_array($sort_metric)) {
       $sort_metric_string = '';
 
       foreach ($sort_metric as $sort_metric_value) {
@@ -146,12 +156,10 @@ class gapi {
       }
 
       $parameters['sort'] = substr($sort_metric_string, 1);
-    }
-    else {
+    } else {
       if (substr($sort_metric, 0, 1) == "-") {
         $parameters['sort'] = '-ga:' . substr($sort_metric, 1);
-      }
-      else {
+      } else {
         $parameters['sort'] = 'ga:' . $sort_metric;
       }
     }
@@ -187,8 +195,7 @@ class gapi {
     //HTTP 2xx
     if (substr($response['code'], 0, 1) == '2') {
       return $this->reportObjectMapper($response['body']);
-    }
-    else {
+    } else {
       throw new Exception('GAPI: Failed to request report data. Error: "' . strip_tags($response['body']) . '"');
     }
   }
@@ -262,6 +269,7 @@ class gapi {
 
     $this->account_root_parameters = $account_root_parameters;
     $this->results = $results;
+    $this->account_entries = $results;
 
     return $results;
   }
@@ -305,7 +313,14 @@ class gapi {
     //Load result aggregate metrics
 
     foreach ($google_results->aggregates->metric as $aggregate_metric) {
-      $report_aggregate_metrics[str_replace('ga:', '', $aggregate_metric->attributes()->name)] = intval($aggregate_metric->attributes()->value);
+      $metric_value = strval($aggregate_metric->attributes()->value);
+
+      //Check for float, or value with scientific notation
+      if (preg_match('/^(\d+\.\d+)|(\d+E\d+)|(\d+.\d+E\d+)$/', $metric_value)) {
+        $report_aggregate_metrics[str_replace('ga:', '', $aggregate_metric->attributes()->name)] = floatval($metric_value);
+      } else {
+        $report_aggregate_metrics[str_replace('ga:', '', $aggregate_metric->attributes()->name)] = intval($metric_value);
+      }
     }
 
     //Load result entries
@@ -313,7 +328,14 @@ class gapi {
     foreach ($xml->entry as $entry) {
       $metrics = array();
       foreach ($entry->children('http://schemas.google.com/analytics/2009')->metric as $metric) {
-        $metrics[str_replace('ga:', '', $metric->attributes()->name)] = intval($metric->attributes()->value);
+        $metric_value = strval($metric->attributes()->value);
+
+        //Check for float, or value with scientific notation
+        if(preg_match('/^(\d+\.\d+)|(\d+E\d+)|(\d+.\d+E\d+)$/',$metric_value)) {
+          $metrics[str_replace('ga:', '', $metric->attributes()->name)] = floatval($metric_value);
+        } else {
+          $metrics[str_replace('ga:', '', $metric->attributes()->name)] = intval($metric_value);
+        }
       }
 
       $dimensions = array();
@@ -528,29 +550,51 @@ class gapiReportEntry {
 abstract class gapiAuthMethod {
   protected $auth_token = null;
 
+  /**
+   * Constructs a new gapiAuthMethod class given an existing token
+   *
+   * @return gapiAuthMethod
+   */
   public function __construct($auth_token=null) {
     $this->auth_token = $auth_token;
   }
 
   /**
-   * Return the auth token, used for storing the auth token in the user session
+   * Return the auth token string retrieved from Google
    *
    * @return String
    */
-  public function getAuthToken() {
+  public function getToken() {
     return $this->auth_token;
   }
 
+  /**
+   * Abstract method that returns the authorization method name
+   *
+   * @return String
+   */
   protected static abstract function getMethodName();
+
+  /**
+   * Abstract method that returns the identifier of the token in the auth header
+   *
+   * @return String
+   */
   protected static abstract function getTokenName();
 
+  /**
+   * gapi factory: return an instance of gapi seeded with the auth token method
+   * (for use when one already has an authorization token string)
+   *
+   * @return gapi
+   */
   public static function withToken($auth_token) {
     $class_name = get_called_class();
     return new gapi(new $class_name($auth_token));
   }
 
   /**
-   * Generate authentication token header for all requests
+   * Generate authorization token header for all requests
    *
    * @return Array
    */
@@ -560,6 +604,11 @@ abstract class gapiAuthMethod {
     return array('Authorization' => $this->getMethodName() . ' ' . $this->getTokenName() . '=' . $token);
   }
 
+  /**
+   * Parse the body of a returned key=value page
+   *
+   * @return Array
+   */
   protected function parseBody($content) {
     // Convert newline delimited variables into url format then import to array
     parse_str(str_replace(array("\n", "\r\n"), '&', $content), $array);
@@ -581,8 +630,9 @@ class gapiClientLogin extends gapiAuthMethod {
    *
    * @param String $email
    * @param String $password
+   * @return gapiClientLogin
    */
-  protected function getToken($email, $password) {
+  protected function fetchToken($email, $password) {
     $post_variables = array(
       'accountType' => 'GOOGLE',
       'Email' => $email,
@@ -604,13 +654,19 @@ class gapiClientLogin extends gapiAuthMethod {
   }
 
   /**
-   * Return the authentication method name
+   * Return the authorization method name
    *
    * @return String
    */
   protected static function getMethodName() {
     return 'GoogleLogin';
   }
+
+  /**
+   * Returns the identifier of the token in the auth header
+   *
+   * @return String
+   */
   protected static function getTokenName() {
     return 'auth';
   }
@@ -622,9 +678,9 @@ class gapiClientLogin extends gapiAuthMethod {
    * @param String $password
    * @return gapi
    */
-  public static function authenticateUser($email, $password) {
+  public static function authenticate($email, $password) {
     $auth_method = new gapiClientLogin();
-    $auth_method->getToken($email, $password);
+    $auth_method->fetchToken($email, $password);
     return new gapi($auth_method);
   }
 }
@@ -644,7 +700,7 @@ class gapiAuthSub extends gapiAuthMethod {
 
   protected function getRequestUrl($return_url=null) {
     if ($return_url == null) {
-      $return_url = gapiUrl::current_url();
+      $return_url = gapiUrl::currentUrl();
     }
 
     $get_variables = array(
@@ -663,7 +719,7 @@ class gapiAuthSub extends gapiAuthMethod {
     $url->redirect();
   }
 
-  public function getSessionToken() {
+  public function fetchSessionToken() {
     $url = new gapiUrl(self::session_token_url);
     $response = $url->get(false, $this->generateAuthHeader($_GET['token']));
     $auth_token = $this->parseBody($response['body']);
@@ -701,19 +757,25 @@ class gapiAuthSub extends gapiAuthMethod {
   }
 
   /**
-   * Return the authentication method name
+   * Return the authorization method name
    *
    * @return String
    */
   protected static function getMethodName() {
     return 'AuthSub';
   }
+
+  /**
+   * Returns the identifier of the token in the auth header
+   *
+   * @return String
+   */
   protected static function getTokenName() {
     return 'token';
   }
 
   /**
-   * Generate authentication token header for all requests
+   * Generate authorization token header for all requests
    *
    * @return Array
    */
@@ -724,23 +786,34 @@ class gapiAuthSub extends gapiAuthMethod {
   }
 
   /**
+   * Check to see if a token has been sent back through $_GET variables
+   */
+  public static function checkToken() {
+    return self::authenticate(null, true);
+  }
+
+  /**
    * Authenticate and return a seeded gapi instance
    *
    * @return gapi
    */
-  public static function authenticateUser($return_url=null) {
+  public static function authenticate($return_url=null, $check_only=false) {
     $auth_method = new gapiAuthSub();
-    if (!isset($_GET['token']))
+    if (!isset($_GET['token'])) {
+      // no token and we only want to check for one, so return
+      if ($check_only)
+        return false;
       $auth_method->performRequest();
-    else
-      $auth_method->getSessionToken();
+    } else {
+      $auth_method->fetchSessionToken();
+    }
     return new gapi($auth_method);
   }
 }
 
 class gapiUrl {
   const http_interface = 'auto'; //'auto': autodetect, 'curl' or 'fopen'
-  const interface_name = 'GAPI-1.2';
+  const interface_name = gapi::interface_name;
 
   private $url = null;
 
@@ -749,7 +822,7 @@ class gapiUrl {
    *
    * @return String
    */
-  public static function current_url() {
+  public static function currentUrl() {
     $https = $_SERVER['HTTPS'] == 'on';
     $url = $https ? 'https://' : 'http://';
     $url .= $_SERVER['SERVER_NAME'];
@@ -761,20 +834,36 @@ class gapiUrl {
     return $url;
   }
 
+  /**
+   * Get the current page url without GET variables
+   *
+   * @return String
+   */
+  public static function currentUrlWithoutGet() {
+    $url = self::currentUrl();
+    return substr($url, 0, strpos($url, '?'));
+  }
+
   public function __construct($url) {
     $this->url = $url;
   }
 
   /**
    * Perform http redirect
-   * 
    *
    * @param Array $get_variables
    */
   public function redirect($get_variables=null) {
-    return header('Location: ' . $this->getUrl($get_variables));
+    header('Location: ' . $this->getUrl($get_variables));
+    exit;
   }
 
+  /**
+   * Return the URL to be requested, optionally adding GET variables
+   *
+   * @param Array $get_variables
+   * @return String
+   */
   public function getUrl($get_variables=null) {
     if (is_array($get_variables)) {
       $get_variables = '?' . str_replace('&amp;', '&', urldecode(http_build_query($get_variables)));
@@ -785,10 +874,25 @@ class gapiUrl {
     return $this->url . $get_variables;
   }
 
+  /**
+   * Perform http POST request
+   * 
+   *
+   * @param Array $get_variables
+   * @param Array $post_variables
+   * @param Array $headers
+   */
   public function post($get_variables=null, $post_variables=null, $headers=null) {
     return $this->request($get_variables, $post_variables, $headers);
   }
 
+  /**
+   * Perform http GET request
+   * 
+   *
+   * @param Array $get_variables
+   * @param Array $headers
+   */
   public function get($get_variables=null, $headers=null) {
     return $this->request($get_variables, null, $headers);
   }
@@ -903,6 +1007,11 @@ class gapiUrl {
   }
 }
 
+/**
+ * Returns the name of currently running class as it was called.
+ *
+ * @return String
+ */
 if (!function_exists('get_called_class')) {
   function get_called_class()
   {
@@ -914,7 +1023,6 @@ if (!function_exists('get_called_class')) {
     return $matches[1];
   }
 }
-
 
 /**
  * Case insensitive array_key_exists function, also returns
