@@ -414,6 +414,12 @@ class gapi {
 class gapiAccountEntry {
   private $properties = array();
 
+  /**
+   * Constructor function for all new gapiAccountEntry instances
+   * 
+   * @param Array $properties
+   * @return gapiAccountEntry
+   */
   public function __construct($properties) {
     $this->properties = $properties;
   }
@@ -472,6 +478,13 @@ class gapiReportEntry {
   private $metrics = array();
   private $dimensions = array();
 
+  /**
+   * Constructor function for all new gapiReportEntry instances
+   * 
+   * @param Array $metrics
+   * @param Array $dimensions
+   * @return gapiReportEntry
+   */
   public function __construct($metrics, $dimesions) {
     $this->metrics = $metrics;
     $this->dimensions = $dimesions;
@@ -514,7 +527,8 @@ class gapiReportEntry {
   /**
    * Call method to find a matching metric or dimension to return
    *
-   * @param $name String name of function called
+   * @param String $name name of function called
+   * @param Array $parameters
    * @return String
    * @throws Exception if not a valid metric or dimensions, or not a 'get' function
    */
@@ -553,6 +567,7 @@ abstract class gapiAuthMethod {
   /**
    * Constructs a new gapiAuthMethod class given an existing token
    *
+   * @param String $auth_token
    * @return gapiAuthMethod
    */
   public function __construct($auth_token=null) {
@@ -586,6 +601,7 @@ abstract class gapiAuthMethod {
    * gapi factory: return an instance of gapi seeded with the auth token method
    * (for use when one already has an authorization token string)
    *
+   * @param String $auth_token
    * @return gapi
    */
   public static function withToken($auth_token) {
@@ -596,6 +612,7 @@ abstract class gapiAuthMethod {
   /**
    * Generate authorization token header for all requests
    *
+   * @param String $token
    * @return Array
    */
   public function generateAuthHeader($token=null) {
@@ -607,6 +624,7 @@ abstract class gapiAuthMethod {
   /**
    * Parse the body of a returned key=value page
    *
+   * @param String $content
    * @return Array
    */
   protected function parseBody($content) {
@@ -698,6 +716,11 @@ class gapiAuthSub extends gapiAuthMethod {
   const revoke_token_url = 'https://www.google.com/accounts/AuthSubRevokeToken';
   const token_info_url = 'https://www.google.com/accounts/AuthSubTokenInfo';
 
+  /**
+   * Construct the URL to which the user is redirected for logging into their Google account
+   *
+   * @param Boolean $return_url
+   */
   protected function getRequestUrl($return_url=null) {
     if ($return_url == null) {
       $return_url = gapiUrl::currentUrl();
@@ -714,11 +737,21 @@ class gapiAuthSub extends gapiAuthMethod {
       return $url->getUrl($get_variables);
   }
 
+  /**
+   * Redirect the user to the Google Accounts login page
+   *
+   * @param String $return_url
+   */
   public function performRequest($return_url=null) {
     $url = new gapiUrl($this->getRequestUrl($return_url));
     $url->redirect();
   }
 
+  /**
+   * Using the token returned as a GET variable, fetch the session token
+   *
+   * @return String
+   */
   public function fetchSessionToken() {
     $url = new gapiUrl(self::session_token_url);
     $response = $url->get(false, $this->generateAuthHeader($_GET['token']));
@@ -732,6 +765,11 @@ class gapiAuthSub extends gapiAuthMethod {
     return $this->auth_token;
   }
 
+  /**
+   * Return token information as an associative array
+   *
+   * @return Array
+   */
   public function getTokenInfo() {
     $url = new gapiUrl(self::token_info_url);
     $response = $url->get(false, $this->generateAuthHeader($this->auth_token));
@@ -744,6 +782,9 @@ class gapiAuthSub extends gapiAuthMethod {
     return $info;
   }
 
+  /**
+   * Render the token invalid
+   */
   public function revokeToken() {
     $url = new gapiUrl(self::revoke_token_url);
     $response = $url->get(false, $this->generateAuthHeader($this->auth_token));
