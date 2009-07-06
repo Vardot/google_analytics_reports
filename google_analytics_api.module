@@ -98,7 +98,7 @@ function google_analytics_api_admin_submit($form, &$form_state) {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('manage Google Analytics authentication', 'access Google Analytics data');
+  return array('access Google Analytics data');
 }
 
 /**
@@ -160,9 +160,11 @@ function google_analytics_api_logout() {
  * Return a gapi object built from the currently stored token.
  */
 function google_analytics_api_gapi() {
-  $token = google_analytics_api_current_token();
-  if ($token)
-    return gapiAuthSub::withToken($token);
+  if (user_access('access Google Analytics data')) {
+    $token = google_analytics_api_current_token();
+    if ($token)
+      return gapiAuthSub::withToken($token);
+  }
   return false;
 }
 
