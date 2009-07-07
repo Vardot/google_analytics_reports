@@ -38,7 +38,7 @@ function google_analytics_api_admin() {
       '#value' => 'Logout',
       '#weight' => -5,
     );
-    $form['account_id'] = array(
+    $form['profile_id'] = array(
       '#type' => 'select',
       '#title' => 'Profile',
       '#options' => google_analytics_api_admin_account_data_options(),
@@ -47,10 +47,16 @@ function google_analytics_api_admin() {
       '#required' => TRUE,
       '#weight' => -2,
     );
+    /*$profile = google_analytics_api_current_profile();
+    $date = strtotime($profile->getUpdated());
+    $form['profile_status'] = array(
+      '#value' => '<div><em>(Profile last updated ' . date('F j, Y h:i:s A', $date) . ')</em></div>',
+      '#weight' => -1,
+    );*/
     $form['buttons']['submit'] = array(
       '#type' => 'submit',
       '#value' => 'Save configuration',
-      '#weight' => -1,
+      '#weight' => 3,
     );
   } else {
     $form['logout_status'] = array(
@@ -87,7 +93,7 @@ function google_analytics_api_admin_submit($form, &$form_state) {
       drupal_set_message(t('You have been logged out of your Google account.'));
       return google_analytics_api_logout();
     } elseif ($form_state['clicked_button']['#value'] == 'Save configuration') {
-      variable_set('google_analytics_api_profile_id', intval($form_state['values']['account_id']));
+      variable_set('google_analytics_api_profile_id', intval($form_state['values']['profile_id']));
     }
   } else {
     return google_analytics_api_authenticate();
@@ -139,6 +145,17 @@ function google_analytics_api_current_profile_id($silent=false) {
 }
 
 /*
+ * Retrieve current profile object.
+ */
+function google_analytics_api_current_profile() {
+  $profiles = google_analytics_api_account_data();
+  foreach ($profiles as $profile)
+    if ($profile->getProfileId() == google_analytics_api_current_profile_id())
+      return $profile;
+  return null;
+}
+
+/*
  * Programatically trigger a login.
  */
 function google_analytics_api_authenticate() {
@@ -180,8 +197,11 @@ function google_analytics_api_account_data() {
   return $data;
 }
 
-// callback to request report data
-function google_analytics_api_report_data($dimensions, $metrics, $sort_metric, $filter, $start_date, $end_date, $start_index, $max_results) {
+/*
+ * Request report data.
+ */
+function google_analytics_api_report_data($dimensions=null, $metrics, $sort_metric=null, $filter=null, $start_date=null, $end_date=null, $start_index=1, $max_results=30) {
+  // insert a check to see if we have this query cached
   return google_analytics_api_gapi()->requestReportData(
     variable_get('google_analytics_api_profile_id', 0),
     $dimensions, $metrics, $sort_metric, $filter,
