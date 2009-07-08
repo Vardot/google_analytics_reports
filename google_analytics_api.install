@@ -3,7 +3,7 @@
 
 /**
  * Implementation of hook_install().
- */
+
 function google_analytics_api_install() {
   // Create tables.
   drupal_install_schema('google_analytics_api');
@@ -11,11 +11,14 @@ function google_analytics_api_install() {
 
 /**
  * Implementation of hook_uninstall().
- */
+
 function google_analytics_api_uninstall() {
   // Remove tables.
   drupal_uninstall_schema('google_analytics_api');
 }
+
+/**
+ * Implementation of hook_schema().
 
 function google_analytics_api_schema() {
   $schema['google_analytics_api_table'] = array(
@@ -25,5 +28,5 @@ function google_analytics_api_schema() {
     'indexes' => array(),
   );
 
-  //return $schema;
-}
+  return $schema;
+}*/
