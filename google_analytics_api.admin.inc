@@ -8,7 +8,7 @@ function google_analytics_api_query_form($form_state) {
   $form = array();
 
   $form['query']['info'] = array(
-    '#value' => t('Please see ' . l('Google Analytics Data API Reference', 'http://code.google.com/apis/analytics/docs/gdata/gdataReference.html') . ' for a list of dimensions and metrics.'),
+    '#value' => t('Please see ' . l('Google Analytics Data API Reference', 'http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html') . ' for a list of dimensions and metrics.'),
   );
   $form['query']['dimensions'] = array(
     '#type' => 'textfield',
