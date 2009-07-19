@@ -2,9 +2,7 @@
 // $Id$
 
 require 'gapi.class.php';
-
-// help hook
-//function google_analytics_api_help($path, $arg);
+require 'google_analytics_api.gui.inc';
 
 /**
  * Implementation of hook_menu().
@@ -143,31 +141,4 @@ function google_analytics_api_report_data($dimensions=null, $metrics, $sort_metr
     variable_get('google_analytics_api_profile_id', 0),
     $dimensions, $metrics, $sort_metric, $filter,
     $start_date, $end_date, $start_index, $max_results);
-}
-
-/*
- * Implementation of hook_nodeapi().
- */
-/*function google_analytics_api_nodeapi($node, $op, $arg = 0) {
-  switch ($op) {
-    case 'load':
-      $statistics = array();
-      $output['google_analytics'] = $statistics;
-      return $output;
-  }
-}*/
-
-/*
- * Construct a filter string that grabs pagePaths corresponding to the specified node.
- */
-function _google_analytics_api_get_node_filter($node_path) {
-  // For now assume each node has only one alias.
-	$node_path = drupal_get_normal_path($node_path);
-	var_dump($node_path);
-	$alias = drupal_get_path_alias($node_path);
-	var_dump($alias);
-	$filter = 'pagePath =~ ^/' . $node_path . '([?#].*)?$';
-	if ($alias != $node_path)
-	  $filter .= ' || pagePath =~ ^/' . $alias . '([?#].*)?$';
-  return $filter;
 }
