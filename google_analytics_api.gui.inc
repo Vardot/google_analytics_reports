@@ -152,11 +152,35 @@ function _google_analytics_api_path_filter($node_path=null) {
 	while ($row = db_fetch_array($result))
 	  $aliases[] = $row['dst'];
 
-	// Add matching commands.
+	// Okay, this is ridiculous.  Google Analytics regex filters
+	// have a limit of 32 characters.  Therefore we can't simply
+	// create one filter per pagePath.  Instead we are going too
+	// do a "contains substring" match on the path, and then take
+	// as many of the ending characters paired with ([?#].*)?$. If
+	// this will all fit in one regex under 32 characters then so
+	// be it.  Return a string if they all do, or an array if not.
+
+  // 32 - 12 = 20 characters maximum for alias
+	$under_filters = array();
+	$over_filters = array();
+	foreach ($aliases as $alias) {
+		if (strlen($alias) <= 20) {
+		  $under_filters[] = 'pagePath =~ ^/' . $alias . '([?#].*)?$';
+		} else {
+		  $over_filters[] = array(
+				'pagePath =@ /' . $alias,
+				// 32 - 10 = 22 characters
+				'pagePath =~ ' . substr($alias, -22) . '([?#].*)?$');
+		}
+	}
+
+	// Add pipes and put together under and over filters.
 	$filters = array();
-	foreach ($aliases as $alias)
-		$filters[] = 'pagePath =~ ^/' . $alias . '([?#].*)?$';
-  return implode(' || ', $filters);
+	if ($under_filters)
+		$filters[] = implode(' || ', $under_filters);
+	foreach ($over_filters as $filter)
+		$filters[] = implode(' && ', $filter);
+  return $filters;
 }
 
 /*
@@ -178,13 +202,15 @@ function google_analytics_api_block($op='list', $delta=0) {
  * Create a statistics summary block and return it.
  */
 function google_analytics_api_current_summary() {
-  $data = google_analytics_api_report_data(
-		array('pagePath', 'date'),
-		array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
-		array('date', 'pagePath'),
-		_google_analytics_api_path_filter(),
-		strtotime('-7 days'),
-		time());
+	$data = array();
+	foreach (_google_analytics_api_path_filter() as $filter) {
+		$data = array_merge($data,
+			google_analytics_api_report_data(
+				array('pagePath', 'date'),
+				array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
+				array('date', 'pagePath'),
+				$filter, strtotime('-7 days'), time(), 1, 1000));
+	}
 
 	// Add up all the statistics for different paths.
 	$rows = array();
@@ -196,6 +222,11 @@ function google_analytics_api_current_summary() {
 		} else {
 		  $rows[$date] = $item->getMetrics();
 	  }
+	}
+
+	// Format and perform calculations to display graphs.
+	foreach ($rows as $date => $row) {
+	
 	}
 
 	// Format and perform calculations to display a table.
