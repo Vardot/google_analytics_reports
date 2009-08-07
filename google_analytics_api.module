@@ -2,7 +2,7 @@
 // $Id$
 
 require 'gapi.class.php';
-require 'google_analytics_api.gui.inc';
+require 'google_analytics_api.pages.inc';
 
 /**
  * Implementation of hook_menu().
@@ -12,7 +12,7 @@ function google_analytics_api_menu() {
     'title' => t('Google Analytics API settings'),
     'description' => t('Manage the currently logged in Analytics account'),
     'page callback' => 'drupal_get_form',
-		'file' => 'google_analytics_api.admin.inc',
+    'file' => 'google_analytics_api.admin.inc',
     'page arguments' => array('google_analytics_api_admin'),
     'access arguments' => array('access administration pages'),
     'type' => MENU_NORMAL_ITEM,
@@ -21,7 +21,7 @@ function google_analytics_api_menu() {
     'title' => t('Google Analytics API Query'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('google_analytics_api_query_form'),
-		'file' => 'google_analytics_api.admin.inc',
+    'file' => 'google_analytics_api.admin.inc',
     'access arguments' => array('access Google Analytics data'),
     'type' => MENU_CALLBACK,
   );
@@ -106,6 +106,7 @@ function google_analytics_api_logout() {
  * Return a gapi object built from the currently stored token.
  */
 function google_analytics_api_gapi() {
+xdebug_break();
   static $gapi;
 
   if (user_access('access Google Analytics data')) {
@@ -136,6 +137,10 @@ function google_analytics_api_account_data() {
  * Request report data.
  */
 function google_analytics_api_report_data($dimensions=null, $metrics, $sort_metric=null, $filter=null, $start_date=null, $end_date=null, $start_index=1, $max_results=30) {
+  $gapi = google_analytics_api_gapi();
+  if (!$gapi)
+    return false;
+
   // insert a check to see if we have this query cached
   return google_analytics_api_gapi()->requestReportData(
     variable_get('google_analytics_api_profile_id', 0),
