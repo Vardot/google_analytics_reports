@@ -220,7 +220,6 @@ function google_analytics_api_current_summary() {
 
   $data = array();
   foreach (_google_analytics_api_path_filter() as $filter) {
-    print_r($filter);
     $new_data = google_analytics_api_report_data(
       array('pagePath', 'date'),
       array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
