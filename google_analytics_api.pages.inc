@@ -218,6 +218,10 @@ function google_analytics_api_current_summary() {
   if (!user_access('access Google Analytics data'))
     return false;
 
+  // Ensure the user is logged in.
+  if (!google_analytics_api_gapi())
+    return 'Please ' . l('grant access', 'admin/settings/google_analytics_api') . ' to your Google account.';
+
   $data = array();
   foreach (_google_analytics_api_path_filter() as $filter) {
     $new_data = google_analytics_api_report_data(

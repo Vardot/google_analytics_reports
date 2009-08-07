@@ -9,12 +9,12 @@ function google_analytics_api_admin() {
 
   if (google_analytics_api_check_token()) {
     $form['login_status'] = array(
-      '#value' => t('Currently you are logged in. '),
+      '#value' => t('<p>Currently you have granted access to a Google Analytics account.  Please choose the profile below that contains statistics for this site.</p>'),
       '#weight' => -10,
     );
     $form['logout'] = array(
       '#type' => 'submit',
-      '#value' => t('Logout'),
+      '#value' => t('Revoke Access'),
       '#weight' => -5,
     );
     $form['profile_id'] = array(
@@ -39,12 +39,12 @@ function google_analytics_api_admin() {
     );
   } else {
     $form['logout_status'] = array(
-      '#value' => t('Please ' . l('Log In', '/admin/settings/google_analytics_api') . ' before trying to access statistics.'),
+      '#value' => t('<p>In order for you to access your Google Analytics account through Drupal, you need to grant access to your account.  This gives Drupal permission to contact the Google Analytics server and download statistics about your site.</p>'),
       '#weight' => -10,
     );
     $form['buttons']['submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Login to a Google account'),
+      '#value' => t('Grant access to a Google account'),
     );
   }
 
@@ -68,8 +68,8 @@ function google_analytics_api_admin_account_data_options() {
  */
 function google_analytics_api_admin_submit($form, &$form_state) {
   if (variable_get('google_analytics_api_token', null)) {
-    if ($form_state['clicked_button']['#value'] == 'Logout') {
-      drupal_set_message(t('You have been logged out of your Google account.'));
+    if ($form_state['clicked_button']['#value'] == 'Revoke Access') {
+      drupal_set_message(t('You have revoked access to your Google account.'));
       return google_analytics_api_logout();
     } elseif ($form_state['clicked_button']['#value'] == 'Save configuration') {
       variable_set('google_analytics_api_profile_id', intval($form_state['values']['profile_id']));
@@ -77,4 +77,21 @@ function google_analytics_api_admin_submit($form, &$form_state) {
   } else {
     return google_analytics_api_authenticate();
   }
+}
+
+/**
+ * Check for a returned token in the URL.
+ */
+function google_analytics_api_check_token() {
+  $gapi = gapiAuthSub::checkToken();
+  if ($gapi) {
+    variable_set('google_analytics_api_token', $gapi->getToken());
+    $accounts = google_analytics_api_account_data();
+    $id = $accounts[0]->getProfileId();
+    variable_set('google_analytics_api_profile_id', $id);
+    drupal_set_message(t('You have granted access to your Google account.  Drupal will be able to download information from the account until you revoke access.'));
+    header('Location: ' . gapiUrl::currentUrlWithoutGet());
+    exit;
+  }
+  return google_analytics_api_current_token(true);
 }

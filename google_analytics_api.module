@@ -37,29 +37,12 @@ function google_analytics_api_perm() {
 }
 
 /**
- * Check for a returned token in the URL.
- */
-function google_analytics_api_check_token() {
-  $gapi = gapiAuthSub::checkToken();
-  if ($gapi) {
-    variable_set('google_analytics_api_token', $gapi->getToken());
-    $accounts = google_analytics_api_account_data();
-    $id = $accounts[0]->getProfileId();
-    variable_set('google_analytics_api_profile_id', $id);
-    drupal_set_message(t('You have been logged into your Google account.'));
-    header('Location: ' . gapiUrl::currentUrlWithoutGet());
-    exit;
-  }
-  return google_analytics_api_current_token(true);
-}
-
-/**
  * Return current token string.
  */
 function google_analytics_api_current_token($silent=false) {
   $token = variable_get('google_analytics_api_token', null);
   if (!$token && !$silent)
-    drupal_set_message(t('A Google Analytics API method has been called that requires a Google account be logged in.  Please visit the preferences page to do so.'));
+    drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to grant access.'));
   return $token;
 }
 
@@ -69,7 +52,7 @@ function google_analytics_api_current_token($silent=false) {
 function google_analytics_api_current_profile_id($silent=false) {
   $profile_id = variable_get('google_analytics_api_profile_id', null);
   if (!$profile_id && !$silent)
-    drupal_set_message(t('A method has been called that requires a Google Analytics Profile.  Please visit the preferences page to set one.'));
+    drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to set one.'));
   return $profile_id;
 }
 

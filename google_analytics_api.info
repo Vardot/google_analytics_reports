@@ -1,7 +1,5 @@
 ; $Id$
 
-name = Google Analytics API
-description = Adds support to Drupal to access statistics from the Google Analytics Data Export API.
-package = Statistics
-version = 0.01
+name = "Google Analytics API"
+description = "Adds support to Drupal to access statistics from the Google Analytics Data Export API."
 core = 6.x
