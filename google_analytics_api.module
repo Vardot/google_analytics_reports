@@ -96,7 +96,6 @@ function google_analytics_api_logout() {
  * Return a gapi object built from the currently stored token.
  */
 function google_analytics_api_gapi() {
-xdebug_break();
   static $gapi;
 
   if (user_access('access Google Analytics data')) {
