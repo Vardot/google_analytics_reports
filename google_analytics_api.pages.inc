@@ -140,9 +140,9 @@ function _google_analytics_api_query_form_process($string) {
 }
 
 /*
- * Construct a filter string that grabs pagePaths corresponding to the specified node or path.
+ * Return a list of paths that are aliased with the given path (including the given path).
  */
-function _google_analytics_api_path_filter($node_path=null) {
+function _google_analytics_api_path_aliases($node_path=null) {
   // Default path is the current path.
   if ($node_path == null)
     $node_path = $_GET['q'];
@@ -163,6 +163,15 @@ function _google_analytics_api_path_filter($node_path=null) {
     $aliases[] = '';
     $aliases[] = 'index.php';
   }
+
+  return $aliases;
+}
+
+/*
+ * Construct a filter string that grabs pagePaths corresponding to the specified node or path.
+ */
+function _google_analytics_api_path_filter($node_path=null) {
+  $aliases = _google_analytics_api_path_aliases($node_path);
 
   // Okay, this is ridiculous.  Google Analytics regex filters
   // have a limit of 32 characters.  Therefore we can't simply
@@ -213,7 +222,8 @@ function google_analytics_api_block($op='list', $delta=0) {
 /*
  * Create a statistics summary block and return it.
  */
-function google_analytics_api_current_summary() {
+function google_analytics_api_current_summary($path=null) {
+
   // Ensure user has permission to view this block.
   if (!user_access('access Google Analytics data'))
     return false;
@@ -223,7 +233,7 @@ function google_analytics_api_current_summary() {
     return 'Please ' . l('grant access', 'admin/settings/google_analytics_api') . ' to your Google account.';
 
   $data = array();
-  foreach (_google_analytics_api_path_filter() as $filter) {
+  foreach (_google_analytics_api_path_filter($path) as $filter) {
     $new_data = google_analytics_api_report_data(
       array('pagePath', 'date'),
       array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
@@ -249,21 +259,50 @@ function google_analytics_api_current_summary() {
     }
   }
 
-  // Format and perform calculations to display graphs.
+  // Format and perform calculations to display a chart and table.
+  $table_headers = array('Date', 'Page Views', 'Avg. Time', 'Bounce Rate');
+  $table_rows = array();
+  $chart_page_views = array();;
   foreach ($rows as $date => $row) {
-  
-  }
-
-  // Format and perform calculations to display a table.
-  $headers = array('Date', 'Page Views', 'Avg. Time', 'Bounce Rate');
-  $theme_rows = array();
-  foreach ($rows as $date => $row) {
-    $date = date('m/d', $date);
-    $page_views = $row['pageviews'];
+    $text_date = date('m/d', $date);
+    $pageviews = $row['pageviews'];
     $avg_time = number_format($row['timeOnPage'] / $row['pageviews'], 1) . 's';
     $bounce_rate = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2) . '%';
-    $theme_rows[] = array($date, $page_views, $avg_time, $bounce_rate);
-  }
+    $table_rows[] = array($text_date, $pageviews, $avg_time, $bounce_rate);
 
-  return theme('table', $headers, $theme_rows);
+    // Chart stuff.
+    $chart_pageviews[] = $pageviews;
+    $chart_dates[] = date('M d', $date);
+  }
+  $table = theme('table', $table_headers, $table_rows);
+
+  // Create a chart.
+  $chart = array(
+    '#chart_id' => 'daily_page_views',
+    '#title' => t('Daily Page Views'),
+    '#type' => CHART_TYPE_LINE,
+    '#size' => chart_size(350, 200),
+    '#adjust_resolution' => TRUE,
+  );
+  $chart['#data'] = $chart_pageviews;
+  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($chart_pageviews));
+  /* $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][1][] = chart_mixed_axis_label(t('Count'), 95); */
+  foreach ($chart_dates as $chart_date)
+    $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($chart_date);
+  /*$chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][2][] = chart_mixed_axis_label(t('Date'), 50);*/
+
+  // See more link.
+  $more_link = l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q']));
+
+  return chart_render($chart) . $table . $more_link;
+}
+
+/*
+ * Main statistics page.
+ */
+function google_analytics_api_statistics_page() {
+  $intro = t('<p>More detailed statistics shall go here.  Meanwhile here is what you just saw a second ago.  These paths were searched:</p>');
+  $aliases = _google_analytics_api_path_aliases($_GET['path']);
+  $aliases_list = theme('item_list', $aliases);
+  return $intro . $aliases_list . google_analytics_api_current_summary($_GET['path']);
 }
