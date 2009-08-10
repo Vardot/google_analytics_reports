@@ -13,25 +13,25 @@ function google_analytics_api_query_form($form_state) {
   $form['query']['dimensions'] = array(
     '#type' => 'textfield',
     '#title' => t('Dimensions'),
-    '#maxlength' => false,
+    '#maxlength' => 300,
     '#description' => t('(browser, browserVersion, city, connectionSpeed, continent, date, hostname, pagePath, pageTitle...)'),
   );
   $form['query']['metrics'] = array(
     '#type' => 'textfield',
     '#title' => t('Metrics'),
-    '#maxlength' => false,
+    '#maxlength' => 300,
     '#description' => t('(entrances, pageviews, timeOnPage, visitors, visits...)'),
   );
   $form['query']['sort_metric'] = array(
     '#type' => 'textfield',
     '#title' => t('Sort Metric'),
-    '#maxlength' => false,
+    '#maxlength' => 300,
     '#description' => t('(e.g. -entrances, pageviews)'),
   );
   $form['query']['filter'] = array(
     '#type' => 'textfield',
     '#title' => t('Filter'),
-    '#maxlength' => false,
+    '#maxlength' => 300,
     '#description' => t('(e.g. country == United States && browser == Firefox || browser == Chrome)'),
   );
   $form['query']['start_date'] = array(
