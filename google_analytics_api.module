@@ -124,15 +124,39 @@ function google_analytics_api_account_data() {
 
 /*
  * Request report data.
+ * @param $request['#dimensions']  required
+ * @param $request['#metrics']     required
+ * @param $request['#sort_metric'] optional [default=none]
+ * @param $request['#filter']      optional [default=none]
+ * @param $request['#start_date']  optional [default=GA release date]
+ * @param $request['#end_date']    optional [default=today]
+ * @param $request['#start_index'] optional [default=1]
+ * @param $request['#max_results'] optional [default=10,000]
  */
-function google_analytics_api_report_data($dimensions=null, $metrics, $sort_metric=null, $filter=null, $start_date=null, $end_date=null, $start_index=1, $max_results=30) {
+function google_analytics_api_report_data($request) {
+  // Make sure parameters are all there with a default value.
+  $params = array(
+    '#dimension' => null,
+    '#metrics' => null,
+    '#sort_metric' => null,
+    '#filter' => null,
+    '#start_date' => null,
+    '#end_date' => null,
+    '#start_index' => 1,
+    '#max_results' => 10000,
+  );
+  foreach ($params as $name => $value)
+    if (!isset($request[$name]))
+      $request[$name] = $value;
+
   $gapi = google_analytics_api_gapi();
   if (!$gapi)
     return false;
 
-  // insert a check to see if we have this query cached
+  // TODO: Insert a check to see if we have this query cached.
   return google_analytics_api_gapi()->requestReportData(
     variable_get('google_analytics_api_profile_id', 0),
-    $dimensions, $metrics, $sort_metric, $filter,
-    $start_date, $end_date, $start_index, $max_results);
+    $request['#dimensions'], $request['#metrics'], $request['#sort_metric'],
+    $request['#filter'], $request['#start_date'], $request['#end_date'],
+    $request['#start_index'], $request['#max_results']);
 }

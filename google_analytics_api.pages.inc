@@ -82,6 +82,7 @@ function google_analytics_api_query_form($form_state) {
 }
 
 function _google_analytics_api_query_form_fetch_results($form_state = array()) {
+  // Parse all of the form data.
   $dimensions = _google_analytics_api_query_form_process($form_state['post']['dimensions']);
   $metrics = _google_analytics_api_query_form_process($form_state['post']['metrics']);
   $sort_metric = _google_analytics_api_query_form_process($form_state['post']['sort_metric']);
@@ -102,10 +103,20 @@ function _google_analytics_api_query_form_fetch_results($form_state = array()) {
   }
   $start_index = $form_state['post']['start_index'];
   $max_results = $form_state['post']['max_results'];
+
+  // Construct request array.
+  $request = array(
+    '#dimensions' => $dimensions,
+    '#metrics' => $metrics,
+    '#sort_metric' => $sort_metric,
+    '#filter' => $filter,
+    '#start_date' => $start_date,
+    '#end_date' => $end_date,
+    '#start_index' => $start_index,
+    '#max_results' => $max_results,
+  );
   try {
-    $entries = google_analytics_api_report_data(
-      $dimensions, $metrics, $sort_metric, $filter,
-      $start_date, $end_date, $start_index, $max_results);
+    $entries = google_analytics_api_report_data($request);
   } catch (Exception $e) {
     return $e->getMessage();
   }
@@ -220,10 +231,23 @@ function google_analytics_api_block($op='list', $delta=0) {
 }
 
 /*
+ * Function to collect together data for different aliases.
+ */
+function google_analytics_path_report($request, $path=null) {
+  $data = array();
+  foreach (_google_analytics_api_path_filter($path) as $filter) {
+    $request['#filter'] = $filter;
+    $new_data = google_analytics_api_report_data($request);
+    if ($new_data)
+      $data = array_merge($data, $new_data);
+  }
+  return $data;
+}
+
+/*
  * Create a statistics summary block and return it.
  */
 function google_analytics_api_current_summary($path=null) {
-
   // Ensure user has permission to view this block.
   if (!user_access('access Google Analytics data'))
     return false;
@@ -232,16 +256,14 @@ function google_analytics_api_current_summary($path=null) {
   if (!google_analytics_api_gapi())
     return 'Please ' . l('grant access', 'admin/settings/google_analytics_api') . ' to your Google account.';
 
-  $data = array();
-  foreach (_google_analytics_api_path_filter($path) as $filter) {
-    $new_data = google_analytics_api_report_data(
-      array('pagePath', 'date'),
-      array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
-      array('date', 'pagePath'),
-      $filter, strtotime('-7 days'), time(), 1, 1000);
-    if ($new_data)
-      $data = array_merge($data, $new_data);
-  }
+  // Grab the data.
+  $request = array(
+    '#dimensions' => array('pagePath', 'date'),
+    '#metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
+    '#sort_metric' => array('date', 'pagePath'),
+    '#start_date' => strtotime('-7 days')
+  );
+  $data = google_analytics_path_report($request, $path);
 
   // Check for data.
   if (!$data)
@@ -301,8 +323,13 @@ function google_analytics_api_current_summary($path=null) {
  * Main statistics page.
  */
 function google_analytics_api_statistics_page() {
-  $intro = t('<p>More detailed statistics shall go here.  Meanwhile here is what you just saw a second ago.  These paths were searched:</p>');
+  $intro = t('<p>These paths were searched for statistics:</p>');
   $aliases = _google_analytics_api_path_aliases($_GET['path']);
+  foreach ($aliases as $key => $value) {
+    $aliases[$key] = '/' . $aliases[$key];
+  }
   $aliases_list = theme('item_list', $aliases);
-  return $intro . $aliases_list . google_analytics_api_current_summary($_GET['path']);
+
+  // Print geographical map.
+  return $intro . $aliases_list;
 }
