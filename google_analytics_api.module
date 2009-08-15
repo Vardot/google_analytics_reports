@@ -32,6 +32,14 @@ function google_analytics_api_menu() {
     'access arguments' => array('access Google Analytics data'),
     'type' => MENU_NORMAL_ITEM,
   );
+  $items['node/%node/statistics'] = array(
+    'title' => t('GA Statistics'),
+    'file' => 'google_analytics_api.pages.inc',
+    'page callback' => 'google_analytics_api_statistics_page',
+    'page arguments' => array(1, 'node'),
+    'access arguments' => array('access Google Analytics data'),
+    'type' => MENU_LOCAL_TASK,
+  );
 
   return $items;
 }

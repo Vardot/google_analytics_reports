@@ -373,10 +373,16 @@ function _google_analytics_api_sparkline_chart($id, $title, $data, $dates) {
 /*
  * Main statistics page.
  */
-function google_analytics_api_statistics_page() {
-  $output = '';
-  $output .= t('<p>These paths were searched for statistics:</p>');
-  $path = $_GET['path'];
+function google_analytics_api_statistics_page($path = null) {
+  if ($path == null) {
+    $path = $_GET['path'];
+  }
+  elseif (is_object($path)) {
+    $path = $path->path;
+  }
+
+  $output = t('<p>These paths were searched for statistics:</p>');
+
   $aliases = _google_analytics_api_path_aliases($path);
   foreach ($aliases as $key => $value) {
     $aliases[$key] = '/' . $aliases[$key];
