@@ -242,7 +242,7 @@ function google_analytics_api_block($op = 'list', $delta = 0) {
 /*
  * Function to collect together data for different aliases.
  */
-function google_analytics_path_report($request, $path = null) {
+function google_analytics_path_report($request, $path = null, $group_by = 'date') {
   $data = array();
   foreach (_google_analytics_api_path_filter($path) as $filter) {
     $request['#filter'] = $filter;
@@ -251,7 +251,30 @@ function google_analytics_path_report($request, $path = null) {
       $data = array_merge($data, $new_data);
     }
   }
-  return $data;
+
+  // Add up all the statistics for different paths.
+  $rows = array();
+  foreach ($data as $item) {
+    $dimensions = $item->getDimensions();
+    if (is_array($group_by)) {
+      $group_name = '';
+      foreach ($group_by as $group_by_item) {
+        $group_name .= $dimensions[$group_by_item];
+      }
+    }
+    else {
+      $group_name = $dimensions[$group_by];
+    }
+    if (isset($rows[$group_name])) {
+      foreach ($item->getMetrics() as $key => $value) {
+        $rows[$group_name][$key] += $value;
+      }
+    }
+    else {
+      $rows[$group_name] = $item->getMetrics();
+    }
+  }
+  return $rows;
 }
 
 /*
@@ -275,48 +298,26 @@ function google_analytics_api_current_summary($path = null) {
     '#sort_metric' => array('date', 'pagePath'),
     '#start_date' => strtotime('-14 days')
   );
-  $data = google_analytics_path_report($request, $path);
+  $rows = google_analytics_path_report($request, $path);
 
   // Check for data.
-  if (!$data) {
+  if (!$rows) {
     return '<p>No analytics data is currently available for this path.</p>';
   }
 
-  // Add up all the statistics for different paths.
-  $rows = array();
-  foreach ($data as $item) {
-    $date = strtotime($item->getDate());
-    if (isset($rows[$date])) {
-      foreach ($item->getMetrics() as $key => $value)
-        $rows[$date][$key] += $value;
-    }
-    else {
-      $rows[$date] = $item->getMetrics();
-    }
-  }
-
-  // Format and perform calculations to display a chart and table.
-  //$table_headers = array('Date', 'Page Views', 'Avg. Time', 'Bounce Rate');
-  //$table_rows = array();
+  // Format and perform calculations to display charts.
   $chart_page_views = array();
   $chart_avg_time = array();
   $chart_bounce_rate = array();
+  $chart_dates = array();
   foreach ($rows as $date => $row) {
-    $text_date = date('m/d', $date);
-    $pageviews = $row['pageviews'];
-    $avg_time = number_format($row['timeOnPage'] / $row['pageviews'], 1);
-    $bounce_rate = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
-    /*$table_rows[] = array($text_date, $pageviews, $avg_time, $bounce_rate);*/
-
-    // Chart stuff.
-    $chart_pageviews[] = $pageviews;
-    $chart_avg_time[] = $avg_time;
-    $chart_bounce_rate[] = $bounce_rate;
-    $chart_dates[] = date('M d', $date);
+    $chart_pageviews[] = $row['pageviews'];
+    $chart_avg_time[] = number_format($row['timeOnPage'] / $row['pageviews'], 1);
+    $chart_bounce_rate[] = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
+    $chart_dates[] = date('M d', strtotime($date));
   }
-  //$table = theme('table', $table_headers, $table_rows);
 
-  // Create a chart.
+  // Create charts.
   $pageviews_chart = _google_analytics_api_sparkline_chart('page_views', t('Page Views'), $chart_pageviews, $chart_dates);
   $avg_time_chart = _google_analytics_api_sparkline_chart('avg_time', t('Average Time (s)'), $chart_avg_time, $chart_dates);
   $avg_bounce_rate = _google_analytics_api_sparkline_chart('bounce_rate', t('Bounce Rate (%)'), $chart_bounce_rate, $chart_dates);
@@ -336,25 +337,36 @@ function google_analytics_api_current_summary($path = null) {
 }
 
 /*
- * Sparkline chart.
+ * Detailed chart.
  */
-function _google_analytics_api_sparkline_chart($id, $title, $data, $dates) {
+function _google_analytics_api_main_chart($id, $title, $data, $dates) {
   $chart = array(
     '#chart_id' => $id,
     '#title' => $title,
     '#type' => CHART_TYPE_LINE,
-    '#size' => chart_size(200, 80),
+    '#size' => chart_size(600, 150),
     '#adjust_resolution' => TRUE,
     '#data_colors' => array('0077cc'),
     '#line_styles' => array(chart_line_style(3, 10, 0)),
-    '#shape_markers' => array(chart_shape_marker(0, -1, 'o', 6, '0055aa')),
+    '#shape_markers' => array(chart_shape_marker(0, -1, 'o', 9, '0055aa')),
     '#grid_lines' => chart_grid_lines(0, 20, 1, 3),
   );
   $chart['#data'] = $data;
   $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($data));
-  /*foreach ($dates as $date) {
+  foreach ($dates as $date) {
     $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($date);
-  }*/
+  }
+  return $chart;
+}
+
+/*
+ * Sparkline chart.
+ */
+function _google_analytics_api_sparkline_chart($id, $title, $data, $dates) {
+  $chart = _google_analytics_api_main_chart($id, $title, $data, $dates);
+  $chart['#size'] = chart_size(200, 80);
+  $chart['#shape_markers'] = array(chart_shape_marker(0, -1, 'o', 6, '0055aa'));
+  unset($chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM]);
   return $chart;
 }
 
@@ -362,13 +374,156 @@ function _google_analytics_api_sparkline_chart($id, $title, $data, $dates) {
  * Main statistics page.
  */
 function google_analytics_api_statistics_page() {
-  $intro = t('<p>These paths were searched for statistics:</p>');
-  $aliases = _google_analytics_api_path_aliases($_GET['path']);
+  $output = '';
+  $output .= t('<p>These paths were searched for statistics:</p>');
+  $path = $_GET['path'];
+  $aliases = _google_analytics_api_path_aliases($path);
   foreach ($aliases as $key => $value) {
     $aliases[$key] = '/' . $aliases[$key];
   }
   $aliases_list = theme('item_list', $aliases);
+  $output .= $aliases_list;
 
-  // Print geographical map.
-  return $intro . $aliases_list;
+  // Grab the data.
+  $request = array(
+    '#dimensions' => array('pagePath', 'date'),
+    '#metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
+    '#sort_metric' => array('date', 'pagePath'),
+    '#start_date' => strtotime('-35 days')
+  );
+  $rows = google_analytics_path_report($request, $path);
+
+  // Check for data.
+  if (!$rows) {
+    return '<p>No analytics data is currently available for this path.</p>';
+  }
+
+  // Format and perform calculations to display charts.
+  $chart_page_views = array();
+  $chart_avg_time = array();
+  $chart_bounce_rate = array();
+  $chart_dates = array();
+  foreach ($rows as $date => $row) {
+    $chart_pageviews[] = $row['pageviews'];
+    $chart_avg_time[] = number_format($row['timeOnPage'] / $row['pageviews'], 1);
+    $chart_bounce_rate[] = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
+    $chart_dates[] = date('d', strtotime($date));
+  }
+
+  // Create charts.
+  $output .= chart_render(_google_analytics_api_main_chart('page_views', t('Page Views'), $chart_pageviews, $chart_dates));
+  $output .= chart_render($avg_time_chart = _google_analytics_api_main_chart('avg_time', t('Average Time (s)'), $chart_avg_time, $chart_dates));
+  $output .= chart_render(_google_analytics_api_main_chart('bounce_rate', t('Bounce Rate (%)'), $chart_bounce_rate, $chart_dates));
+
+  // Query for browser usage information.
+  $request = array(
+    '#dimensions' => array('pagePath', 'browser'),
+    '#metrics' => array('pageviews'),
+    '#sort_metric' => array('browser', 'pagePath'),
+  );
+  $rows = google_analytics_path_report($request, $path, 'browser');
+  $browsers = array();
+  $total_views = 0;
+  foreach ($rows as $key => $value) {
+    $total_views += $value['pageviews'];
+    $browsers[$key] = $value['pageviews'];
+  }
+
+  // Any browsers with a marketshare below 0.1% don't get shown.
+  $filtered_browsers = array();
+  $threshold = $total_views * 0.001;
+  foreach ($browsers as $key => $value) {
+    if ($value > $threshold) {
+      $filtered_browsers[$key] = $value;
+    }
+  }
+
+  // Create browser chart.
+  $chart = array(
+    '#chart_id' => 'browsers',
+    '#title' => 'Browser Usage',
+    '#type' => CHART_TYPE_PIE,
+    '#size' => chart_size(600, 300),
+    '#data' => $filtered_browsers,
+    '#labels' => array_keys($filtered_browsers),
+  );
+  $output .= chart_render($chart);
+
+  // Get geographical information.
+  $request = array(
+    '#dimensions' => array('pagePath', 'country'),
+    '#metrics' => array('pageviews'),
+    '#sort_metric' => array('country', 'pagePath'),
+  );
+  $rows = google_analytics_path_report($request, $path, 'country');
+  $name_to_iso = countries_api_get_array('name', 'iso2');
+  $countries = array();
+  $max_pageviews = 0;
+  foreach ($rows as $key => $value) {
+    $match = $name_to_iso[strtoupper($key)];
+    if ($match) {
+      $max_pageviews = max($max_pageviews, $value['pageviews']);
+      $countries[$match] = $value['pageviews'];
+    }
+  }
+
+  // Find out proportion share from 1-100 for each country.
+  $countries_share = array();
+  foreach ($countries as $key => $value) {
+    $countries_share[$key] = round(($value / $max_pageviews) * 100);
+  }
+
+  // Create the geographical chart.
+  $chart = array(
+    '#chart_id' => 'countries',
+    '#type' => CHART_TYPE_MAP,
+    '#size' => chart_size(440, 220),
+    '#georange' => 'world',
+    '#countries' => array_keys($countries_share),
+    '#data' => array_values($countries_share),
+    '#data_colors' => array('ffffff', 'edf0d4', '13390a'),
+  );
+
+  $output .= t('<h3>Geographical Usage</h3>');
+  $output .= chart_render($chart);
+
+  // Query for referrer information.
+  $request = array(
+    '#dimensions' => array('pagePath', 'source', 'referralPath'),
+    '#metrics' => array('pageviews'),
+    '#sort_metric' => array('source', 'referralPath', 'pagePath'),
+    '#start_date' => strtotime('-1 month')
+  );
+  $rows = google_analytics_path_report($request, $path, array('source', 'referralPath'));
+
+  // Sort rows in descending order.
+  $referrers = array();
+  $total_referrers = 0;
+  foreach ($rows as $key => $row) {
+    $total_referrers += $row['pageviews'];
+    $referrers[$key] = $row['pageviews'];
+  }
+  asort($referrers);
+  $referrers = array_reverse($referrers);
+
+  // Create a table.
+  $headers = array('Page Views', 'Source');
+  $rows = array();
+  $threshold = $total_referrers * 0.005;
+  foreach ($referrers as $site => $pageviews) {
+    if ($pageviews < $threshold) {
+      continue;
+    }
+    if (!strstr($site, '(not set)')) {
+      $rows[] = array($pageviews, l($site, 'http://' . $site));
+    }
+    else {
+      $rows[] = array($pageviews, $site);
+    }
+  }
+
+  $output .= t('<h3>Top Referrers (Past Month)</h3>');
+  $output .= theme('table', $headers, $rows);
+
+  return $output;
 }
