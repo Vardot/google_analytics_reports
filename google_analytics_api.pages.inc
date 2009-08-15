@@ -273,7 +273,7 @@ function google_analytics_api_current_summary($path = null) {
     '#dimensions' => array('pagePath', 'date'),
     '#metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
     '#sort_metric' => array('date', 'pagePath'),
-    '#start_date' => strtotime('-7 days')
+    '#start_date' => strtotime('-14 days')
   );
   $data = google_analytics_path_report($request, $path);
 
@@ -296,40 +296,66 @@ function google_analytics_api_current_summary($path = null) {
   }
 
   // Format and perform calculations to display a chart and table.
-  $table_headers = array('Date', 'Page Views', 'Avg. Time', 'Bounce Rate');
-  $table_rows = array();
-  $chart_page_views = array();;
+  //$table_headers = array('Date', 'Page Views', 'Avg. Time', 'Bounce Rate');
+  //$table_rows = array();
+  $chart_page_views = array();
+  $chart_avg_time = array();
+  $chart_bounce_rate = array();
   foreach ($rows as $date => $row) {
     $text_date = date('m/d', $date);
     $pageviews = $row['pageviews'];
-    $avg_time = number_format($row['timeOnPage'] / $row['pageviews'], 1) . 's';
-    $bounce_rate = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2) . '%';
-    $table_rows[] = array($text_date, $pageviews, $avg_time, $bounce_rate);
+    $avg_time = number_format($row['timeOnPage'] / $row['pageviews'], 1);
+    $bounce_rate = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
+    /*$table_rows[] = array($text_date, $pageviews, $avg_time, $bounce_rate);*/
 
     // Chart stuff.
     $chart_pageviews[] = $pageviews;
+    $chart_avg_time[] = $avg_time;
+    $chart_bounce_rate[] = $bounce_rate;
     $chart_dates[] = date('M d', $date);
   }
-  $table = theme('table', $table_headers, $table_rows);
+  //$table = theme('table', $table_headers, $table_rows);
 
   // Create a chart.
-  $chart = array(
-    '#chart_id' => 'daily_page_views',
-    '#title' => t('Daily Page Views'),
-    '#type' => CHART_TYPE_LINE,
-    '#size' => chart_size(350, 200),
-    '#adjust_resolution' => TRUE,
-  );
-  $chart['#data'] = $chart_pageviews;
-  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($chart_pageviews));
-  foreach ($chart_dates as $chart_date) {
-    $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($chart_date);
-  }
+  $pageviews_chart = _google_analytics_api_sparkline_chart('page_views', t('Page Views'), $chart_pageviews, $chart_dates);
+  $avg_time_chart = _google_analytics_api_sparkline_chart('avg_time', t('Average Time (s)'), $chart_avg_time, $chart_dates);
+  $avg_bounce_rate = _google_analytics_api_sparkline_chart('bounce_rate', t('Bounce Rate (%)'), $chart_bounce_rate, $chart_dates);
+
+  // Text description.
+  $description = t('<p>Statistics for past 14 days:</p>');
+  $description .= '<p><strong>/' . drupal_get_path_alias($_GET['q']) . '</strong></p>';
 
   // See more link.
   $more_link = l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q']));
 
-  return chart_render($chart) . $table . $more_link;
+  return $description
+    . chart_render($pageviews_chart)
+    . chart_render($avg_time_chart)
+    . chart_render($avg_bounce_rate)
+    . $more_link;
+}
+
+/*
+ * Sparkline chart.
+ */
+function _google_analytics_api_sparkline_chart($id, $title, $data, $dates) {
+  $chart = array(
+    '#chart_id' => $id,
+    '#title' => $title,
+    '#type' => CHART_TYPE_LINE,
+    '#size' => chart_size(200, 80),
+    '#adjust_resolution' => TRUE,
+    '#data_colors' => array('0077cc'),
+    '#line_styles' => array(chart_line_style(3, 10, 0)),
+    '#shape_markers' => array(chart_shape_marker(0, -1, 'o', 6, '0055aa')),
+    '#grid_lines' => chart_grid_lines(0, 20, 1, 3),
+  );
+  $chart['#data'] = $data;
+  $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($data));
+  /*foreach ($dates as $date) {
+    $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($date);
+  }*/
+  return $chart;
 }
 
 /*
