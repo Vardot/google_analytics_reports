@@ -37,7 +37,8 @@ function google_analytics_api_admin() {
       '#value' => t('Save configuration'),
       '#weight' => 3,
     );
-  } else {
+  }
+  else {
     $form['logout_status'] = array(
       '#value' => t('<p>In order for you to access your Google Analytics account through Drupal, you need to grant access to your account.  This gives Drupal permission to contact the Google Analytics server and download statistics about your site.</p>'),
       '#weight' => -10,
@@ -58,8 +59,9 @@ function google_analytics_api_admin_account_data_options() {
     $accounts = google_analytics_api_account_data();
     $options = array();
     $i = 0;
-    foreach ($accounts as $account)
+    foreach ($accounts as $account) {
       $options[$account->getProfileId()] = $account->getTitle() . ' (' . $account->getProfileId() . ')';
+    }
     return $options;
 }
 
@@ -71,10 +73,12 @@ function google_analytics_api_admin_submit($form, &$form_state) {
     if ($form_state['clicked_button']['#value'] == t('Revoke Access')) {
       drupal_set_message(t('You have revoked access to your Google account.'));
       return google_analytics_api_logout();
-    } elseif ($form_state['clicked_button']['#value'] == t('Save configuration')) {
+    }
+    elseif ($form_state['clicked_button']['#value'] == t('Save configuration')) {
       variable_set('google_analytics_api_profile_id', intval($form_state['values']['profile_id']));
     }
-  } else {
+  }
+  else {
     return google_analytics_api_authenticate();
   }
 }

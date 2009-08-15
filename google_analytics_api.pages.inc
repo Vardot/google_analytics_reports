@@ -117,7 +117,8 @@ function _google_analytics_api_query_form_fetch_results($form_state = array()) {
   );
   try {
     $entries = google_analytics_api_report_data($request);
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     return $e->getMessage();
   }
 
@@ -144,9 +145,11 @@ function _google_analytics_api_query_form_fetch_results($form_state = array()) {
 function _google_analytics_api_query_form_process($string) {
   $array = explode(',', $string);
   $return = array();
-  foreach ($array as $value)
-    if ($value = trim($value))
+  foreach ($array as $value) {
+    if ($value = trim($value)) {
       $return[] = $value;
+    }
+  }
   return $return;
 }
 
@@ -155,8 +158,9 @@ function _google_analytics_api_query_form_process($string) {
  */
 function _google_analytics_api_path_aliases($node_path=null) {
   // Default path is the current path.
-  if ($node_path == null)
+  if ($node_path == null) {
     $node_path = $_GET['q'];
+  }
 
   // Get the normal node path if it is a node.
   $node_path = drupal_get_normal_path($node_path);
@@ -164,8 +168,9 @@ function _google_analytics_api_path_aliases($node_path=null) {
   // Grab all aliases.
   $aliases = array($node_path);
   $result = db_query("SELECT * FROM {url_alias} WHERE src = '%s'", $node_path);
-  while ($row = db_fetch_array($result))
+  while ($row = db_fetch_array($result)) {
     $aliases[] = $row['dst'];
+  }
 
   // If this is the front page, add the base path too, and index.php for good measure.
   // There may be other ways that the user is accessing the front page but we can't
@@ -198,20 +203,24 @@ function _google_analytics_api_path_filter($node_path=null) {
   foreach ($aliases as $alias) {
     if (strlen($alias) <= 20) {
       $under_filters[] = 'pagePath =~ ^/' . $alias . '([?#].*)?$';
-    } else {
+    }
+    else {
       $over_filters[] = array(
         'pagePath =@ /' . $alias,
         // 32 - 10 = 22 characters
-        'pagePath =~ ' . substr($alias, -22) . '([?#].*)?$');
+        'pagePath =~ ' . substr($alias, -22) . '([?#].*)?$'
+      );
     }
   }
 
   // Add pipes and put together under and over filters.
   $filters = array();
-  if ($under_filters)
+  if ($under_filters) {
     $filters[] = implode(' || ', $under_filters);
-  foreach ($over_filters as $filter)
+  }
+  foreach ($over_filters as $filter) {
     $filters[] = implode(' && ', $filter);
+  }
   return $filters;
 }
 
@@ -238,8 +247,9 @@ function google_analytics_path_report($request, $path=null) {
   foreach (_google_analytics_api_path_filter($path) as $filter) {
     $request['#filter'] = $filter;
     $new_data = google_analytics_api_report_data($request);
-    if ($new_data)
+    if ($new_data) {
       $data = array_merge($data, $new_data);
+    }
   }
   return $data;
 }
@@ -249,12 +259,14 @@ function google_analytics_path_report($request, $path=null) {
  */
 function google_analytics_api_current_summary($path=null) {
   // Ensure user has permission to view this block.
-  if (!user_access('access Google Analytics data'))
+  if (!user_access('access Google Analytics data')) {
     return false;
+  }
 
   // Ensure the user is logged in.
-  if (!google_analytics_api_gapi())
+  if (!google_analytics_api_gapi()) {
     return 'Please ' . l('grant access', 'admin/settings/google_analytics_api') . ' to your Google account.';
+  }
 
   // Grab the data.
   $request = array(
@@ -266,8 +278,9 @@ function google_analytics_api_current_summary($path=null) {
   $data = google_analytics_path_report($request, $path);
 
   // Check for data.
-  if (!$data)
+  if (!$data) {
     return '<p>No analytics data is currently available for this path.</p>';
+  }
 
   // Add up all the statistics for different paths.
   $rows = array();
@@ -276,7 +289,8 @@ function google_analytics_api_current_summary($path=null) {
     if (isset($rows[$date])) {
       foreach ($item->getMetrics() as $key => $value)
         $rows[$date][$key] += $value;
-    } else {
+    }
+    else {
       $rows[$date] = $item->getMetrics();
     }
   }
@@ -308,10 +322,9 @@ function google_analytics_api_current_summary($path=null) {
   );
   $chart['#data'] = $chart_pageviews;
   $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($chart_pageviews));
-  /* $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][1][] = chart_mixed_axis_label(t('Count'), 95); */
-  foreach ($chart_dates as $chart_date)
+  foreach ($chart_dates as $chart_date) {
     $chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($chart_date);
-  /*$chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM][2][] = chart_mixed_axis_label(t('Date'), 50);*/
+  }
 
   // See more link.
   $more_link = l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q']));

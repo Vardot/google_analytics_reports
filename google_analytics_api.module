@@ -48,8 +48,9 @@ function google_analytics_api_perm() {
  */
 function google_analytics_api_current_token($silent=false) {
   $token = variable_get('google_analytics_api_token', null);
-  if (!$token && !$silent)
+  if (!$token && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to grant access.'));
+  }
   return $token;
 }
 
@@ -58,8 +59,9 @@ function google_analytics_api_current_token($silent=false) {
  */
 function google_analytics_api_current_profile_id($silent=false) {
   $profile_id = variable_get('google_analytics_api_profile_id', null);
-  if (!$profile_id && !$silent)
+  if (!$profile_id && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to set one.'));
+  }
   return $profile_id;
 }
 
@@ -68,9 +70,11 @@ function google_analytics_api_current_profile_id($silent=false) {
  */
 function google_analytics_api_current_profile() {
   $profiles = google_analytics_api_account_data();
-  foreach ($profiles as $profile)
-    if ($profile->getProfileId() == google_analytics_api_current_profile_id())
+  foreach ($profiles as $profile) {
+    if ($profile->getProfileId() == google_analytics_api_current_profile_id()) {
       return $profile;
+    }
+  }
   return null;
 }
 
@@ -87,7 +91,9 @@ function google_analytics_api_authenticate() {
 function google_analytics_api_logout() {
   try {
     google_analytics_api_gapi()->revokeToken();
-  } catch (Exception $e) { }
+  }
+  catch (Exception $e) {
+  }
   variable_set('google_analytics_api_token', null);
   variable_set('google_analytics_api_profile_id', null);
 }
@@ -99,8 +105,9 @@ function google_analytics_api_gapi() {
   static $gapi;
 
   if (user_access('access Google Analytics data')) {
-    if ($gapi)
+    if ($gapi) {
       return $gapi;
+    }
     $token = google_analytics_api_current_token();
     if ($token) {
       $gapi = gapiAuthSub::withToken($token);
@@ -116,7 +123,8 @@ function google_analytics_api_gapi() {
 function google_analytics_api_account_data() {
   try {
     $data = google_analytics_api_gapi()->requestAccountData();
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     return google_analytics_api_logout();
   }
   return $data;
@@ -145,13 +153,16 @@ function google_analytics_api_report_data($request) {
     '#start_index' => 1,
     '#max_results' => 10000,
   );
-  foreach ($params as $name => $value)
-    if (!isset($request[$name]))
+  foreach ($params as $name => $value) {
+    if (!isset($request[$name])) {
       $request[$name] = $value;
+    }
+  }
 
   $gapi = google_analytics_api_gapi();
-  if (!$gapi)
+  if (!$gapi) {
     return false;
+  }
 
   // TODO: Insert a check to see if we have this query cached.
   return google_analytics_api_gapi()->requestReportData(
