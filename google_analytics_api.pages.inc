@@ -118,7 +118,7 @@ function _google_analytics_api_query_form_fetch_results($form_state = array()) {
   try {
     $entries = google_analytics_api_report_data($request);
   }
-  catch (Exception $e) {
+  catch(Exception $e) {
     return $e->getMessage();
   }
 
@@ -156,7 +156,7 @@ function _google_analytics_api_query_form_process($string) {
 /*
  * Return a list of paths that are aliased with the given path (including the given path).
  */
-function _google_analytics_api_path_aliases($node_path=null) {
+function _google_analytics_api_path_aliases($node_path = null) {
   // Default path is the current path.
   if ($node_path == null) {
     $node_path = $_GET['q'];
@@ -186,7 +186,7 @@ function _google_analytics_api_path_aliases($node_path=null) {
 /*
  * Construct a filter string that grabs pagePaths corresponding to the specified node or path.
  */
-function _google_analytics_api_path_filter($node_path=null) {
+function _google_analytics_api_path_filter($node_path = null) {
   $aliases = _google_analytics_api_path_aliases($node_path);
 
   // Okay, this is ridiculous.  Google Analytics regex filters
@@ -227,7 +227,7 @@ function _google_analytics_api_path_filter($node_path=null) {
 /*
  * Block for showing statistics of the current path.
  */
-function google_analytics_api_block($op='list', $delta=0) {
+function google_analytics_api_block($op = 'list', $delta = 0) {
   switch ($op) {
     case 'list':
       $blocks[0]['info'] = t('Google Analytics Statistics');
@@ -242,7 +242,7 @@ function google_analytics_api_block($op='list', $delta=0) {
 /*
  * Function to collect together data for different aliases.
  */
-function google_analytics_path_report($request, $path=null) {
+function google_analytics_path_report($request, $path = null) {
   $data = array();
   foreach (_google_analytics_api_path_filter($path) as $filter) {
     $request['#filter'] = $filter;
@@ -257,7 +257,7 @@ function google_analytics_path_report($request, $path=null) {
 /*
  * Create a statistics summary block and return it.
  */
-function google_analytics_api_current_summary($path=null) {
+function google_analytics_api_current_summary($path = null) {
   // Ensure user has permission to view this block.
   if (!user_access('access Google Analytics data')) {
     return false;
