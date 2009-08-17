@@ -30,7 +30,7 @@ function google_analytics_api_menu() {
     'file' => 'google_analytics_api.pages.inc',
     'page callback' => 'google_analytics_api_statistics_page',
     'access arguments' => array('access Google Analytics data'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
   $items['node/%node/statistics'] = array(
     'title' => t('GA Statistics'),
@@ -173,9 +173,34 @@ function google_analytics_api_report_data($request) {
   }
 
   // TODO: Insert a check to see if we have this query cached.
-  return google_analytics_api_gapi()->requestReportData(
-    variable_get('google_analytics_api_profile_id', 0),
-    $request['#dimensions'], $request['#metrics'], $request['#sort_metric'],
-    $request['#filter'], $request['#start_date'], $request['#end_date'],
-    $request['#start_index'], $request['#max_results']);
+  try {
+    $data = google_analytics_api_gapi()->requestReportData(
+      variable_get('google_analytics_api_profile_id', 0),
+      $request['#dimensions'], $request['#metrics'], $request['#sort_metric'],
+      $request['#filter'], $request['#start_date'], $request['#end_date'],
+      $request['#start_index'], $request['#max_results']);
+  }
+  catch(Exception $e) {
+    drupal_set_message(t('Google Analytics API: ') . $e->getMessage());
+    return false;
+  }
+  return $data;
+}
+
+/*
+ * Hook to replace a Google URL for testing purposes.
+ */
+function google_analytics_api_replace_url($url) {
+  /* URLs used:
+   * https://www.google.com/accounts/ClientLogin
+   * https://www.google.com/accounts/AuthSubRequest
+   * https://www.google.com/accounts/AuthSubSessionToken
+   * https://www.google.com/accounts/AuthSubRevokeToken
+   * https://www.google.com/accounts/AuthSubTokenInfo
+   * https://www.google.com/analytics/feeds/accounts/default
+   * https://www.google.com/analytics/feeds/data
+   * https://www.google.com/analytics/feeds/
+   */
+  //return preg_replace('|^https://www\.google\.com/|', gapiUrl::currentBaseUrl() . base_path() . 'analytics-test/', $url);
+  return $url;
 }

@@ -1,0 +1,18 @@
+<?php
+// $Id$
+
+/**
+ * Unit tests for Google Analytics API module.
+ */
+class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
+  /**
+   * Drupal SimpleTest method: return metadata about the test.
+   */
+  function getInfo() {
+    return array(
+      'name' => t('Google Analytics API'),
+      'desc' => t('Executes test suite for Google Analytics API module.'),
+      'group' => t('Google Analytics API module'),
+    );
+  }
+}

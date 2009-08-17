@@ -26,12 +26,6 @@ function google_analytics_api_admin() {
       '#required' => TRUE,
       '#weight' => -2,
     );
-    /*$profile = google_analytics_api_current_profile();
-    $date = strtotime($profile->getUpdated());
-    $form['profile_status'] = array(
-      '#value' => '<div><em>(Profile last updated ' . date('F j, Y h:i:s A', $date) . ')</em></div>',
-      '#weight' => -1,
-    );*/
     $form['buttons']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save configuration'),
@@ -59,6 +53,9 @@ function google_analytics_api_admin_account_data_options() {
     $accounts = google_analytics_api_account_data();
     $options = array();
     $i = 0;
+    if (!$accounts) {
+      return array(variable_get('google_analytics_api_profile_id', 0) => 'Account listing unavailable.  Currently selected account has ID: ' . variable_get('google_analytics_api_profile_id', 0));
+    }
     foreach ($accounts as $account) {
       $options[$account->getProfileId()] = $account->getTitle() . ' (' . $account->getProfileId() . ')';
     }
@@ -91,8 +88,10 @@ function google_analytics_api_check_token() {
   if ($gapi) {
     variable_set('google_analytics_api_token', $gapi->getToken());
     $accounts = google_analytics_api_account_data();
-    $id = $accounts[0]->getProfileId();
-    variable_set('google_analytics_api_profile_id', $id);
+    if (count($accounts) > 0) {
+      $id = $accounts[0]->getProfileId();
+      variable_set('google_analytics_api_profile_id', $id);
+    }
     drupal_set_message(t('You have granted access to your Google account.  Drupal will be able to download information from the account until you revoke access.'));
     header('Location: ' . gapiUrl::currentUrlWithoutGet());
     exit;

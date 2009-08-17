@@ -200,9 +200,12 @@ class gapi {
     $response = $url->get($parameters, $this->auth_method->generateAuthHeader());
 
     //HTTP 2xx
-    if (substr($response['code'], 0, 1) == '2') {
+    if (substr($response['code'], 0, 1) == '2' && $response['body']) {
       return $this->reportObjectMapper($response['body']);
     } else {
+      if ($response['code'] == 0) {
+        $response['body'] = 'Unable to contact Google servers.';
+      }
       throw new Exception('GAPI: Failed to request report data. Error: "' . strip_tags($response['body']) . '"');
     }
   }
@@ -866,11 +869,11 @@ class gapiUrl {
   private $url = null;
 
   /**
-   * Get the current page url
+   * Get the current base url
    *
    * @return String
    */
-  public static function currentUrl() {
+  public static function currentBaseUrl() {
     $https = $_SERVER['HTTPS'] == 'on';
     $url = $https ? 'https://' : 'http://';
     $url .= $_SERVER['SERVER_NAME'];
@@ -878,8 +881,16 @@ class gapiUrl {
       ($https && $_SERVER['SERVER_PORT'] != '443')) {
       $url .= ':' . $_SERVER['SERVER_PORT'];
     }
-    $url .= $_SERVER['REQUEST_URI'];
     return $url;
+  }
+
+  /**
+   * Get the current page url
+   *
+   * @return String
+   */
+  public static function currentUrl() {
+    return self::currentBaseUrl() . $_SERVER['REQUEST_URI'];
   }
 
   /**
@@ -893,6 +904,9 @@ class gapiUrl {
   }
 
   public function __construct($url) {
+    if (function_exists('google_analytics_api_replace_url')) {
+      $url = google_analytics_api_replace_url($url);
+    }
     $this->url = $url;
   }
 
