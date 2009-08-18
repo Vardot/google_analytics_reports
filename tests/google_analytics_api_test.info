@@ -5,4 +5,5 @@ description = "Google Analytics Data Export API server used for testing."
 package = Testing
 core = 6.x
 dependencies[] = google_analytics_api
+dependencies[] = simpletest
 ; hidden = TRUE

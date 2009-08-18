@@ -181,7 +181,7 @@ function google_analytics_api_report_data($request) {
       $request['#start_index'], $request['#max_results']);
   }
   catch(Exception $e) {
-    drupal_set_message(t('Google Analytics API: ') . $e->getMessage());
+    drupal_set_message(t('Google Analytics API: @message', array('@message' => $e->getMessage())));
     return false;
   }
   return $data;

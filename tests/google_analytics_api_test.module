@@ -9,6 +9,9 @@
  * a set of expected data requests that it will respond to.
  */
 
+define('GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN', '66cba0a214231d3fd3e7f984c7674ad0');
+define('GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN', '5a5b356a3a02fb64019b0967e4e267b6');
+
 /**
  * Implement hook_menu().
  */
@@ -65,6 +68,25 @@ function google_analytics_api_test_replace_url($url) {
 }
 
 /**
+ * Helper function; check for proper Authorization header.
+ */
+function google_analytics_api_test_check_auth_header($token) {
+  $sent_headers = getallheaders();
+
+  // Check for token header.
+  if (!isset($sent_headers['Authorization'])) {
+    header('HTTP/1.0 401 Error');
+    exit('No authorization header sent in AuthSub request.');
+  }
+
+  // Check for correct token.
+  if ($sent_headers['Authorization'] != 'AuthSub token=' . $token) {
+    header('HTTP/1.0 401 Error');
+    exit('Invalid token sent in AuthSub request.');
+  }
+}
+
+/**
  * Menu callback; Google Account AuthSub authentication request.
  */
 function google_analytics_api_test_accounts_authsub_request() {
@@ -80,7 +102,7 @@ function google_analytics_api_test_accounts_authsub_request() {
   }
 
   // Respond to request with a redirection.
-  $response = array('token' => '66cba0a214231d3fd3e7f984c7674ad0');
+  $response = array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
   drupal_set_header('Content-Type', 'text/plain');
   header('Location: ' . url($_GET['next'], array(
     'query' => http_build_query($response, '', '&'),
@@ -92,49 +114,28 @@ function google_analytics_api_test_accounts_authsub_request() {
  * Menu callback; Google Account AuthSub session token retrieval.
  */
 function google_analytics_api_test_accounts_authsub_session_token() {
-  $sent_headers = getallheaders();
-
-  // Check for token header.
-  if (!isset($sent_headers['Authorization'])) {
-    exit('No authorization header sent in AuthSub request.');
-  }
-  $auth_token = str_replace('AuthSub token=', '', $sent_headers['Authorization']);
-
-  // Check for correct token.
-  if ($auth_token != '66cba0a214231d3fd3e7f984c7674ad0') {
-    exit('Invalid token sent in AuthSub request.');
-  }
+  google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
 
   // Send back session token.
-  exit('Token=5a5b356a3a02fb64019b0967e4e267b6');
+  exit('Token=' . GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
 }
 
 /**
  * Menu callback; Revoke Google Account AuthSub session token.
  */
 function google_analytics_api_test_accounts_authsub_revoke_token() {
-  $sent_headers = getallheaders();
+  google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
 
-  // Check for token header.
-  if (!isset($sent_headers['Authorization'])) {
-    exit('No authorization header sent in AuthSub request.');
-  }
-  $auth_token = str_replace('AuthSub token=', '', $sent_headers['Authorization']);
-
-  // Check for correct token.
-  if ($auth_token != '5a5b356a3a02fb64019b0967e4e267b6') {
-    exit('Invalid token sent in AuthSub request.');
-  }
-
-  // Send back session token.
-  // TODO: Check the return value here to match that of Google.
-  exit('token=revoked');
+  // Empty value with 200 response is good.
+  exit();
 }
 
 /**
  * Menu callback; Google Analytics API account listing.
  */
 function google_analytics_api_test_analytics_feeds_accounts_default() {
+  google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
+
   exit(file_get_contents(dirname(__FILE__) . '/account_listing.xml'));
 }
 
@@ -142,6 +143,8 @@ function google_analytics_api_test_analytics_feeds_accounts_default() {
  * Menu callback; Google Analytics API data retrieval.
  */
 function google_analytics_api_test_analytics_feeds_data() {
+  google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
+
   $test_cases = array(
     'case-1' => array(
       array(
