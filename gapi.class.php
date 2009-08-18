@@ -206,6 +206,9 @@ class gapi {
       if ($response['code'] == 0) {
         $response['body'] = 'Unable to contact Google servers.';
       }
+      elseif (!$response['body']) {
+        $response['body'] = 'Invalid data returned from Google servers.';
+      }
       throw new Exception('GAPI: Failed to request report data. Error: "' . strip_tags($response['body']) . '"');
     }
   }
@@ -869,11 +872,11 @@ class gapiUrl {
   private $url = null;
 
   /**
-   * Get the current base url
+   * Get the current page url
    *
    * @return String
    */
-  public static function currentBaseUrl() {
+  public static function currentUrl() {
     $https = $_SERVER['HTTPS'] == 'on';
     $url = $https ? 'https://' : 'http://';
     $url .= $_SERVER['SERVER_NAME'];
@@ -881,16 +884,7 @@ class gapiUrl {
       ($https && $_SERVER['SERVER_PORT'] != '443')) {
       $url .= ':' . $_SERVER['SERVER_PORT'];
     }
-    return $url;
-  }
-
-  /**
-   * Get the current page url
-   *
-   * @return String
-   */
-  public static function currentUrl() {
-    return self::currentBaseUrl() . $_SERVER['REQUEST_URI'];
+    return $url . $_SERVER['REQUEST_URI'];
   }
 
   /**
@@ -904,8 +898,11 @@ class gapiUrl {
   }
 
   public function __construct($url) {
-    if (function_exists('google_analytics_api_replace_url')) {
-      $url = google_analytics_api_replace_url($url);
+    /*if ($url_replace_function = variable_get('google_analytics_url_replace_function', NULL)) {
+      $url = $url_replace_function($url);
+    }*/
+    if (function_exists('google_analytics_api_test_replace_url')) {
+      $url = google_analytics_api_test_replace_url($url);
     }
     $this->url = $url;
   }

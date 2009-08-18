@@ -14,7 +14,7 @@ function google_analytics_api_admin() {
     );
     $form['logout'] = array(
       '#type' => 'submit',
-      '#value' => t('Revoke Access'),
+      '#value' => t('Revoke access'),
       '#weight' => -5,
     );
     $form['profile_id'] = array(
@@ -67,7 +67,7 @@ function google_analytics_api_admin_account_data_options() {
  */
 function google_analytics_api_admin_submit($form, &$form_state) {
   if (variable_get('google_analytics_api_token', null)) {
-    if ($form_state['clicked_button']['#value'] == t('Revoke Access')) {
+    if ($form_state['clicked_button']['#value'] == t('Revoke access')) {
       drupal_set_message(t('You have revoked access to your Google account.'));
       return google_analytics_api_logout();
     }

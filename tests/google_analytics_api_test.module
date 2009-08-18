@@ -25,6 +25,12 @@ function google_analytics_api_test_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+  $items['analytics-test/accounts/AuthSubRevokeToken'] = array(
+    'title' => 'Revoke Google Account AuthSub session token',
+    'page callback' => 'google_analytics_api_test_accounts_authsub_revoke_token',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
   $items['analytics-test/analytics/feeds/accounts/default'] = array(
     'title' => 'Google Analytics API account listing',
     'page callback' => 'google_analytics_api_test_analytics_feeds_accounts_default',
@@ -39,6 +45,23 @@ function google_analytics_api_test_menu() {
   );
 
   return $items;
+}
+
+/*
+ * Hook to replace a Google URL for testing purposes.
+ */
+function google_analytics_api_test_replace_url($url) {
+  /* URLs used:
+   * https://www.google.com/accounts/ClientLogin
+   * https://www.google.com/accounts/AuthSubRequest
+   * https://www.google.com/accounts/AuthSubSessionToken
+   * https://www.google.com/accounts/AuthSubRevokeToken
+   * https://www.google.com/accounts/AuthSubTokenInfo
+   * https://www.google.com/analytics/feeds/accounts/default
+   * https://www.google.com/analytics/feeds/data
+   * https://www.google.com/analytics/feeds/
+   */
+  return preg_replace('|^https://www.google.com/|', url('analytics-test/', array('absolute' => TRUE)), $url);
 }
 
 /**
@@ -73,54 +96,46 @@ function google_analytics_api_test_accounts_authsub_session_token() {
 
   // Check for token header.
   if (!isset($sent_headers['Authorization'])) {
-    die('No authorization header sent in AuthSub request.');
+    exit('No authorization header sent in AuthSub request.');
   }
   $auth_token = str_replace('AuthSub token=', '', $sent_headers['Authorization']);
 
   // Check for correct token.
   if ($auth_token != '66cba0a214231d3fd3e7f984c7674ad0') {
-    die('Invalid token sent in AuthSub request.');
+    exit('Invalid token sent in AuthSub request.');
   }
 
   // Send back session token.
-  return 'Token=5a5b356a3a02fb64019b0967e4e267b6';
-  die();
+  exit('Token=5a5b356a3a02fb64019b0967e4e267b6');
+}
+
+/**
+ * Menu callback; Revoke Google Account AuthSub session token.
+ */
+function google_analytics_api_test_accounts_authsub_revoke_token() {
+  $sent_headers = getallheaders();
+
+  // Check for token header.
+  if (!isset($sent_headers['Authorization'])) {
+    exit('No authorization header sent in AuthSub request.');
+  }
+  $auth_token = str_replace('AuthSub token=', '', $sent_headers['Authorization']);
+
+  // Check for correct token.
+  if ($auth_token != '5a5b356a3a02fb64019b0967e4e267b6') {
+    exit('Invalid token sent in AuthSub request.');
+  }
+
+  // Send back session token.
+  // TODO: Check the return value here to match that of Google.
+  exit('token=revoked');
 }
 
 /**
  * Menu callback; Google Analytics API account listing.
  */
 function google_analytics_api_test_analytics_feeds_accounts_default() {
-  $xml = <<<EOT
-<?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:dxp='http://schemas.google.com/analytics/2009'>
-  <id>http://www.google.com/analytics/feeds/accounts/user@gmail.com</id>
-  <updated>2009-07-14T17:52:03.000-07:00</updated>
-  <title type='text'>Profile list for user@gmail.com</title>
-  <link rel='self' type='application/atom+xml' href='http://www.google.com/analytics/feeds/accounts/default?start-index=1&amp;max-results=20'/>
-  <author>
-    <name>Google Analytics</name>
-  </author>
-  <generator version='1.0'>Google Analytics</generator>
-  <openSearch:totalResults>6</openSearch:totalResults>
-  <openSearch:startIndex>1</openSearch:startIndex>
-  <openSearch:itemsPerPage>20</openSearch:itemsPerPage>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/accounts/ga:10000000</id>
-    <updated>2009-03-08T17:22:24.000-07:00</updated>
-    <title type='text'>example.com</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:tableId>ga:10000000</dxp:tableId>
-    <dxp:property name='ga:accountId' value='100000'/>
-    <dxp:property name='ga:accountName' value='Image X Media'/>
-    <dxp:property name='ga:profileId' value='10000000'/>
-    <dxp:property name='ga:webPropertyId' value='UA-100000-1'/>
-    <dxp:property name='ga:currency' value='USD'/>
-    <dxp:property name='ga:timezone' value='America/Vancouver'/>
-  </entry>
-</feed>
-EOT;
-  exit($xml);
+  exit(file_get_contents(dirname(__FILE__) . '/account_listing.xml'));
 }
 
 /**
@@ -129,117 +144,37 @@ EOT;
 function google_analytics_api_test_analytics_feeds_data() {
   $test_cases = array(
     'case-1' => array(
-      'start-date' => '2008-10-01',
-      'end-date' => '2008-10-31',
-      'dimensions' => 'ga:source,ga:medium',
-      'metrics' => 'ga:visits,ga:bounces',
-      'sort' => '-ga:visits',
-      'filters' => 'ga:medium==referral',
-      'start-index' => '1',
-      'max-results' => '5',
-      'ids' => 'ga:10000000',
+      array(
+        'start-date' => '2008-10-01',
+        'end-date' => '2008-10-31',
+        'dimensions' => 'ga:source,ga:medium',
+        'metrics' => 'ga:visits,ga:bounces',
+        'sort' => '-ga:visits',
+        'filters' => 'ga:medium==referral',
+        'start-index' => '1',
+        'max-results' => '5',
+        'ids' => 'ga:10000000',
+      ),
+      file_get_contents(dirname(__FILE__) . '/data_feed1.xml'),
     ),
   );
 
-  $case1_output = <<<EOT
-<?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns='http://www.w3.org/2005/Atom' xmlns:openSearch='http://a9.com/-/spec/opensearchrss/1.0/' xmlns:dxp='http://schemas.google.com/analytics/2009'>
-  <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;dimensions=ga:medium,ga:source&amp;metrics=ga:bounces,ga:visits&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-  <updated>2008-10-31T16:59:59.999-07:00</updated>
-  <title type='text'>Google Analytics Data for Profile 10000000</title>
-  <link rel='self' type='application/atom+xml' href='http://www.google.com/analytics/feeds/data?start-index=1&amp;max-results=5&amp;sort=-ga%3Avisits&amp;end-date=2008-10-31&amp;start-date=2008-10-01&amp;metrics=ga%3Avisits%2Cga%3Abounces&amp;ids=ga%3A10000000&amp;dimensions=ga%3Asource%2Cga%3Amedium&amp;filters=ga%3Amedium%3D%3Dreferral'/>
-  <link rel='next' type='application/atom+xml' href='http://www.google.com/analytics/feeds/data?start-index=6&amp;max-results=5&amp;sort=-ga%3Avisits&amp;end-date=2008-10-31&amp;start-date=2008-10-01&amp;metrics=ga%3Avisits%2Cga%3Abounces&amp;ids=ga%3A10000000&amp;dimensions=ga%3Asource%2Cga%3Amedium&amp;filters=ga%3Amedium%3D%3Dreferral'/>
-  <author>
-    <name>Google Analytics</name>
-  </author>
-  <generator version='1.0'>Google Analytics</generator>
-  <openSearch:totalResults>229</openSearch:totalResults>
-  <openSearch:startIndex>1</openSearch:startIndex>
-  <openSearch:itemsPerPage>5</openSearch:itemsPerPage>
-  <dxp:startDate>2008-10-01</dxp:startDate>
-  <dxp:endDate>2008-10-31</dxp:endDate>
-  <dxp:aggregates>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='2680'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='1324'/>
-  </dxp:aggregates>
-  <dxp:dataSource>
-    <dxp:tableId>ga:10000000</dxp:tableId>
-    <dxp:tableName>example.com</dxp:tableName>
-    <dxp:property name='ga:profileId' value='10000000'/>
-    <dxp:property name='ga:webPropertyId' value='UA-100000-1'/>
-    <dxp:property name='ga:accountName' value='example.com'/>
-  </dxp:dataSource>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;ga:medium=referral&amp;ga:source=cssartillery.com&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-    <updated>2008-10-30T17:00:00.001-07:00</updated>
-    <title type='text'>ga:source=cssartillery.com | ga:medium=referral</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:dimension name='ga:source' value='cssartillery.com'/>
-    <dxp:dimension name='ga:medium' value='referral'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='312'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='194'/>
-  </entry>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;ga:medium=referral&amp;ga:source=csselite.com&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-    <updated>2008-10-30T17:00:00.001-07:00</updated>
-    <title type='text'>ga:source=csselite.com | ga:medium=referral</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:dimension name='ga:source' value='csselite.com'/>
-    <dxp:dimension name='ga:medium' value='referral'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='177'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='107'/>
-  </entry>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;ga:medium=referral&amp;ga:source=topnotchthemes.com&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-    <updated>2008-10-30T17:00:00.001-07:00</updated>
-    <title type='text'>ga:source=topnotchthemes.com | ga:medium=referral</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:dimension name='ga:source' value='topnotchthemes.com'/>
-    <dxp:dimension name='ga:medium' value='referral'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='171'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='51'/>
-  </entry>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;ga:medium=referral&amp;ga:source=cssdrive.com&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-    <updated>2008-10-30T17:00:00.001-07:00</updated>
-    <title type='text'>ga:source=cssdrive.com | ga:medium=referral</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:dimension name='ga:source' value='cssdrive.com'/>
-    <dxp:dimension name='ga:medium' value='referral'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='161'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='90'/>
-  </entry>
-  <entry>
-    <id>http://www.google.com/analytics/feeds/data?ids=ga:10000000&amp;ga:medium=referral&amp;ga:source=commoncraft.com&amp;filters=ga:medium%3D%3Dreferral&amp;start-date=2008-10-01&amp;end-date=2008-10-31</id>
-    <updated>2008-10-30T17:00:00.001-07:00</updated>
-    <title type='text'>ga:source=commoncraft.com | ga:medium=referral</title>
-    <link rel='alternate' type='text/html' href='http://www.google.com/analytics'/>
-    <dxp:dimension name='ga:source' value='commoncraft.com'/>
-    <dxp:dimension name='ga:medium' value='referral'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:visits' type='integer' value='110'/>
-    <dxp:metric confidenceInterval='0.0' name='ga:bounces' type='integer' value='29'/>
-  </entry>
-</feed>
-EOT;
-
-  $output = array(
-    'case-1' => $case1_output,
-  );
-
   // Look for a matching test case.
-  $case = false;
+  $match_case = false;
   foreach ($test_cases as $name => $test_case) {
-    $case = $name;
-    foreach ($test_case as $key => $value) {
+    $match_case = $name;
+    list ($parameters, $output) = $test_case;
+    foreach ($parameters as $key => $value) {
       // Does the parameter in this test case match?
       if (!isset($_GET[$key]) || $_GET[$key] != $value) {
         // No.  Try the next test case.
-        $case = false;
+        $match_case = false;
         break;
       }
     }
-    if ($case) {
-      exit($output[$case]);
+    // Did all of the parameters match?
+    if ($match_case) {
+      exit($output);
     }
   }
 }

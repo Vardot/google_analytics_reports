@@ -186,21 +186,3 @@ function google_analytics_api_report_data($request) {
   }
   return $data;
 }
-
-/*
- * Hook to replace a Google URL for testing purposes.
- */
-function google_analytics_api_replace_url($url) {
-  /* URLs used:
-   * https://www.google.com/accounts/ClientLogin
-   * https://www.google.com/accounts/AuthSubRequest
-   * https://www.google.com/accounts/AuthSubSessionToken
-   * https://www.google.com/accounts/AuthSubRevokeToken
-   * https://www.google.com/accounts/AuthSubTokenInfo
-   * https://www.google.com/analytics/feeds/accounts/default
-   * https://www.google.com/analytics/feeds/data
-   * https://www.google.com/analytics/feeds/
-   */
-  //return preg_replace('|^https://www\.google\.com/|', gapiUrl::currentBaseUrl() . base_path() . 'analytics-test/', $url);
-  return $url;
-}

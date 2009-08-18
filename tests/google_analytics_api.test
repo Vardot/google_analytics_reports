@@ -8,11 +8,50 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
   /**
    * Drupal SimpleTest method: return metadata about the test.
    */
-  function getInfo() {
+  public static function getInfo() {
     return array(
       'name' => t('Google Analytics API'),
       'desc' => t('Executes test suite for Google Analytics API module.'),
       'group' => t('Google Analytics API module'),
     );
+  }
+
+  function setUp() {
+    parent::setUp('google_analytics_api', 'google_analytics_api_test');
+
+    // Log out of current account.
+    variable_set('google_analytics_api_token', null);
+    variable_set('google_analytics_api_profile_id', null);
+
+    // User needs permissions to access Google Analytics API data.
+    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'access Google Analytics data'));
+  }
+
+  // grant access, revoke access, choose profile and save configuration
+  function grantAccess() {
+    $this->drupalLogin($this->web_user);
+    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->assertText(t('Google Analytics API settings'), t('Google Analytics API administration form was displayed.'));
+    $this->drupalPost(NULL, array(), t('Grant access to a Google account'));
+    // Note: This doesn't work unless the google_analytics_api_test module is enabled.
+    // If it is just pulled in through SimpleTest, CURL requests will not be able to access it.
+    $this->assertText(t('You have granted access to your Google account.'), t('Granted access to Google account.'));
+  }
+
+  function testGrantAccess() {
+    $this->grantAccess();
+  }
+
+  function testRevokeAccess() {
+    $this->grantAccess();
+    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->drupalPost(NULL, array(), t('Revoke access'));
+    $this->assertText(t('You have revoked access to your Google account.'), t('Revoked access to Google account.'));
+  }
+
+  function testProfileSelect() {
+    $this->grantAccess();
+    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->drupalPost(NULL, array('profile_id' => 10000000), t('Save configuration'));
   }
 }
