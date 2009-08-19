@@ -90,24 +90,59 @@ function google_analytics_api_test_check_auth_header($token) {
  * Menu callback; Google Account AuthSub authentication request.
  */
 function google_analytics_api_test_accounts_authsub_request() {
-  // Check for scope and next parameters.
+  // Check for scope parameter.
   if (!isset($_GET['scope'])) {
-    die('No scope parameter sent in AuthSub request.');
+    header('HTTP/1.0 401 Error');
+    exit('No scope parameter sent in AuthSub request.');
   }
   if ($_GET['scope'] != 'https://www.google.com/analytics/feeds/') {
-    die('Invalid scope parameter sent in AuthSub request.  Can only be "https://www.google.com/analytics/feeds/".');
-  }
-  if (!isset($_GET['next'])) {
-    die('No next parameter sent in AuthSub request.');
+    header('HTTP/1.0 401 Error');
+    exit('Invalid scope parameter sent in AuthSub request.  Can only be "https://www.google.com/analytics/feeds/".');
   }
 
-  // Respond to request with a redirection.
-  $response = array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
-  drupal_set_header('Content-Type', 'text/plain');
-  header('Location: ' . url($_GET['next'], array(
-    'query' => http_build_query($response, '', '&'),
-    'external' => TRUE)));
-  die();
+  // Check for next parameter.
+  if (!isset($_GET['next'])) {
+    header('HTTP/1.0 401 Error');
+    exit('No next parameter sent in AuthSub request.');
+  }
+
+  // Are we at the second stage?
+  if (isset($_POST['sec_tok'])) {
+    // Check for correct sec token.
+    if ($_POST['sec_tok'] != $_SESSION['sec_tok']) {
+      header('HTTP/1.0 401 Error');
+      exit('Invalid sec token sent in AuthSub request.');
+    }
+
+    // Check for clicking the correct button.
+    if (!isset($_POST['allow'])) {
+      header('HTTP/1.0 401 Error');
+      exit('Please use the "Grant access" button.');
+    }
+
+    // Respond to request with a redirection.
+    $response = array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
+    drupal_set_header('Content-Type', 'text/plain');
+    header('Location: ' . url($_GET['next'], array(
+      'query' => http_build_query($response, '', '&'),
+      'external' => TRUE)));
+    exit();
+  }
+
+  // Show the Grant/Deny access form.
+  // Note that normally we would just have action="", but SimpleTest assumes that
+  // an empty action string means 'the base URL of the site'.
+  $_SESSION['sec_tok'] = md5(time());
+  $get_args = $_GET;
+  unset($get_args['q']);
+  $action = url($_GET['q'], array('absolute' => TRUE, 'query' => http_build_query($get_args)));
+  $output = '';
+  $output .= '<form action="' . $action . '" method="post">';
+  $output .= '<input type="hidden" name="sec_tok" value="' . $_SESSION['sec_tok'] .  '" />';
+  $output .= '<input type="submit" name="allow" value="Grant access" />';
+  $output .= '<input type="submit" name="deny" value="Deny access" />';
+  $output .= '</form>';
+  exit($output);
 }
 
 /**
@@ -116,7 +151,7 @@ function google_analytics_api_test_accounts_authsub_request() {
 function google_analytics_api_test_accounts_authsub_session_token() {
   google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
 
-  // Send back session token.
+  // Send back session token if checks passed.
   exit('Token=' . GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
 }
 
@@ -163,7 +198,7 @@ function google_analytics_api_test_analytics_feeds_data() {
   );
 
   // Look for a matching test case.
-  $match_case = false;
+  $match_case = FALSE;
   foreach ($test_cases as $name => $test_case) {
     $match_case = $name;
     list ($parameters, $output) = $test_case;
@@ -171,7 +206,7 @@ function google_analytics_api_test_analytics_feeds_data() {
       // Does the parameter in this test case match?
       if (!isset($_GET[$key]) || $_GET[$key] != $value) {
         // No.  Try the next test case.
-        $match_case = false;
+        $match_case = FALSE;
         break;
       }
     }

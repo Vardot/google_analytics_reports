@@ -1,7 +1,6 @@
 ; $Id$
 
 name = "Google Analytics API"
+package = "Google Analytics API"
 description = "Adds support to Drupal to access statistics from the Google Analytics Data Export API."
 core = 6.x
-dependencies[] = chart
-dependencies[] = countries_api

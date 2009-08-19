@@ -2,7 +2,6 @@
 // $Id$
 
 require 'gapi.class.php';
-require 'google_analytics_api.pages.inc';
 
 /**
  * Implementation of hook_menu().
@@ -16,29 +15,6 @@ function google_analytics_api_menu() {
     'page arguments' => array('google_analytics_api_admin'),
     'access arguments' => array('access administration pages'),
     'type' => MENU_NORMAL_ITEM,
-  );
-  $items['google_analytics_api'] = array(
-    'title' => t('Google Analytics API Query'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('google_analytics_api_query_form'),
-    'file' => 'google_analytics_api.pages.inc',
-    'access arguments' => array('access Google Analytics data'),
-    'type' => MENU_CALLBACK,
-  );
-  $items['statistics'] = array(
-    'title' => t('Google Analytics API Statistics'),
-    'file' => 'google_analytics_api.pages.inc',
-    'page callback' => 'google_analytics_api_statistics_page',
-    'access arguments' => array('access Google Analytics data'),
-    'type' => MENU_CALLBACK,
-  );
-  $items['node/%node/statistics'] = array(
-    'title' => t('GA Statistics'),
-    'file' => 'google_analytics_api.pages.inc',
-    'page callback' => 'google_analytics_api_statistics_page',
-    'page arguments' => array(1, 'node'),
-    'access arguments' => array('access Google Analytics data'),
-    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -54,7 +30,7 @@ function google_analytics_api_perm() {
 /**
  * Return current token string.
  */
-function google_analytics_api_current_token($silent = false) {
+function google_analytics_api_current_token($silent = FALSE) {
   $token = variable_get('google_analytics_api_token', null);
   if (!$token && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to grant access.'));
@@ -65,7 +41,7 @@ function google_analytics_api_current_token($silent = false) {
 /**
  * Return current profile ID.
  */
-function google_analytics_api_current_profile_id($silent = false) {
+function google_analytics_api_current_profile_id($silent = FALSE) {
   $profile_id = variable_get('google_analytics_api_profile_id', null);
   if (!$profile_id && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to set one.'));
@@ -122,7 +98,7 @@ function google_analytics_api_gapi() {
       return $gapi;
     }
   }
-  return false;
+  return FALSE;
 }
 
 /*
@@ -169,7 +145,7 @@ function google_analytics_api_report_data($request) {
 
   $gapi = google_analytics_api_gapi();
   if (!$gapi) {
-    return false;
+    return FALSE;
   }
 
   // TODO: Insert a check to see if we have this query cached.
@@ -182,7 +158,7 @@ function google_analytics_api_report_data($request) {
   }
   catch(Exception $e) {
     drupal_set_message(t('Google Analytics API: @message', array('@message' => $e->getMessage())));
-    return false;
+    return FALSE;
   }
   return $data;
 }

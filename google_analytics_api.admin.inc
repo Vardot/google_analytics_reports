@@ -96,5 +96,5 @@ function google_analytics_api_check_token() {
     header('Location: ' . gapiUrl::currentUrlWithoutGet());
     exit;
   }
-  return google_analytics_api_current_token(true);
+  return google_analytics_api_current_token(TRUE);
 }

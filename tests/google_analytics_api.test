@@ -33,8 +33,9 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     $this->drupalGet('admin/settings/google_analytics_api');
     $this->assertText(t('Google Analytics API settings'), t('Google Analytics API administration form was displayed.'));
     $this->drupalPost(NULL, array(), t('Grant access to a Google account'));
+    $this->drupalPost(NULL, array(), t('Grant access'));
     // Note: This doesn't work unless the google_analytics_api_test module is enabled.
-    // If it is just pulled in through SimpleTest, CURL requests will not be able to access it.
+    // If it is just pulled in through SimpleTest, cURL requests will not be able to access it.
     $this->assertText(t('You have granted access to your Google account.'), t('Granted access to Google account.'));
   }
 
