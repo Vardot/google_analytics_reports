@@ -425,7 +425,7 @@ function google_analytics_api_gui_statistics_page($path = null) {
     '#sort_metric' => array('date', 'pagePath'),
     '#start_date' => strtotime('-35 days')
   );
-  $rows = google_analytics_path_report($request, $path);
+  $rows = google_analytics_api_gui_path_report($request, $path);
 
   // Check for data.
   if (!$rows) {
@@ -455,7 +455,7 @@ function google_analytics_api_gui_statistics_page($path = null) {
     '#metrics' => array('pageviews'),
     '#sort_metric' => array('browser', 'pagePath'),
   );
-  $rows = google_analytics_path_report($request, $path, 'browser');
+  $rows = google_analytics_api_gui_path_report($request, $path, 'browser');
   $browsers = array();
   $total_views = 0;
   foreach ($rows as $key => $value) {
@@ -489,7 +489,7 @@ function google_analytics_api_gui_statistics_page($path = null) {
     '#metrics' => array('pageviews'),
     '#sort_metric' => array('country', 'pagePath'),
   );
-  $rows = google_analytics_path_report($request, $path, 'country');
+  $rows = google_analytics_api_gui_path_report($request, $path, 'country');
   $name_to_iso = countries_api_get_array('name', 'iso2');
   $countries = array();
   $max_pageviews = 0;
@@ -528,7 +528,7 @@ function google_analytics_api_gui_statistics_page($path = null) {
     '#sort_metric' => array('source', 'referralPath', 'pagePath'),
     '#start_date' => strtotime('-1 month')
   );
-  $rows = google_analytics_path_report($request, $path, array('source', 'referralPath'));
+  $rows = google_analytics_api_gui_path_report($request, $path, array('source', 'referralPath'));
 
   // Sort rows in descending order.
   $referrers = array();
