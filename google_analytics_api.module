@@ -7,7 +7,7 @@ require 'gapi.class.php';
  * Implementation of hook_menu().
  */
 function google_analytics_api_menu() {
-  $items['admin/settings/google_analytics_api'] = array(
+  $items['admin/settings/google-analytics-api'] = array(
     'title' => t('Google Analytics API settings'),
     'description' => t('Manage the currently logged in Analytics account'),
     'page callback' => 'drupal_get_form',
@@ -24,7 +24,7 @@ function google_analytics_api_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('access Google Analytics data');
+  return array('administer Google Analytics settings');
 }
 
 /**
@@ -76,7 +76,7 @@ function google_analytics_api_logout() {
   try {
     google_analytics_api_gapi()->revokeToken();
   }
-  catch(Exception $e) {
+  catch (Exception $e) {
   }
   variable_set('google_analytics_api_token', null);
   variable_set('google_analytics_api_profile_id', null);
@@ -88,7 +88,7 @@ function google_analytics_api_logout() {
 function google_analytics_api_gapi() {
   static $gapi;
 
-  if (user_access('access Google Analytics data')) {
+  if (user_access('administer Google Analytics settings')) {
     if ($gapi) {
       return $gapi;
     }
@@ -108,7 +108,7 @@ function google_analytics_api_account_data() {
   try {
     $data = google_analytics_api_gapi()->requestAccountData();
   }
-  catch(Exception $e) {
+  catch (Exception $e) {
     return google_analytics_api_logout();
   }
   return $data;
@@ -156,7 +156,7 @@ function google_analytics_api_report_data($request) {
       $request['#filter'], $request['#start_date'], $request['#end_date'],
       $request['#start_index'], $request['#max_results']);
   }
-  catch(Exception $e) {
+  catch (Exception $e) {
     drupal_set_message(t('Google Analytics API: @message', array('@message' => $e->getMessage())));
     return FALSE;
   }

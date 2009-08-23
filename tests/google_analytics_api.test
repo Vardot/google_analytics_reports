@@ -24,13 +24,13 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     variable_set('google_analytics_api_profile_id', null);
 
     // User needs permissions to access Google Analytics API data.
-    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'access Google Analytics data'));
+    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer Google Analytics settings'));
   }
 
   // grant access, revoke access, choose profile and save configuration
   function grantAccess() {
     $this->drupalLogin($this->web_user);
-    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->drupalGet('admin/settings/google-analytics-api');
     $this->assertText(t('Google Analytics API settings'), t('Google Analytics API administration form was displayed.'));
     $this->drupalPost(NULL, array(), t('Grant access to a Google account'));
     $this->drupalPost(NULL, array(), t('Grant access'));
@@ -45,14 +45,14 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
 
   function testRevokeAccess() {
     $this->grantAccess();
-    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->drupalGet('admin/settings/google-analytics-api');
     $this->drupalPost(NULL, array(), t('Revoke access'));
     $this->assertText(t('You have revoked access to your Google account.'), t('Revoked access to Google account.'));
   }
 
   function testProfileSelect() {
     $this->grantAccess();
-    $this->drupalGet('admin/settings/google_analytics_api');
+    $this->drupalGet('admin/settings/google-analytics-api');
     $this->drupalPost(NULL, array('profile_id' => 10000000), t('Save configuration'));
   }
 }
