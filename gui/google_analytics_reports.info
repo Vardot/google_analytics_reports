@@ -1,7 +1,7 @@
 ; $Id$
 
-name = "Google Analytics API GUI"
-package = "Google Analytics API"
+name = "Google Analytics Reports"
+package = "Google Analytics"
 description = "Provides interface to access Google Analytics API statistics."
 core = 6.x
 dependencies[] = google_analytics_api
