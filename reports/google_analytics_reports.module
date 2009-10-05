@@ -363,7 +363,7 @@ function google_analytics_reports_current_summary($path = null) {
   $description .= '<p><strong>/' . drupal_get_path_alias($_GET['q']) . '</strong></p>';
 
   // See more link.
-  $more_link = l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q']));
+  $more_link = '<p>' . l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q'])) . '</p>';
 
   return $description
     . chart_render($pageviews_chart)
