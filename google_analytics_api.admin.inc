@@ -2,6 +2,12 @@
 // $Id$
 
 /**
+ * @file
+ * Provides the interface whereby one can grant access to a Google account and
+ * select the appropriate Analytics account.
+ */
+
+/**
  * The admin form.
  */
 function google_analytics_api_admin() {
@@ -66,7 +72,7 @@ function google_analytics_api_admin_account_data_options() {
  * Admin form callback, run on submission of any buttons.
  */
 function google_analytics_api_admin_submit($form, &$form_state) {
-  if (variable_get('google_analytics_api_token', null)) {
+  if (variable_get('google_analytics_api_token', NULL)) {
     if ($form_state['clicked_button']['#value'] == t('Revoke access')) {
       drupal_set_message(t('You have revoked access to your Google account.'));
       return google_analytics_api_logout();

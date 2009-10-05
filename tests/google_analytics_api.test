@@ -2,6 +2,7 @@
 // $Id$
 
 /**
+ * @file
  * Unit tests for Google Analytics API module.
  */
 class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
@@ -20,8 +21,8 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     parent::setUp('google_analytics_api', 'google_analytics_api_test');
 
     // Log out of current account.
-    variable_set('google_analytics_api_token', null);
-    variable_set('google_analytics_api_profile_id', null);
+    variable_set('google_analytics_api_token', NULL);
+    variable_set('google_analytics_api_profile_id', NULL);
 
     // User needs permissions to access Google Analytics API data.
     $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer Google Analytics settings'));

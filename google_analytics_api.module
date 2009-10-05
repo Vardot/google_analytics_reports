@@ -1,6 +1,11 @@
 <?php
 // $Id$
 
+/**
+ * @file
+ * Implements the API through which Google Analytics data can be accessed.
+ */
+
 require 'gapi.class.php';
 
 /**
@@ -31,7 +36,7 @@ function google_analytics_api_perm() {
  * Return current token string.
  */
 function google_analytics_api_current_token($silent = FALSE) {
-  $token = variable_get('google_analytics_api_token', null);
+  $token = variable_get('google_analytics_api_token', NULL);
   if (!$token && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to grant access.'));
   }
@@ -42,7 +47,7 @@ function google_analytics_api_current_token($silent = FALSE) {
  * Return current profile ID.
  */
 function google_analytics_api_current_profile_id($silent = FALSE) {
-  $profile_id = variable_get('google_analytics_api_profile_id', null);
+  $profile_id = variable_get('google_analytics_api_profile_id', NULL);
   if (!$profile_id && !$silent) {
     drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to set one.'));
   }
@@ -59,7 +64,7 @@ function google_analytics_api_current_profile() {
       return $profile;
     }
   }
-  return null;
+  return NULL;
 }
 
 /*
@@ -78,8 +83,8 @@ function google_analytics_api_logout() {
   }
   catch (Exception $e) {
   }
-  variable_set('google_analytics_api_token', null);
-  variable_set('google_analytics_api_profile_id', null);
+  variable_set('google_analytics_api_token', NULL);
+  variable_set('google_analytics_api_profile_id', NULL);
 }
 
 /*
@@ -128,12 +133,12 @@ function google_analytics_api_account_data() {
 function google_analytics_api_report_data($request) {
   // Make sure parameters are all there with a default value.
   $params = array(
-    '#dimension' => null,
-    '#metrics' => null,
-    '#sort_metric' => null,
-    '#filter' => null,
-    '#start_date' => null,
-    '#end_date' => null,
+    '#dimension' => NULL,
+    '#metrics' => NULL,
+    '#sort_metric' => NULL,
+    '#filter' => NULL,
+    '#start_date' => NULL,
+    '#end_date' => NULL,
     '#start_index' => 1,
     '#max_results' => 10000,
   );

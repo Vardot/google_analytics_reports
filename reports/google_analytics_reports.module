@@ -2,6 +2,11 @@
 // $Id$
 
 /**
+ * @file
+ * Front-end interfaces that use the Google Analytics API module.
+ */
+
+/**
  * Implementation of hook_menu().
  */
 function google_analytics_reports_menu() {
@@ -123,14 +128,14 @@ function _google_analytics_reports_query_form_fetch_results($form_state = array(
   $metrics = _google_analytics_reports_query_form_process($form_state['post']['metrics']);
   $sort_metric = _google_analytics_reports_query_form_process($form_state['post']['sort_metric']);
   $filter = $form_state['post']['filter'];
-  $start_date = null;
+  $start_date = NULL;
   if ($form_state['post']['no_start_date'] != '1') {
     $start_date =
       $form_state['post']['start_date']['year'] . '-' .
       str_pad($form_state['post']['start_date']['month'], 2, '0', STR_PAD_LEFT) . '-' .
       str_pad($form_state['post']['start_date']['day'], 2, '0', STR_PAD_LEFT);
   }
-  $end_date = null;
+  $end_date = NULL;
   if ($form_state['post']['no_end_date'] != '1') {
     $end_date =
       $form_state['post']['end_date']['year'] . '-' .
@@ -192,9 +197,9 @@ function _google_analytics_reports_query_form_process($string) {
 /*
  * Return a list of paths that are aliased with the given path (including the given path).
  */
-function _google_analytics_reports_path_aliases($node_path = null) {
+function _google_analytics_reports_path_aliases($node_path = NULL) {
   // Default path is the current path.
-  if ($node_path == null) {
+  if ($node_path == NULL) {
     $node_path = $_GET['q'];
   }
 
@@ -222,7 +227,7 @@ function _google_analytics_reports_path_aliases($node_path = null) {
 /*
  * Construct a filter string that grabs pagePaths corresponding to the specified node or path.
  */
-function _google_analytics_reports_path_filter($node_path = null) {
+function _google_analytics_reports_path_filter($node_path = NULL) {
   $aliases = _google_analytics_reports_path_aliases($node_path);
 
   // Okay, this is ridiculous.  Google Analytics regex filters
@@ -278,7 +283,7 @@ function google_analytics_reports_block($op = 'list', $delta = 0) {
 /*
  * Function to collect together data for different aliases.
  */
-function google_analytics_reports_path_report($request, $path = null, $group_by = 'date') {
+function google_analytics_reports_path_report($request, $path = NULL, $group_by = 'date') {
   $data = array();
   foreach (_google_analytics_reports_path_filter($path) as $filter) {
     $request['#filter'] = $filter;
@@ -316,7 +321,7 @@ function google_analytics_reports_path_report($request, $path = null, $group_by 
 /*
  * Create a statistics summary block and return it.
  */
-function google_analytics_reports_current_summary($path = null) {
+function google_analytics_reports_current_summary($path = NULL) {
   // Ensure we aren't on the 'statistics' page implemented below...
   if ($_GET['q'] == 'statistics') {
     return FALSE;
@@ -414,8 +419,8 @@ function _google_analytics_reports_sparkline_chart($id, $title, $data, $dates) {
 /*
  * Main statistics page.
  */
-function google_analytics_reports_statistics_page($path = null) {
-  if ($path == null) {
+function google_analytics_reports_statistics_page($path = NULL) {
+  if ($path == NULL) {
     $path = $_GET['path'];
   }
   if (!$path) {
