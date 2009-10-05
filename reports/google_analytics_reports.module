@@ -317,6 +317,11 @@ function google_analytics_reports_path_report($request, $path = null, $group_by 
  * Create a statistics summary block and return it.
  */
 function google_analytics_reports_current_summary($path = null) {
+  // Ensure we aren't on the 'statistics' page implemented below...
+  if ($_GET['q'] == 'statistics') {
+    return FALSE;
+  }
+
   // Ensure user has permission to view this block.
   if (!user_access('access Google Analytics reports')) {
     return FALSE;
@@ -412,6 +417,9 @@ function _google_analytics_reports_sparkline_chart($id, $title, $data, $dates) {
 function google_analytics_reports_statistics_page($path = null) {
   if ($path == null) {
     $path = $_GET['path'];
+  }
+  if (!$path) {
+    return '<p>' . t('This will become a page with overall statistics for the entire site.  For now please view statistics for individual paths by clicking the link in the statistics block.') . '</p>';
   }
   elseif (is_object($path)) {
     $path = $path->path;
