@@ -15,7 +15,7 @@ function google_analytics_api_admin() {
 
   if (google_analytics_api_check_token()) {
     $form['login_status'] = array(
-      '#value' => t('<p>Currently you have granted access to a Google Analytics account.  Please choose the profile below that contains statistics for this site.</p>'),
+      '#value' => '<p>' . t('Currently you have granted access to a Google Analytics account. Please choose the profile below that contains statistics for this site.') . '</p>',
       '#weight' => -10,
     );
     $form['logout'] = array(
@@ -28,7 +28,7 @@ function google_analytics_api_admin() {
       '#title' => t('Profile'),
       '#options' => google_analytics_api_admin_account_data_options(),
       '#default_value' => variable_get('google_analytics_api_profile_id', 0),
-      '#description' => t('Choose your website\'s profile'),
+      '#description' => t("Choose your website's profile."),
       '#required' => TRUE,
       '#weight' => -2,
     );
@@ -40,7 +40,7 @@ function google_analytics_api_admin() {
   }
   else {
     $form['logout_status'] = array(
-      '#value' => t('<p>In order for you to access your Google Analytics account through Drupal, you need to grant access to your account.  This gives Drupal permission to contact the Google Analytics server and download statistics about your site.</p>'),
+      '#value' => '<p>' . t('In order for you to access your Google Analytics account through Drupal, you need to grant access to your account. This gives Drupal permission to contact the Google Analytics server and download statistics about your site.') . '</p>',
       '#weight' => -10,
     );
     $form['buttons']['submit'] = array(
@@ -60,10 +60,10 @@ function google_analytics_api_admin_account_data_options() {
     $options = array();
     $i = 0;
     if (!$accounts) {
-      return array(variable_get('google_analytics_api_profile_id', 0) => 'Account listing unavailable.  Currently selected account has ID: ' . variable_get('google_analytics_api_profile_id', 0));
+      return array(variable_get('google_analytics_api_profile_id', 0) => t('Account listing unavailable. Currently selected account has ID: @profile-id.', array('@profile-id' => variable_get('google_analytics_api_profile_id', 0))));
     }
     foreach ($accounts as $account) {
-      $options[$account->getProfileId()] = $account->getTitle() . ' (' . $account->getProfileId() . ')';
+      $options[$account->getProfileId()] = t('@title (@profile-id)', array('@title' => $account->getTitle(), '@profile-id' => $account->getProfileId()));
     }
     return $options;
 }
@@ -98,7 +98,7 @@ function google_analytics_api_check_token() {
       $id = $accounts[0]->getProfileId();
       variable_set('google_analytics_api_profile_id', $id);
     }
-    drupal_set_message(t('You have granted access to your Google account.  Drupal will be able to download information from the account until you revoke access.'));
+    drupal_set_message(t('You have granted access to your Google account. Drupal will be able to download information from the account until you revoke access.'));
     header('Location: ' . gapiUrl::currentUrlWithoutGet());
     exit;
   }

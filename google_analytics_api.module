@@ -13,8 +13,8 @@ require 'gapi.class.php';
  */
 function google_analytics_api_menu() {
   $items['admin/settings/google-analytics-api'] = array(
-    'title' => t('Google Analytics API settings'),
-    'description' => t('Manage the currently logged in Analytics account'),
+    'title' => 'Google Analytics API settings',
+    'description' => 'Manage the currently logged in Analytics account.',
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.admin.inc',
     'page arguments' => array('google_analytics_api_admin'),
@@ -29,7 +29,7 @@ function google_analytics_api_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('administer Google Analytics settings');
+  return array('administer google analytics settings');
 }
 
 /**
@@ -38,7 +38,7 @@ function google_analytics_api_perm() {
 function google_analytics_api_current_token($silent = FALSE) {
   $token = variable_get('google_analytics_api_token', NULL);
   if (!$token && !$silent) {
-    drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to grant access.'));
+    drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account. Please visit the <a href="@admin">administration page</a> to grant access.', array('@admin' => url('admin/settings/google_analytics_api')));
   }
   return $token;
 }
@@ -49,7 +49,7 @@ function google_analytics_api_current_token($silent = FALSE) {
 function google_analytics_api_current_profile_id($silent = FALSE) {
   $profile_id = variable_get('google_analytics_api_profile_id', NULL);
   if (!$profile_id && !$silent) {
-    drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile.  Please visit the ' . l('administration page', 'admin/settings/google_analytics_api') . ' to set one.'));
+    drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile. Please visit the <a href="@admin">administration page</a> to set one.', array('@admin' => url('admin/settings/google_analytics_api')));
   }
   return $profile_id;
 }
@@ -93,7 +93,7 @@ function google_analytics_api_logout() {
 function google_analytics_api_gapi() {
   static $gapi;
 
-  if (user_access('administer Google Analytics settings')) {
+  if (user_access('administer google analytics settings')) {
     if ($gapi) {
       return $gapi;
     }

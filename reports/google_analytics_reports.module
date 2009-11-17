@@ -11,23 +11,23 @@
  */
 function google_analytics_reports_menu() {
   $items['admin/google-analytics/report'] = array(
-    'title' => t('Google Analytics Report Query'),
+    'title' => 'Google Analytics Report Query',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('google_analytics_reports_query_form'),
-    'access arguments' => array('access Google Analytics reports'),
+    'access arguments' => array('access google analytics reports'),
     'type' => MENU_CALLBACK,
   );
   $items['statistics'] = array(
-    'title' => t('Google Analytics API Statistics'),
+    'title' => 'Google Analytics API Statistics',
     'page callback' => 'google_analytics_reports_statistics_page',
-    'access arguments' => array('access Google Analytics reports'),
+    'access arguments' => array('access google analytics reports'),
     'type' => MENU_CALLBACK,
   );
   $items['node/%node/statistics'] = array(
-    'title' => t('Statistics'),
+    'title' => 'Statistics',
     'page callback' => 'google_analytics_reports_statistics_page',
     'page arguments' => array(1, 'node'),
-    'access arguments' => array('access Google Analytics reports'),
+    'access arguments' => array('access google analytics reports'),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
@@ -39,7 +39,7 @@ function google_analytics_reports_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_reports_api_perm() {
-  return array('access Google Analytics reports');
+  return array('access google analytics reports');
 }
 
 /**
@@ -49,7 +49,7 @@ function google_analytics_reports_query_form($form_state) {
   $form = array();
 
   $form['query']['info'] = array(
-    '#value' => t('Please see ' . l('Google Analytics Data API Reference', 'http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html') . ' for a list of dimensions and metrics.'),
+    '#value' => t('Please see the <a href="@api-reference">Google Analytics Data API Reference</a> for a list of dimensions and metrics.', array('@api-reference' => 'http://code.google.com/apis/analytics/docs/gdata/gdataReferenceDimensionsMetrics.html')),
   );
   $form['query']['dimensions'] = array(
     '#type' => 'textfield',
@@ -65,7 +65,7 @@ function google_analytics_reports_query_form($form_state) {
   );
   $form['query']['sort_metric'] = array(
     '#type' => 'textfield',
-    '#title' => t('Sort Metric'),
+    '#title' => t('Sort metric'),
     '#maxlength' => 300,
     '#description' => t('(e.g. -entrances, pageviews)'),
   );
@@ -77,7 +77,7 @@ function google_analytics_reports_query_form($form_state) {
   );
   $form['query']['start_date'] = array(
     '#type' => 'date',
-    '#title' => t('Start Date'),
+    '#title' => t('Start date'),
   );
   $form['query']['no_start_date'] = array(
     '#type' => 'checkbox',
@@ -87,7 +87,7 @@ function google_analytics_reports_query_form($form_state) {
   );
   $form['query']['end_date'] = array(
     '#type' => 'date',
-    '#title' => t('End Date'),
+    '#title' => t('End date'),
   );
   $form['query']['no_end_date'] = array(
     '#type' => 'checkbox',
@@ -97,17 +97,17 @@ function google_analytics_reports_query_form($form_state) {
   );
   $form['query']['start_index'] = array(
     '#type' => 'textfield',
-    '#title' => t('Start Index'),
+    '#title' => t('Start index'),
     '#default_value' => 1,
   );
   $form['query']['max_results'] = array(
     '#type' => 'textfield',
-    '#title' => t('Maximum Results'),
+    '#title' => t('Maximum results'),
     '#default_value' => 10000,
   );
   $form['buttons']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit query'),
+    '#value' => t('Execute query'),
   );
   $form['#redirect'] = FALSE;
 
@@ -172,7 +172,7 @@ function _google_analytics_reports_query_form_fetch_results($form_state = array(
     $row = array_merge($row, $entry->getMetrics());
     $rows[] = $row;
   }
-  $totals = array(t('Aggregate Value'));
+  $totals = array(t('Aggregate value'));
   $totals = array_pad($totals, sizeof($dimensions), '');
   $totals = array_merge($totals, google_analytics_api_gapi()->getMetrics());
   $rows[] = $totals;
@@ -328,13 +328,13 @@ function google_analytics_reports_current_summary($path = NULL) {
   }
 
   // Ensure user has permission to view this block.
-  if (!user_access('access Google Analytics reports')) {
+  if (!user_access('access google analytics reports')) {
     return FALSE;
   }
 
   // Ensure the user is logged in.
   if (!google_analytics_api_gapi()) {
-    return 'Please ' . l('grant access', 'admin/settings/google_analytics_api') . ' to your Google account.';
+    return t('Please <a href="@admin">grant access</a> to your Google account.', array('@admin' => url('admin/settings/google_analytics_api')));
   }
 
   // Grab the data.
@@ -348,7 +348,7 @@ function google_analytics_reports_current_summary($path = NULL) {
 
   // Check for data.
   if (!$rows) {
-    return '<p>No analytics data is currently available for this path.</p>';
+    return '<p>' . t('No analytics data is currently available for this path.') . '</p>';
   }
 
   // Format and perform calculations to display charts.
@@ -364,12 +364,12 @@ function google_analytics_reports_current_summary($path = NULL) {
   }
 
   // Create charts.
-  $pageviews_chart = _google_analytics_reports_sparkline_chart('page_views', t('Page Views'), $chart_pageviews, $chart_dates);
-  $avg_time_chart = _google_analytics_reports_sparkline_chart('avg_time', t('Average Time (s)'), $chart_avg_time, $chart_dates);
-  $avg_bounce_rate = _google_analytics_reports_sparkline_chart('bounce_rate', t('Bounce Rate (%)'), $chart_bounce_rate, $chart_dates);
+  $pageviews_chart = _google_analytics_reports_sparkline_chart('page_views', t('Page views'), $chart_pageviews, $chart_dates);
+  $avg_time_chart = _google_analytics_reports_sparkline_chart('avg_time', t('Average time (s)'), $chart_avg_time, $chart_dates);
+  $avg_bounce_rate = _google_analytics_reports_sparkline_chart('bounce_rate', t('Bounce rate (%)'), $chart_bounce_rate, $chart_dates);
 
   // Text description.
-  $description = t('<p>Statistics for past 14 days:</p>');
+  $description = '<p>' . t('Statistics for past 14 days:') . '</p>';
   $description .= '<p><strong>/' . drupal_get_path_alias($_GET['q']) . '</strong></p>';
 
   // See more link.
@@ -424,13 +424,13 @@ function google_analytics_reports_statistics_page($path = NULL) {
     $path = $_GET['path'];
   }
   if (!$path) {
-    return '<p>' . t('This will become a page with overall statistics for the entire site.  For now please view statistics for individual paths by clicking the link in the statistics block.') . '</p>';
+    return '<p>' . t('This will become a page with overall statistics for the entire site. For now please view statistics for individual paths by clicking the link in the statistics block.') . '</p>';
   }
   elseif (is_object($path)) {
     $path = $path->path;
   }
 
-  $output = t('<p>These paths were searched for statistics:</p>');
+  $output = '<p>' . t('These paths were searched for statistics:') . '</p>';
 
   $aliases = _google_analytics_reports_path_aliases($path);
   foreach ($aliases as $key => $value) {
@@ -450,7 +450,7 @@ function google_analytics_reports_statistics_page($path = NULL) {
 
   // Check for data.
   if (!$rows) {
-    return '<p>No analytics data is currently available for this path.</p>';
+    return '<p>' . t('No analytics data is currently available for this path.') . '</p>';
   }
 
   // Format and perform calculations to display charts.
@@ -466,9 +466,9 @@ function google_analytics_reports_statistics_page($path = NULL) {
   }
 
   // Create charts.
-  $output .= chart_render(_google_analytics_reports_main_chart('page_views', t('Page Views'), $chart_pageviews, $chart_dates));
-  $output .= chart_render($avg_time_chart = _google_analytics_reports_main_chart('avg_time', t('Average Time (s)'), $chart_avg_time, $chart_dates));
-  $output .= chart_render(_google_analytics_reports_main_chart('bounce_rate', t('Bounce Rate (%)'), $chart_bounce_rate, $chart_dates));
+  $output .= chart_render(_google_analytics_reports_main_chart('page_views', t('Page views'), $chart_pageviews, $chart_dates));
+  $output .= chart_render($avg_time_chart = _google_analytics_reports_main_chart('avg_time', t('Average time (s)'), $chart_avg_time, $chart_dates));
+  $output .= chart_render(_google_analytics_reports_main_chart('bounce_rate', t('Bounce rate (%)'), $chart_bounce_rate, $chart_dates));
 
   // Query for browser usage information.
   $request = array(
@@ -496,7 +496,7 @@ function google_analytics_reports_statistics_page($path = NULL) {
   // Create browser chart.
   $chart = array(
     '#chart_id' => 'browsers',
-    '#title' => 'Browser Usage',
+    '#title' => 'Browser usage',
     '#type' => CHART_TYPE_PIE,
     '#size' => chart_size(600, 300),
     '#data' => $filtered_browsers,
@@ -539,7 +539,7 @@ function google_analytics_reports_statistics_page($path = NULL) {
     '#data_colors' => array('ffffff', 'edf0d4', '13390a'),
   );
 
-  $output .= t('<h3>Geographical Usage</h3>');
+  $output .= '<h3>' . t('Geographical usage') . '</h3>';
   $output .= chart_render($chart);
 
   // Query for referrer information.
@@ -562,7 +562,7 @@ function google_analytics_reports_statistics_page($path = NULL) {
   $referrers = array_reverse($referrers);
 
   // Create a table.
-  $headers = array('Page Views', 'Source');
+  $headers = array('Page views', 'Source');
   $rows = array();
   $threshold = $total_referrers * 0.005;
   foreach ($referrers as $site => $pageviews) {
@@ -577,7 +577,7 @@ function google_analytics_reports_statistics_page($path = NULL) {
     }
   }
 
-  $output .= t('<h3>Top Referrers (Past Month)</h3>');
+  $output .= '<h3>' . t('Top referrers (past month)') . '</h3>';
   $output .= theme('table', $headers, $rows);
 
   return $output;
