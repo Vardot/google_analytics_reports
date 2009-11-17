@@ -1,0 +1,169 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (reports)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  google_analytics_reports.module,v 1.5 2009/11/17 17:35:31 jkitching
+#  google_analytics_reports.info,v 1.1 2009/08/23 22:10:22 jkitching
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-11-17 22:24+0100\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: reports/google_analytics_reports.module:52
+msgid "Please see the <a href=\"@api-reference\">Google Analytics Data API Reference</a> for a list of dimensions and metrics."
+msgstr ""
+
+#: reports/google_analytics_reports.module:56
+msgid "Dimensions"
+msgstr ""
+
+#: reports/google_analytics_reports.module:58
+msgid "(browser, browserVersion, city, connectionSpeed, continent, date, hostname, pagePath, pageTitle...)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:62
+msgid "Metrics"
+msgstr ""
+
+#: reports/google_analytics_reports.module:64
+msgid "(entrances, pageviews, timeOnPage, visitors, visits...)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:68
+msgid "Sort metric"
+msgstr ""
+
+#: reports/google_analytics_reports.module:70
+msgid "(e.g. -entrances, pageviews)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:74
+msgid "Filter"
+msgstr ""
+
+#: reports/google_analytics_reports.module:76
+msgid "(e.g. country == United States && browser == Firefox || browser == Chrome)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:80
+msgid "Start date"
+msgstr ""
+
+#: reports/google_analytics_reports.module:84
+msgid "No start date."
+msgstr ""
+
+#: reports/google_analytics_reports.module:86
+msgid "(Default: Google Analytics launch date of 1 Jan 2005)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:90
+msgid "End date"
+msgstr ""
+
+#: reports/google_analytics_reports.module:94
+msgid "No end date."
+msgstr ""
+
+#: reports/google_analytics_reports.module:96
+msgid "(Default: Today)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:100
+msgid "Start index"
+msgstr ""
+
+#: reports/google_analytics_reports.module:105
+msgid "Maximum results"
+msgstr ""
+
+#: reports/google_analytics_reports.module:110
+msgid "Execute query"
+msgstr ""
+
+#: reports/google_analytics_reports.module:117
+msgid "Query results"
+msgstr ""
+
+#: reports/google_analytics_reports.module:175
+msgid "Aggregate value"
+msgstr ""
+
+#: reports/google_analytics_reports.module:274;277
+msgid "Google Analytics Statistics"
+msgstr ""
+
+#: reports/google_analytics_reports.module:337
+msgid "Please <a href=\"@admin\">grant access</a> to your Google account."
+msgstr ""
+
+#: reports/google_analytics_reports.module:351;453
+msgid "No analytics data is currently available for this path."
+msgstr ""
+
+#: reports/google_analytics_reports.module:367;469
+msgid "Page views"
+msgstr ""
+
+#: reports/google_analytics_reports.module:368;470
+msgid "Average time (s)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:369;471
+msgid "Bounce rate (%)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:372
+msgid "Statistics for past 14 days:"
+msgstr ""
+
+#: reports/google_analytics_reports.module:376
+msgid "See more statistics..."
+msgstr ""
+
+#: reports/google_analytics_reports.module:427
+msgid "This will become a page with overall statistics for the entire site. For now please view statistics for individual paths by clicking the link in the statistics block."
+msgstr ""
+
+#: reports/google_analytics_reports.module:433
+msgid "These paths were searched for statistics:"
+msgstr ""
+
+#: reports/google_analytics_reports.module:542
+msgid "Geographical usage"
+msgstr ""
+
+#: reports/google_analytics_reports.module:580
+msgid "Top referrers (past month)"
+msgstr ""
+
+#: reports/google_analytics_reports.module:14
+msgid "Google Analytics Report Query"
+msgstr ""
+
+#: reports/google_analytics_reports.module:21
+msgid "Google Analytics API Statistics"
+msgstr ""
+
+#: reports/google_analytics_reports.module:27
+msgid "Statistics"
+msgstr ""
+
+#: reports/google_analytics_reports.info:0
+msgid "Google Analytics Reports"
+msgstr ""
+
+#: reports/google_analytics_reports.info:0
+msgid "Provides interface to access Google Analytics API statistics."
+msgstr ""
+
