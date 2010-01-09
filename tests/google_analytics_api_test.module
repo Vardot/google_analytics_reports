@@ -136,7 +136,7 @@ function google_analytics_api_test_accounts_authsub_request() {
     $_SESSION['sec_tok'] = md5(time());
     $get_args = $_GET;
     unset($get_args['q']);
-    $action = url($_GET['q'], array('absolute' => TRUE, 'query' => http_build_query($get_args)));
+    $action = url($_GET['q'], array('absolute' => TRUE, 'query' => $get_args));
     $output = '';
     $output .= '<form action="' . $action . '" method="post">';
     $output .= '<input type="hidden" name="sec_tok" value="' . $_SESSION['sec_tok'] .  '" />';
