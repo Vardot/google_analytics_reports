@@ -121,12 +121,7 @@ function google_analytics_api_test_accounts_authsub_request() {
     }
 
     // Respond to request with a redirection.
-    $response = array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN);
-    drupal_set_header('Content-Type', 'text/plain');
-    header('Location: ' . url($_GET['next'], array(
-      'query' => http_build_query($response, '', '&'),
-      'external' => TRUE)));
-    exit();
+    drupal_goto($_GET['next'], array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN));
   }
 
   // Show the Grant/Deny access form.

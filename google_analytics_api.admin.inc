@@ -99,8 +99,7 @@ function google_analytics_api_check_token() {
       variable_set('google_analytics_api_profile_id', $id);
     }
     drupal_set_message(t('You have granted access to your Google account. Drupal will be able to download information from the account until you revoke access.'));
-    header('Location: ' . gapiUrl::currentUrlWithoutGet());
-    exit;
+    drupal_goto(gapiUrl::currentUrlWithoutGet());
   }
   return google_analytics_api_current_token(TRUE);
 }
