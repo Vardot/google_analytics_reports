@@ -75,13 +75,13 @@ function google_analytics_api_test_check_auth_header($token) {
 
   // Check for token header.
   if (!isset($sent_headers['Authorization'])) {
-    header('HTTP/1.0 401 Error');
+    drupal_set_header('HTTP/1.0 401 Error');
     exit('No authorization header sent in AuthSub request.');
   }
 
   // Check for correct token.
   if ($sent_headers['Authorization'] != 'AuthSub token=' . $token) {
-    header('HTTP/1.0 401 Error');
+    drupal_set_header('HTTP/1.0 401 Error');
     exit('Invalid token sent in AuthSub request.');
   }
 }
@@ -90,53 +90,62 @@ function google_analytics_api_test_check_auth_header($token) {
  * Menu callback; Google Account AuthSub authentication request.
  */
 function google_analytics_api_test_accounts_authsub_request() {
+  $output = '';
+
   // Check for scope parameter.
   if (!isset($_GET['scope'])) {
-    header('HTTP/1.0 401 Error');
-    exit('No scope parameter sent in AuthSub request.');
+    $output = 'No scope parameter sent in AuthSub request.';
   }
-  if ($_GET['scope'] != 'https://www.google.com/analytics/feeds/') {
-    header('HTTP/1.0 401 Error');
-    exit('Invalid scope parameter sent in AuthSub request.  Can only be "https://www.google.com/analytics/feeds/".');
+  else if ($_GET['scope'] != 'https://www.google.com/analytics/feeds/') {
+    $output = 'Invalid scope parameter sent in AuthSub request.  Can only be "https://www.google.com/analytics/feeds/".';
   }
 
   // Check for next parameter.
-  if (!isset($_GET['next'])) {
-    header('HTTP/1.0 401 Error');
-    exit('No next parameter sent in AuthSub request.');
+  else if (!isset($_GET['next'])) {
+    $output = 'No next parameter sent in AuthSub request.';
   }
 
   // Are we at the second stage?
-  if (isset($_POST['sec_tok'])) {
+  else if (isset($_POST['sec_tok'])) {
     // Check for correct sec token.
     if ($_POST['sec_tok'] != $_SESSION['sec_tok']) {
-      header('HTTP/1.0 401 Error');
-      exit('Invalid sec token sent in AuthSub request.');
+      $output = 'Invalid sec token sent in AuthSub request.';
     }
 
     // Check for clicking the correct button.
-    if (!isset($_POST['allow'])) {
-      header('HTTP/1.0 401 Error');
-      exit('Please use the "Grant access" button.');
+    else if (!isset($_POST['allow'])) {
+      $output = 'Please use the "Grant access" button.';
     }
 
     // Respond to request with a redirection.
-    drupal_goto($_GET['next'], array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN));
+    else {
+      drupal_goto($_GET['next'], array('token' => GOOGLE_ANALYTICS_API_TEST_AUTH_TOKEN));
+    }
   }
 
-  // Show the Grant/Deny access form.
-  // Note that normally we would just have action="", but SimpleTest assumes that
-  // an empty action string means 'the base URL of the site'.
-  $_SESSION['sec_tok'] = md5(time());
-  $get_args = $_GET;
-  unset($get_args['q']);
-  $action = url($_GET['q'], array('absolute' => TRUE, 'query' => http_build_query($get_args)));
-  $output = '';
-  $output .= '<form action="' . $action . '" method="post">';
-  $output .= '<input type="hidden" name="sec_tok" value="' . $_SESSION['sec_tok'] .  '" />';
-  $output .= '<input type="submit" name="allow" value="Grant access" />';
-  $output .= '<input type="submit" name="deny" value="Deny access" />';
-  $output .= '</form>';
+  // Was there an error?
+  if ($output) {
+    drupal_set_header('HTTP/1.0 401 Error');
+    drupal_set_header('Content-type: text/plain');
+  }
+
+  else {
+    // Show the Grant/Deny access form.
+    // Note that normally we would just have action="", but SimpleTest assumes that
+    // an empty action string means 'the base URL of the site'.
+    $_SESSION['sec_tok'] = md5(time());
+    $get_args = $_GET;
+    unset($get_args['q']);
+    $action = url($_GET['q'], array('absolute' => TRUE, 'query' => http_build_query($get_args)));
+    $output = '';
+    $output .= '<form action="' . $action . '" method="post">';
+    $output .= '<input type="hidden" name="sec_tok" value="' . $_SESSION['sec_tok'] .  '" />';
+    $output .= '<input type="submit" name="allow" value="Grant access" />';
+    $output .= '<input type="submit" name="deny" value="Deny access" />';
+    $output .= '</form>';
+  }
+
+  // Output either an error or the form.
   exit($output);
 }
 
