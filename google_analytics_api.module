@@ -18,7 +18,7 @@ function google_analytics_api_menu() {
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.admin.inc',
     'page arguments' => array('google_analytics_api_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer google analytics settings'),
     'type' => MENU_NORMAL_ITEM,
   );
 

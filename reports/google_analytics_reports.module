@@ -38,7 +38,7 @@ function google_analytics_reports_menu() {
 /**
  * Implementation of hook_perm().
  */
-function google_analytics_reports_api_perm() {
+function google_analytics_reports_perm() {
   return array('access google analytics reports');
 }
 
