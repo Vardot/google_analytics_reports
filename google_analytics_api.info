@@ -1,6 +1,6 @@
 ; $Id$
 
 name = "Google Analytics API"
-package = "Google Analytics"
+package = Statistics
 description = "API to access statistics from the Google Analytics Data Export API."
 core = 6.x
