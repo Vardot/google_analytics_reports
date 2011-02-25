@@ -1,4 +1,3 @@
-; $Id$
 
 name = "Google Analytics API dummy server"
 description = "Google Analytics Data Export API server used for testing."

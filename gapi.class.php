@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * GAPI - Google Analytics PHP Interface
