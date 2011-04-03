@@ -9,12 +9,13 @@
  * Implementation of hook_menu().
  */
 function google_analytics_reports_menu() {
-  $items['admin/google-analytics/report'] = array(
+  $items['admin/settings/google-analytics-api/reports'] = array(
     'title' => 'Google Analytics Report Query',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('google_analytics_reports_query_form'),
     'access arguments' => array('administer google analytics reports'),
-    'type' => MENU_CALLBACK,
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK,
   );
   $items['statistics'] = array(
     'title' => 'Google Analytics API Statistics',
@@ -334,7 +335,7 @@ function google_analytics_reports_current_summary($path = NULL) {
 
   // Ensure the user is logged in.
   if (!google_analytics_api_gapi()) {
-    return t('Please <a href="@admin">grant access</a> to your Google account.', array('@admin' => url('admin/settings/google_analytics_api')));
+    return t('Please <a href="@admin">grant access</a> to your Google account.', array('@admin' => url('admin/settings/google-analytics-api')));
   }
 
   // Grab the data.
