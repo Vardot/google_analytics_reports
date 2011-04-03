@@ -155,6 +155,7 @@ function _google_analytics_reports_query_form_fetch_results($form_state = array(
     '#start_index' => $start_index,
     '#max_results' => $max_results,
   );
+  $entries = array();
   try {
     $entries = google_analytics_api_report_data($request);
   }
