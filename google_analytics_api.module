@@ -37,7 +37,7 @@ function google_analytics_api_perm() {
 function google_analytics_api_current_token($silent = FALSE) {
   $token = variable_get('google_analytics_api_token', NULL);
   if (!$token && !$silent) {
-    drupal_set_message(t('A Google Analytics API method has been called that requires access to a Google account. Please visit the <a href="@admin">administration page</a> to grant access.', array('@admin' => url('admin/settings/google_analytics_api'))));
+    watchdog('google analytics api', 'Google API authorization token is not valid.', array(), WATCHDOG_ERROR);
   }
   return $token;
 }
@@ -48,7 +48,7 @@ function google_analytics_api_current_token($silent = FALSE) {
 function google_analytics_api_current_profile_id($silent = FALSE) {
   $profile_id = variable_get('google_analytics_api_profile_id', NULL);
   if (!$profile_id && !$silent) {
-    drupal_set_message(t('A Google Analytics API method has been called that requires the selection of a Google Analytics profile. Please visit the <a href="@admin">administration page</a> to set one.', array('@admin' => url('admin/settings/google_analytics_api'))));
+    watchdog('google analytics api', 'Google API profile ID is not valid.', array(), WATCHDOG_ERROR);
   }
   return $profile_id;
 }
@@ -161,7 +161,7 @@ function google_analytics_api_report_data($request) {
       $request['#start_index'], $request['#max_results']);
   }
   catch (Exception $e) {
-    drupal_set_message(t('Google Analytics API: @message', array('@message' => $e->getMessage())));
+    watchdog('google analytics api', 'Request for data from Google failed: @message.', array('@message' => $e->getMessage()), WATCHDOG_ERROR);
     return FALSE;
   }
   return $data;
