@@ -17,7 +17,7 @@ function google_analytics_api_menu() {
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.admin.inc',
     'page arguments' => array('google_analytics_api_admin'),
-    'access arguments' => array('administer google analytics settings'),
+    'access arguments' => array('administer google analytics api settings'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -28,7 +28,7 @@ function google_analytics_api_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('administer google analytics settings');
+  return array('administer google analytics api settings');
 }
 
 /**
@@ -92,16 +92,15 @@ function google_analytics_api_logout() {
 function google_analytics_api_gapi() {
   static $gapi;
 
-  if (user_access('administer google analytics settings')) {
-    if ($gapi) {
-      return $gapi;
-    }
-    $token = google_analytics_api_current_token();
-    if ($token) {
-      $gapi = gapiAuthSub::withToken($token);
-      return $gapi;
-    }
+  if ($gapi) {
+    return $gapi;
   }
+  $token = google_analytics_api_current_token();
+  if ($token) {
+    $gapi = gapiAuthSub::withToken($token);
+    return $gapi;
+  }
+
   return FALSE;
 }
 

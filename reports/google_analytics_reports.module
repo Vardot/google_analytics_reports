@@ -13,7 +13,7 @@ function google_analytics_reports_menu() {
     'title' => 'Google Analytics Report Query',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('google_analytics_reports_query_form'),
-    'access arguments' => array('access google analytics reports'),
+    'access arguments' => array('administer google analytics reports'),
     'type' => MENU_CALLBACK,
   );
   $items['statistics'] = array(
@@ -38,7 +38,7 @@ function google_analytics_reports_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_reports_perm() {
-  return array('access google analytics reports');
+  return array('access google analytics reports', 'administer google analytics reports');
 }
 
 /**
