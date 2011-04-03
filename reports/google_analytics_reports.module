@@ -360,7 +360,8 @@ function google_analytics_reports_current_summary($path = NULL) {
   foreach ($rows as $date => $row) {
     $chart_pageviews[] = $row['pageviews'];
     $chart_avg_time[] = number_format($row['timeOnPage'] / $row['pageviews'], 1);
-    $chart_bounce_rate[] = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
+    // max() to prevent division by zero warning in chart.module
+    $chart_bounce_rate[] = number_format(max($row['bounces'], 0.0001) / $row['uniquePageviews'] * 100, 2);
     $chart_dates[] = date('M d', strtotime($date));
   }
 
@@ -462,7 +463,8 @@ function google_analytics_reports_statistics_page($path = NULL) {
   foreach ($rows as $date => $row) {
     $chart_pageviews[] = $row['pageviews'];
     $chart_avg_time[] = number_format($row['timeOnPage'] / $row['pageviews'], 1);
-    $chart_bounce_rate[] = number_format($row['bounces'] / $row['uniquePageviews'] * 100, 2);
+    // max() to prevent division by zero warning in chart.module
+    $chart_bounce_rate[] = number_format(max($row['bounces'], 0.0001) / $row['uniquePageviews'] * 100, 2);
     $chart_dates[] = date('d', strtotime($date));
   }
 
