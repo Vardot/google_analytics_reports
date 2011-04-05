@@ -137,7 +137,7 @@ function google_analytics_reports_query_form($form_state, $query = array()) {
     '#title' => t('Maximum results'),
     '#default_value' => $query['max_results'] ? $query['max_results'] : 10000,
   );
-  $form['buttons']['submit'] = array(
+  $form['query']['buttons']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Execute query'),
   );
