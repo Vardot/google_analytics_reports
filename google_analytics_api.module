@@ -121,7 +121,7 @@ function google_analytics_api_account_data() {
   return $data;
 }
 
-/** 
+/**
  * Request report data.
  *
  * @param $request

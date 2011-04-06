@@ -155,10 +155,10 @@ function google_analytics_reports_query_form_submit($form, &$form_state) {
       unset($query[$key]);
     }
   }
-  
+
   /* Add results to querystring */
   $query = drupal_query_string_encode($query, array('op', 'submit', 'form_id', 'form_build_id', 'form_token'));
-  $form_state['redirect'] = array('admin/settings/google-analytics-api/reports', $query);  
+  $form_state['redirect'] = array('admin/settings/google-analytics-api/reports', $query);
 }
 
 /**
@@ -234,12 +234,12 @@ function _google_analytics_reports_query_form_fetch_results($query = array()) {
  * Process a query string.
  */
 function _google_analytics_reports_query_form_process($string) {
-  
+
   /* gapi expects NULL to check for empty optional parameters */
   if (empty($string)) {
     return NULL;
   }
-  
+
   $array = explode(',', $string);
   $return = array();
   foreach ($array as $value) {
