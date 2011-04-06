@@ -166,7 +166,6 @@ function google_analytics_api_test_accounts_authsub_session_token() {
  */
 function google_analytics_api_test_accounts_authsub_revoke_token() {
   google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
-
   // Empty value with 200 response is good.
   exit();
 }
@@ -176,7 +175,6 @@ function google_analytics_api_test_accounts_authsub_revoke_token() {
  */
 function google_analytics_api_test_analytics_feeds_accounts_default() {
   google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
-
   exit(file_get_contents(dirname(__FILE__) . '/account_listing.xml'));
 }
 
@@ -185,42 +183,7 @@ function google_analytics_api_test_analytics_feeds_accounts_default() {
  */
 function google_analytics_api_test_analytics_feeds_data() {
   google_analytics_api_test_check_auth_header(GOOGLE_ANALYTICS_API_TEST_SESSION_TOKEN);
-
-  $test_cases = array(
-    'case-1' => array(
-      array(
-        'start-date' => '2008-10-01',
-        'end-date' => '2008-10-31',
-        'dimensions' => 'ga:source,ga:medium',
-        'metrics' => 'ga:visits,ga:bounces',
-        'sort' => '-ga:visits',
-        'filters' => 'ga:medium==referral',
-        'start-index' => '1',
-        'max-results' => '5',
-        'ids' => 'ga:10000000',
-      ),
-      file_get_contents(dirname(__FILE__) . '/data_feed1.xml'),
-    ),
-  );
-
-  // Look for a matching test case.
-  $match_case = FALSE;
-  foreach ($test_cases as $name => $test_case) {
-    $match_case = $name;
-    list ($parameters, $output) = $test_case;
-    foreach ($parameters as $key => $value) {
-      // Does the parameter in this test case match?
-      if (!isset($_GET[$key]) || $_GET[$key] != $value) {
-        // No.  Try the next test case.
-        $match_case = FALSE;
-        break;
-      }
-    }
-    // Did all of the parameters match?
-    if ($match_case) {
-      exit($output);
-    }
-  }
+  exit(file_get_contents(dirname(__FILE__) . '/data_feed1.xml'));
 }
 
 /**

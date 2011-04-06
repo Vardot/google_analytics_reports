@@ -213,7 +213,6 @@ function _google_analytics_reports_query_form_fetch_results($query = array()) {
   }
 
   $header = !empty($dimensions) ? array_merge($dimensions, $metrics) : array_merge(array(t('no dimensions specified')), $metrics);
-
   $rows = array();
   if (is_array($entries)) {
     foreach ($entries as $entry) {
@@ -227,7 +226,7 @@ function _google_analytics_reports_query_form_fetch_results($query = array()) {
   $totals = array_pad($totals, count($dimensions), '');
   $totals = array_merge($totals, google_analytics_api_gapi()->getMetrics());
   $rows[] = $totals;
-  return theme('table', $header, $rows);
+  return theme('table', $header, $rows, array('id' => 'google-analytics-reports'));
 }
 
 /**

@@ -12,19 +12,19 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     return array(
       'name' => t('Google Analytics API'),
       'desc' => t('Executes test suite for Google Analytics API module.'),
-      'group' => t('Google Analytics API module'),
+      'group' => t('Google Analytics Reports modules'),
     );
   }
 
   function setUp() {
-    parent::setUp('google_analytics_api', 'google_analytics_api_test');
+    parent::setUp('google_analytics_api', 'google_analytics_api_test', 'google_analytics_reports', 'chart', 'countries_api');
 
     // Log out of current account.
     variable_set('google_analytics_api_token', NULL);
     variable_set('google_analytics_api_profile_id', NULL);
 
     // User needs permissions to access Google Analytics API data.
-    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer google analytics api settings'));
+    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer google analytics api settings', 'administer google analytics reports'));
   }
 
   // grant access, revoke access, choose profile and save configuration
@@ -55,4 +55,13 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     $this->drupalGet('admin/settings/google-analytics-api');
     $this->drupalPost(NULL, array('profile_id' => 10000000), t('Save configuration'));
   }
+
+  function testReportView() {
+    $this->testProfileSelect();
+    $this->drupalGet('admin/settings/google-analytics-api/reports', array('query' => 'metrics=visits,bounces&dimensions=source,medium&no_start_date=1&no_end_date=1&start_index=1&max_results=5'));
+    $rows = $this->xpath("//table[@id='google-analytics-reports']/tbody/tr");
+    $this->verbose('<pre>' . var_export($rows, TRUE) . '</pre>');
+    $this->assertEqual(6, count($rows), t('Admin report generated with 6 rows.'));
+  }
+
 }
