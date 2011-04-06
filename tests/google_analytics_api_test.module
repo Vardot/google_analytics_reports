@@ -63,14 +63,17 @@ function google_analytics_api_test_replace_url($url) {
    * https://www.google.com/analytics/feeds/data
    * https://www.google.com/analytics/feeds/
    */
-  return preg_replace('|^https://www.google.com/|', url('analytics-test/', array('absolute' => TRUE)), $url);
+  if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'simpletest') !== FALSE) {
+    return preg_replace('|^https://www.google.com/|', url('analytics-test/', array('absolute' => TRUE)), $url);
+  }
+  return $url;
 }
 
 /**
  * Helper function; check for proper Authorization header.
  */
 function google_analytics_api_test_check_auth_header($token) {
-  $sent_headers = getallheaders();
+  $sent_headers = _google_analytics_api_test_get_headers();
 
   // Check for token header.
   if (!isset($sent_headers['Authorization'])) {
@@ -219,3 +222,16 @@ function google_analytics_api_test_analytics_feeds_data() {
     }
   }
 }
+
+/**
+ * Helper function; load header array.
+ */
+function _google_analytics_api_test_get_headers() {
+  foreach($_SERVER as $key=>$value) {
+      if (substr($key,0,5)=="HTTP_") {
+          $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+          $out[$key]=$value;
+      }
+  }
+  return $out;
+} 
