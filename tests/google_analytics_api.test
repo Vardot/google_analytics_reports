@@ -24,14 +24,14 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     variable_set('google_analytics_api_profile_id', NULL);
 
     // User needs permissions to access Google Analytics API data.
-    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer google analytics settings'));
+    $this->web_user = $this->drupalCreateUser(array('access administration pages', 'administer google analytics api settings'));
   }
 
   // grant access, revoke access, choose profile and save configuration
   function grantAccess() {
     $this->drupalLogin($this->web_user);
     $this->drupalGet('admin/settings/google-analytics-api');
-    $this->assertText(t('Google Analytics API settings'), t('Google Analytics API administration form was displayed.'));
+    $this->assertText(t('Google Analytics Reports API settings'), t('Google Analytics API administration form was displayed.'));
     $this->drupalPost(NULL, array(), t('Grant access to a Google account'));
     $this->drupalPost(NULL, array(), t('Grant access'));
     // Note: This doesn't work unless the google_analytics_api_test module is enabled.
