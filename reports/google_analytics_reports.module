@@ -17,11 +17,11 @@ function google_analytics_reports_menu() {
     'weight' => 1,
     'type' => MENU_LOCAL_TASK,
   );
-  $items['statistics'] = array(
-    'title' => 'Google Analytics API Statistics',
+  $items['admin/reports/google-analytics-report'] = array(
+    'title' => 'Google Analytics Summary',
     'page callback' => 'google_analytics_reports_statistics_page',
     'access arguments' => array('access google analytics reports'),
-    'type' => MENU_CALLBACK,
+    'type' => MENU_NORMAL_ITEM,
   );
   $items['node/%node/statistics'] = array(
     'title' => 'Statistics',
@@ -378,8 +378,8 @@ function google_analytics_reports_path_report($request, $path = NULL, $group_by 
  * Create a statistics summary block and return it.
  */
 function google_analytics_reports_current_summary($path = NULL) {
-  // Ensure we aren't on the 'statistics' page implemented below...
-  if ($_GET['q'] == 'statistics') {
+  // Ensure we aren't on the 'admin/reports/google-analytics-report' page implemented below...
+  if ($_GET['q'] == 'admin/reports/google-analytics-report') {
     return FALSE;
   }
 
@@ -430,7 +430,7 @@ function google_analytics_reports_current_summary($path = NULL) {
   $description .= '<p><strong>/' . drupal_get_path_alias($_GET['q']) . '</strong></p>';
 
   // See more link.
-  $more_link = '<p>' . l(t('See more statistics...'), 'statistics', array('query' => 'path=' . $_GET['q'])) . '</p>';
+  $more_link = '<p>' . l(t('See more statistics...'), 'admin/reports/google-analytics-report', array('query' => 'path=' . $_GET['q'])) . '</p>';
 
   return $description
     . chart_render($pageviews_chart)
