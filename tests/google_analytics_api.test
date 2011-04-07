@@ -56,12 +56,23 @@ class GoogleAnalyticsAPITestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, array('profile_id' => 10000000), t('Save configuration'));
   }
 
-  function testReportView() {
+  function testReportData() {
     $this->testProfileSelect();
-    $this->drupalGet('admin/settings/google-analytics-api/reports', array('query' => 'metrics=visits,bounces&dimensions=source,medium&no_start_date=1&no_end_date=1&start_index=1&max_results=5'));
-    $rows = $this->xpath("//table[@id='google-analytics-reports']/tbody/tr");
-    $this->verbose('<pre>' . var_export($rows, TRUE) . '</pre>');
-    $this->assertEqual(6, count($rows), t('Admin report generated with 6 rows.'));
+    $request = array (
+      '#dimensions' => array ('source', 'medium'),
+      '#metrics' => array ('visits', 'bounces'),
+      '#sort_metric' => NULL,
+      '#filter' => NULL,
+      '#start_date' => NULL,
+      '#end_date' => NULL,
+      '#start_index' => '1',
+      '#max_results' => '10000',
+    );
+    $entries = google_analytics_api_report_data($request);
+    //$this->drupalGet('admin/settings/google-analytics-api/reports', array('query' => 'metrics=visits,bounces&dimensions=source,medium&no_start_date=1&no_end_date=1&start_index=1&max_results=5'));
+    //$rows = $this->xpath("//table[@id='google-analytics-reports']/tbody/tr");
+    $this->verbose('<pre>' . var_export($entries, TRUE) . '</pre>');
+    $this->assertEqual(5, count($entries), t('Report generated with 6 rows.'));
   }
 
 }
