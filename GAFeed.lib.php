@@ -474,7 +474,7 @@ class GAFeed {
     $filter = preg_replace(array('/\s*&&\s*/', '/\s*\|\|\s*/','/\s*' . $valid_operators . '\s*/'), array(';', ',', '$1'), $filter); //Clean up operators
 
     if (drupal_strlen($filter) > 0) {
-      return urlencode($filter);
+      return $filter;
     }
     else {
       return FALSE;

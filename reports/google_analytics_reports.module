@@ -83,13 +83,13 @@ function _google_analytics_reports_path_filter($node_path = NULL) {
   $over_filters = array();
   foreach ($aliases as $alias) {
     if (strlen($alias) <= 20) {
-      $under_filters[] = 'pagePath =~ ^/' . $alias . '([?#].*)?$';
+      $under_filters[] = 'pagePath=~^/' . $alias . '([?#].*)?$';
     }
     else {
       $over_filters[] = array(
-        'pagePath =@ /' . $alias,
+        'pagePath=@/' . $alias,
         // 32 - 10 = 22 characters
-        'pagePath =~ ' . substr($alias, -22) . '([?#].*)?$'
+        'pagePath=~' . substr($alias, -22) . '([?#].*)?$'
       );
     }
   }
@@ -125,11 +125,15 @@ function google_analytics_reports_block($op = 'list', $delta = 0) {
  */
 function google_analytics_reports_path_report($request, $path = NULL, $group_by = 'date') {
   $data = array();
+
   foreach (_google_analytics_reports_path_filter($path) as $filter) {
-    $request['#filter'] = $filter;
-    $new_data = google_analytics_api_report_data($request);
-    if ($new_data) {
-      $data = array_merge($data, $new_data);
+    $request['filter'] = $filter;
+    $GAFeed = google_analytics_api_report_data($request);
+    if (!empty($GAFeed->results)) {
+      $data = array_merge($data, $GAFeed->results);
+    }
+    else {
+      return FALSE;
     }
   }
 
@@ -179,10 +183,10 @@ function google_analytics_reports_current_summary($path = NULL) {
 
   // Grab the data.
   $request = array(
-    '#dimensions' => array('pagePath', 'date'),
-    '#metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
-    '#sort_metric' => array('date', 'pagePath'),
-    '#start_date' => strtotime('-14 days')
+    'dimensions' => array('pagePath', 'date'),
+    'metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
+    'sort_metric' => array('date', 'pagePath'),
+    'start_date' => strtotime('-14 days')
   );
   $rows = google_analytics_reports_path_report($request, $path);
 
@@ -282,10 +286,10 @@ function google_analytics_reports_statistics_page($path = NULL) {
 
   // Grab the data.
   $request = array(
-    '#dimensions' => array('pagePath', 'date'),
-    '#metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
-    '#sort_metric' => array('date', 'pagePath'),
-    '#start_date' => strtotime('-35 days')
+    'dimensions' => array('pagePath', 'date'),
+    'metrics' => array('pageviews', 'timeOnPage', 'bounces', 'uniquePageviews'),
+    'sort_metric' => array('date', 'pagePath'),
+    'start_date' => strtotime('-35 days')
   );
   $rows = google_analytics_reports_path_report($request, $path);
 
@@ -314,9 +318,9 @@ function google_analytics_reports_statistics_page($path = NULL) {
 
   // Query for browser usage information.
   $request = array(
-    '#dimensions' => array('pagePath', 'browser'),
-    '#metrics' => array('pageviews'),
-    '#sort_metric' => array('browser', 'pagePath'),
+    'dimensions' => array('pagePath', 'browser'),
+    'metrics' => array('pageviews'),
+    'sort_metric' => array('browser', 'pagePath'),
   );
   $rows = google_analytics_reports_path_report($request, $path, 'browser');
   $browsers = array();
@@ -348,9 +352,9 @@ function google_analytics_reports_statistics_page($path = NULL) {
 
   // Get geographical information.
   $request = array(
-    '#dimensions' => array('pagePath', 'country'),
-    '#metrics' => array('pageviews'),
-    '#sort_metric' => array('country', 'pagePath'),
+    'dimensions' => array('pagePath', 'country'),
+    'metrics' => array('pageviews'),
+    'sort_metric' => array('country', 'pagePath'),
   );
   $rows = google_analytics_reports_path_report($request, $path, 'country');
   $name_to_iso = countries_api_get_array('name', 'iso2');
@@ -386,10 +390,10 @@ function google_analytics_reports_statistics_page($path = NULL) {
 
   // Query for referrer information.
   $request = array(
-    '#dimensions' => array('pagePath', 'source', 'referralPath'),
-    '#metrics' => array('pageviews'),
-    '#sort_metric' => array('source', 'referralPath', 'pagePath'),
-    '#start_date' => strtotime('-1 month')
+    'dimensions' => array('pagePath', 'source', 'referralPath'),
+    'metrics' => array('pageviews'),
+    'sort_metric' => array('source', 'referralPath', 'pagePath'),
+    'start_date' => strtotime('-1 month')
   );
   $rows = google_analytics_reports_path_report($request, $path, array('source', 'referralPath'));
 
