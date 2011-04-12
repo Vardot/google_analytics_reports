@@ -282,11 +282,11 @@ class GAFeed {
     /* Provide defaults if the developer did not override them */
     $params += array(
       'profile_id' => 0,
-      'dimensions' => 'browser',
+      'dimensions' => NULL,
       'metrics' => 'visits',
       'sort_metric' => '-visits',
       'filter' => NULL,
-      'segment' => -11,
+      'segment' => NULL,
       'start_date' => NULL,
       'end_date' => NULL,
       'start_index' => 1,
