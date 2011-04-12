@@ -1,5 +1,5 @@
-
 name = "Google Analytics API"
 package = Statistics
 description = "API to access statistics from the Google Analytics Data Export API."
 core = 6.x
+dependencies[] = oauth_common
