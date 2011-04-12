@@ -230,7 +230,7 @@ class GAFeed {
 
     $params  += array(
       'start-index' => 1,
-      'max-results' => 20,
+      'max-results' => 1000,
     );
 
     $this->setQueryPath('analytics/feeds/accounts/default');
