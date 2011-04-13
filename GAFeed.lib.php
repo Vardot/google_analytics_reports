@@ -161,7 +161,7 @@ class GAFeed {
     /* Provide cache defaults if a developer did not override them */
     $cache_defaults = array(
       'cid' => NULL,
-      'expire' => CACHE_TEMPORARY,
+      'expire' => strtotime('+3 days'),
       'refresh' => FALSE,
     );
     $cache_options += $cache_defaults;
@@ -191,7 +191,7 @@ class GAFeed {
 
       /* Do not cache erroneous queries */
       if (empty($this->error)) {
-        cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['refresh']);
+        cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['expire']);
       }
     }
 
