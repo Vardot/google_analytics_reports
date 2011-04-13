@@ -16,8 +16,27 @@ function google_analytics_api_admin() {
   /* If there is at least one profile */
   if (!empty($account->results)) {
     $options = array();
-    foreach ($account->results as $profile_id => $profile) {
-      $options[$profile_id] = $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
+    $profile_id = variable_get('google_analytics_reports_profile_id', 0);
+    $set_default = FALSE;
+    
+    foreach ($account->results as $profile_key => $profile) {
+      $options[$profile_key] = $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
+      
+      /* Rough attempt to see if the current site is in the account list */
+      if (empty($profile_id) && (parse_url($profile['title'], PHP_URL_PATH) == $_SERVER['HTTP_HOST'])) {
+        $profile_id = $profile_key;
+        $set_default = TRUE;
+      }
+    }
+    
+    /* If no profile ID is set yet, set the first profile in the list */
+    if (empty($profile_id)) {
+      $profile_id = key($options);
+      $set_default = TRUE;
+    }
+
+    if ($set_default) {
+      variable_set('google_analytics_reports_profile_id', $profile_id);
     }
 
     $form['ga'] = array(
@@ -31,7 +50,7 @@ function google_analytics_api_admin() {
       '#type' => 'select',
       '#title' => t('Reports profile'),
       '#options' => $options,
-      '#default_value' => variable_get('google_analytics_reports_profile_id', 0),
+      '#default_value' => $profile_id,
       '#description' => t("Choose your Google Analytics profile."),
       '#required' => TRUE,
     );
