@@ -13,7 +13,6 @@
  * Renders an img element with a chart of the number of visits over the past 30 days.
  */
 function google_analytics_reports_visits() {
-  // return;
   $params = array(
     'metrics' => array('visits'),
     'dimensions' => array('date'),
@@ -34,14 +33,13 @@ function google_analytics_reports_visits() {
   $chart = array(
     '#chart_id' => 'pageviews_2weeks',
     '#data' => $data,
-    '#type' => CHART_TYPE_LINE,
-    '#size' => chart_size(800, 300),
+    '#type' => CHART_TYPE_LINE . ':nda',
+    '#size' => chart_size(1000, 80),
     '#adjust_resolution' => TRUE,
-    '#data_colors' => array('027AC6'),
-    '#chart_fill' => chart_fill('bg', 'EDF5FA'),
-    '#line_styles' => array(chart_line_style(3, 10, 0)),
-    '#shape_markers' => array(chart_shape_marker(0, -1, 'o', 6, '027AC6')),
-    '#grid_lines' => chart_grid_lines(0, 20, 1, 3),
+    '#data_colors' => array('AAAAAA'),
+    '#chart_fill' => chart_fill('bg', '00000000'),
+    '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
+    '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
   $chart['mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($data));
   foreach ($x_labels as $label) {
@@ -49,7 +47,7 @@ function google_analytics_reports_visits() {
   }
   $last_day = end($GAFeed->results);
   $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
-  $output = chart_render($chart, array('title' => $title));
+  $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
   return $output;
 }
 
