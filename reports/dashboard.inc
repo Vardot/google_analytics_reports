@@ -14,9 +14,9 @@
  */
 function google_analytics_reports_visits() {
   $params = array(
-    'metrics' => array('visits'),
-    'dimensions' => array('date'),
-    'sort_metric' => array('date'),
+    'metrics' => array('ga:visits'),
+    'dimensions' => array('ga:date'),
+    'sort_metric' => array('ga:date'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
@@ -57,7 +57,7 @@ function google_analytics_reports_visits() {
 function google_analytics_reports_usage() {
   // Site usage
   $params = array(
-    'metrics' => array('visits', 'bounces', 'entrances', 'pageviews', 'timeOnSite', 'newVisits'),
+    'metrics' => array('ga:visits', 'ga:bounces', 'ga:entrances', 'ga:pageviews', 'ga:timeOnSite', 'ga:newVisits'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
@@ -71,12 +71,12 @@ function google_analytics_reports_usage() {
 function google_analytics_reports_top_pages() {
   // Top pages
   $params = array(
-    'metrics' => array('pageviews'),
-    'dimensions' => array('pageTitle', 'pagePath'),
-    'sort_metric' => array('-pageviews'),
+    'metrics' => array('ga:pageviews'),
+    'dimensions' => array('ga:pageTitle', 'ga:pagePath'),
+    'sort_metric' => array('-ga:pageviews'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
-    'sort' => '-pageviews',
+    'sort' => '-ga:pageviews',
     'max_results' => 5,
   );
   $GAFeed = google_analytics_api_report_data($params);
@@ -88,10 +88,10 @@ function google_analytics_reports_top_pages() {
 
 function google_analytics_reports_top_referrals() {
   $params = array(
-    'metrics' => array('visits'),
-    'dimensions' => array('source', 'medium'),
-    'sort_metric' => array('-visits'),
-    'filter' => 'medium==referral',
+    'metrics' => array('ga:visits'),
+    'dimensions' => array('ga:source', 'ga:medium'),
+    'sort_metric' => array('-ga:visits'),
+    'filters' => 'ga:medium==referral',
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
     'max_results' => 5,
@@ -105,12 +105,12 @@ function google_analytics_reports_top_referrals() {
 
 function google_analytics_reports_top_searches() {
   $params = array(
-    'metrics' => array('visits'),
-    'dimensions' => array('keyword'),
-    'sort_metric' => array('-visits'),
+    'metrics' => array('ga:visits'),
+    'dimensions' => array('ga:keyword'),
+    'sort_metric' => array('-ga:visits'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
-    'filter' => 'keyword!=(not set)',
+    'filters' => 'ga:keyword!=(not set)',
     'max_results' => 5,
   );
   $GAFeed = google_analytics_api_report_data($params);

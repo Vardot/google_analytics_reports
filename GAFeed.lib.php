@@ -283,9 +283,9 @@ class GAFeed {
     $params += array(
       'profile_id' => 0,
       'dimensions' => NULL,
-      'metrics' => 'visits',
-      'sort_metric' => '-visits',
-      'filter' => NULL,
+      'metrics' => 'ga:visits',
+      'sort_metric' => NULL,
+      'filters' => NULL,
       'segment' => NULL,
       'start_date' => NULL,
       'end_date' => NULL,
@@ -293,72 +293,30 @@ class GAFeed {
       'max_results' => 10000,
     );
 
-    $parameters = array('ids' => 'ga:' . $params['profile_id']);
+    $parameters = array('ids' => $params['profile_id']);
 
     if (is_array($params['dimensions'])) {
-      $dimensions_string = '';
-      foreach ($params['dimensions'] as $dimension) {
-        $dimensions_string .= ',ga:' . $dimension;
-      }
-      $parameters['dimensions'] = drupal_substr($dimensions_string, 1);
+      $parameters['dimensions'] = implode(',', $params['dimensions']);
     }
     elseif ($params['dimensions'] !== NULL) {
-      $parameters['dimensions'] = 'ga:' . $params['dimensions'];
+      $parameters['dimensions'] = $params['dimensions'];
     }
 
     if (is_array($params['metrics'])) {
-      $metrics_string = '';
-      foreach ($params['metrics'] as $metric) {
-        $metrics_string .= ',ga:' . $metric;
-      }
-      $parameters['metrics'] = drupal_substr($metrics_string, 1);
+      $parameters['metrics'] = implode(',', $params['metrics']);
     }
     else {
-      $parameters['metrics'] = 'ga:' . $params['metrics'];
+      $parameters['metrics'] = $params['metrics'];
     }
 
     if ($params['sort_metric'] == NULL && isset($parameters['metrics'])) {
       $parameters['sort'] = $parameters['metrics'];
     }
     elseif (is_array($params['sort_metric'])) {
-      $sort_metric_string = '';
-
-      foreach ($params['sort_metric'] as $sort_metric_value) {
-        if (drupal_substr($sort_metric_value, 0, 1) == "-") {
-          $sort_metric_string .= ',-ga:' . drupal_substr($sort_metric_value, 1); // Descending
-        }
-        else {
-          $sort_metric_string .= ',ga:' . $sort_metric_value; // Ascending
-        }
-      }
-      $parameters['sort'] = drupal_substr($sort_metric_string, 1);
+      $parameters['sort'] = implode(',', $params['sort_metric']);
     }
     else {
-      if (drupal_substr($params['sort_metric'], 0, 1) == "-") {
-        $parameters['sort'] = '-ga:' . drupal_substr($params['sort_metric'], 1);
-      }
-      else {
-        $parameters['sort'] = 'ga:' . $params['sort_metric'];
-      }
-    }
-
-    if ($params['filter'] != NULL) {
-      $filter = $this->processFilter($params['filter']);
-      if ($filter !== FALSE) {
-        $parameters['filters'] = $filter;
-      }
-    }
-
-    if ($params['segment'] !== NULL) {
-      if (is_int($params['segment'])) {
-        $parameters['segment'] = 'gaid::' . $params['segment'];
-      }
-      else {
-        $segment = $this->processFilter($params['segment']);
-        if ($segment !== FALSE) {
-          $parameters['segment'] = 'dynamic::' . $segment;
-        }
-      }
+      $parameters['sort'] = $params['sort_metric'];
     }
 
     if ($params['start_date'] == NULL) {
@@ -381,7 +339,11 @@ class GAFeed {
     }
 
     $parameters['end-date'] = $end_date;
-
+    
+    /* Accept only strings, not arrays, for the following parameters */
+    //$parameters['filters'] = str_replace(array(',', ';', '\\'), array('\,', '\;', '\\\\'), $params['filters']);
+    $parameters['filters'] = $params['filters'];
+    $parameters['segment'] = $params['segment'];
     $parameters['start-index'] = $params['start_index'];
     $parameters['max-results'] = $params['max_results'];
 
@@ -458,26 +420,5 @@ class GAFeed {
     $this->meta = $meta;
     $this->totals = $totals;
     $this->results = $results;
-  }
-
-  /**
-   * Format filter query data to be compatible with
-   * the Data Feed API.
-   */
-  protected function processFilter($filter) {
-    $valid_operators = '(!~|=~|==|!=|>|<|>=|<=|=@|!@)';
-
-    $filter = preg_replace('/\s\s+/', ' ', trim($filter)); //Clean duplicate whitespace
-    $filter = str_replace(array(',', ';'), array('\,', '\;'), $filter); //Escape Google Analytics reserved characters
-    $filter = preg_replace('/(&&\s*|\|\|\s*|^)([a-zA-Z0-9]+)(\s*' . $valid_operators . ')/i', '$1ga:$2$3', $filter); //Prefix ga: to metrics and dimensions
-    $filter = preg_replace('/[\'\"]/i', '', $filter); //Clear invalid quote characters
-    $filter = preg_replace(array('/\s*&&\s*/', '/\s*\|\|\s*/','/\s*' . $valid_operators . '\s*/'), array(';', ',', '$1'), $filter); //Clean up operators
-
-    if (drupal_strlen($filter) > 0) {
-      return $filter;
-    }
-    else {
-      return FALSE;
-    }
   }
 }

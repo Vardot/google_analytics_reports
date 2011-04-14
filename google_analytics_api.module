@@ -99,7 +99,7 @@ function google_analytics_api_new_gafeed() {
 function google_analytics_api_report_data($params = array(), $cache_options = array()) {
 
   $params_defaults = array(
-    'profile_id' => variable_get('google_analytics_reports_profile_id', 0),
+    'profile_id' => 'ga:' . variable_get('google_analytics_reports_profile_id', 0),
   );
   
   $params += $params_defaults;
