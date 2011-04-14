@@ -71,6 +71,6 @@ $request = array(
   '#sort_metric' => array('-visits'),
   '#start_date' => strtotime('-31 days'),
   '#end_date' => strtotime('-1 day'),
-  '#filter' => 'keyword!%3D(not%20set)',
+  '#filter' => 'keyword!=(not set)',
   '#max_results' => 100,
 );
