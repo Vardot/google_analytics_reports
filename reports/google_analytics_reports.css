@@ -1,0 +1,26 @@
+.google-analytics-referrals,
+.google-analytics-searches {
+  width: 49.3%;
+  float: left;
+}
+.google-analytics-referrals {
+  margin-right: 1.4%;
+}
+
+.google-analytics-summary .item-list ol li {
+  float: none;
+  display: block;
+  padding: 5px 10px 4px;
+  border-bottom: 1px solid #f4f4f4;
+  list-style: decimal;
+  list-style-position: inside;
+  display: list-item;
+}
+
+.google-analytics-summary td {
+  font-weight: bold;
+}
+
+.google-analytics-summary th {
+  font-weight: normal;
+}
