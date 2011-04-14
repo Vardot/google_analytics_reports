@@ -250,9 +250,9 @@ class GAFeed {
     $meta = array();
 
     /* Save meta info */
-    $meta['updated'] = strval($xml->updated);
-    $meta['generator'] = strval($xml->generator);
-    $meta['generatorVersion'] = strval($xml->generator->attributes());
+    $meta['updated'] = check_plain(strval($xml->updated));
+    $meta['generator'] = check_plain(strval($xml->generator));
+    $meta['generatorVersion'] = check_plain(strval($xml->generator->attributes()));
 
     $opensearch = $xml->children('http://a9.com/-/spec/opensearchrss/1.0/');
     foreach ($opensearch as $key => $open_search_result) {
@@ -263,10 +263,10 @@ class GAFeed {
     foreach ($xml->entry as $entry) {
       $properties = array();
       foreach ($entry->children('http://schemas.google.com/analytics/2009')->property as $property) {
-        $properties[str_replace('ga:', '', $property->attributes()->name)] = strval($property->attributes()->value);
+        $properties[str_replace('ga:', '', check_plain($property->attributes()->name))] = check_plain(strval($property->attributes()->value));
       }
-      $properties['title'] = strval($entry->title);
-      $properties['updated'] = strval($entry->updated);
+      $properties['title'] = check_plain(strval($entry->title));
+      $properties['updated'] = check_plain(strval($entry->updated));
       $results[$properties['profileId']] = $properties;
     }
 
@@ -365,9 +365,9 @@ class GAFeed {
 
 
     /* Save meta info */
-    $meta['updated'] = strval($xml->updated);
-    $meta['generator'] = strval($xml->generator);
-    $meta['generatorVersion'] = strval($xml->generator->attributes());
+    $meta['updated'] = check_plain(strval($xml->updated));
+    $meta['generator'] = check_plain(strval($xml->generator));
+    $meta['generatorVersion'] = check_plain(strval($xml->generator->attributes()));
 
     $opensearch = $xml->children('http://a9.com/-/spec/opensearchrss/1.0/');
     foreach ($opensearch as $key => $open_search_result) {
@@ -376,20 +376,20 @@ class GAFeed {
 
     $google_results = $xml->children('http://schemas.google.com/analytics/2009');
     foreach ($google_results->dataSource->property as $property_attributes) {
-      $meta[str_replace('ga:', '', $property_attributes->attributes()->name)] = strval($property_attributes->attributes()->value);
+      $meta[str_replace('ga:', '', check_plain($property_attributes->attributes()->name))] = check_plain(strval($property_attributes->attributes()->value));
     }
-    $meta['startDate'] = strval($google_results->startDate);
-    $meta['endDate'] = strval($google_results->endDate);
+    $meta['startDate'] = check_plain(strval($google_results->startDate));
+    $meta['endDate'] = check_plain(strval($google_results->endDate));
 
     /* Save totals */
     foreach ($google_results->aggregates->metric as $aggregate_metric) {
-      $metric_value = strval($aggregate_metric->attributes()->value);
+      $metric_value = check_plain(strval($aggregate_metric->attributes()->value));
       /* Check for float, or value with scientific notation */
       if (preg_match('/^(\d+\.\d+)|(\d+E\d+)|(\d+.\d+E\d+)$/', $metric_value)) {
-        $totals[str_replace('ga:', '', $aggregate_metric->attributes()->name)] = floatval($metric_value);
+        $totals[str_replace('ga:', '', check_plain($aggregate_metric->attributes()->name))] = floatval($metric_value);
       }
       else {
-        $totals[str_replace('ga:', '', $aggregate_metric->attributes()->name)] = intval($metric_value);
+        $totals[str_replace('ga:', '', check_plain($aggregate_metric->attributes()->name))] = intval($metric_value);
       }
     }
 
@@ -397,20 +397,20 @@ class GAFeed {
     foreach ($xml->entry as $entry) {
       $metrics = array();
       foreach ($entry->children('http://schemas.google.com/analytics/2009')->metric as $metric) {
-        $metric_value = strval($metric->attributes()->value);
+        $metric_value = check_plain(strval($metric->attributes()->value));
 
         //Check for float, or value with scientific notation
         if (preg_match('/^(\d+\.\d+)|(\d+E\d+)|(\d+.\d+E\d+)$/', $metric_value)) {
-          $metrics[str_replace('ga:', '', $metric->attributes()->name)] = floatval($metric_value);
+          $metrics[str_replace('ga:', '', check_plain($metric->attributes()->name))] = floatval($metric_value);
         }
         else {
-          $metrics[str_replace('ga:', '', $metric->attributes()->name)] = intval($metric_value);
+          $metrics[str_replace('ga:', '', check_plain($metric->attributes()->name))] = intval($metric_value);
         }
       }
 
       $dimensions = array();
       foreach ($entry->children('http://schemas.google.com/analytics/2009')->dimension as $dimension) {
-        $dimensions[str_replace('ga:', '', $dimension->attributes()->name)] = strval($dimension->attributes()->value);
+        $dimensions[str_replace('ga:', '', check_plain($dimension->attributes()->name))] = check_plain(strval($dimension->attributes()->value));
       }
 
       $results[] = array_merge($metrics, $dimensions);
