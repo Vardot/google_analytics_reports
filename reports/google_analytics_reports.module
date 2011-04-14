@@ -1,5 +1,5 @@
 <?php
-
+require_once('dashboard.inc');
 /**
  * @file
  * Front-end interfaces that use the Google Analytics API module.
@@ -11,7 +11,7 @@
 function google_analytics_reports_menu() {
   $items['admin/reports/google-analytics-report'] = array(
     'title' => 'Google Analytics Summary',
-    'page callback' => 'google_analytics_reports_statistics_page',
+    'page callback' => 'google_analytics_reports_summary_page',
     'access arguments' => array('access google analytics reports'),
     'type' => MENU_NORMAL_ITEM,
   );
@@ -32,6 +32,41 @@ function google_analytics_reports_menu() {
  */
 function google_analytics_reports_perm() {
   return array('access google analytics reports', 'administer google analytics reports');
+}
+
+/**
+ * Implements hook_theme().
+ */
+function google_analytics_reports_theme() {
+  return array(
+    'google_analytics_reports_summary' => array(
+      'arguments' => array('summary' => NULL),
+      'template' => 'google_analytics_reports_summary',
+    ),
+  );
+}
+
+function template_preprocess_google_analytics_reports_summary(&$vars) {
+  $vars['visit_chart'] = $vars['summary']['visit_chart'];
+  $vars = array_merge($vars, $vars['summary']['usage']);
+
+  $pages = array();
+  foreach ($vars['summary']['pages'] as $page) {
+    $pages[] = l($page['pageTitle'], $page['pagePath'], array('external' => TRUE)) . ' - ' . format_plural($page['pageviews'], '1 View', '@count Views', array('@count' => $page['pageviews'])); // @FIXME - set base_url
+  }
+  $vars['pages'] = theme('item_list', $pages, NULL, 'ol');
+
+  $referrals = array();
+  foreach ($vars['summary']['referrals'] as $referral) {
+    $referrals[] = '<strong>' . check_plain($referral['source']) . '</strong> - ' . format_plural($referral['visits'], '1 Visit', '@count Visits', array('@count' => $referral['visits']));
+  }
+  $vars['referrals'] = theme('item_list', $referrals, NULL, 'ol');
+
+  $searches = array();
+  foreach ($vars['summary']['searches'] as $search) {
+    $searches[] = '<strong>' . check_plain($search['keyword']) . '</strong> - ' . format_plural($search['visits'], '1 Visit', '@count Visits', array('@count' => $search['visits']));
+  }
+  $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
 }
 
 /*
@@ -259,6 +294,23 @@ function _google_analytics_reports_sparkline_chart($id, $title, $data, $dates) {
   $chart['#shape_markers'] = array(chart_shape_marker(0, -1, 'o', 6, '0055aa'));
   unset($chart['#mixed_axis_labels'][CHART_AXIS_X_BOTTOM]);
   return $chart;
+}
+
+/**
+ * Page callback for admin/reports/google-analytics-report.
+ *
+ * @return An HTML summary of the site-wide statistics.
+ */
+function google_analytics_reports_summary_page() {
+  $summary = array(
+    'visit_chart' => google_analytics_reports_visits(),
+    'usage' => google_analytics_reports_usage(),
+    'pages' => google_analytics_reports_top_pages(),
+    'referrals' => google_analytics_reports_top_referrals(),
+    'searches' => google_analytics_reports_top_searches(),
+  );
+
+  return ' ' . theme('google_analytics_reports_summary', $summary);
 }
 
 /*
