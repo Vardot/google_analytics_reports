@@ -5,4 +5,3 @@ description = "Provides interface to access Google Analytics API statistics."
 core = 6.x
 dependencies[] = google_analytics_api
 dependencies[] = chart
-dependencies[] = countries_api

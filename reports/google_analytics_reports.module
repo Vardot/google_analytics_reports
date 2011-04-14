@@ -404,44 +404,6 @@ function google_analytics_reports_statistics_page($path = NULL) {
   );
   $output .= chart_render($chart);
 
-  // Get geographical information.
-  $request = array(
-    'dimensions' => array('pagePath', 'country'),
-    'metrics' => array('pageviews'),
-    'sort_metric' => array('country', 'pagePath'),
-  );
-  $rows = google_analytics_reports_path_report($request, $path, 'country');
-  $name_to_iso = countries_api_get_array('name', 'iso2');
-  $countries = array();
-  $max_pageviews = 0;
-  foreach ($rows as $key => $value) {
-    $match = $name_to_iso[strtoupper($key)];
-    if ($match) {
-      $max_pageviews = max($max_pageviews, $value['pageviews']);
-      $countries[$match] = $value['pageviews'];
-    }
-  }
-
-  // Find out proportion share from 1-100 for each country.
-  $countries_share = array();
-  foreach ($countries as $key => $value) {
-    $countries_share[$key] = round(($value / $max_pageviews) * 100);
-  }
-
-  // Create the geographical chart.
-  $chart = array(
-    '#chart_id' => 'countries',
-    '#type' => CHART_TYPE_MAP,
-    '#size' => chart_size(440, 220),
-    '#georange' => 'world',
-    '#countries' => array_keys($countries_share),
-    '#data' => array_values($countries_share),
-    '#data_colors' => array('ffffff', 'edf0d4', '13390a'),
-  );
-
-  $output .= '<h3>' . t('Geographical usage') . '</h3>';
-  $output .= chart_render($chart);
-
   // Query for referrer information.
   $request = array(
     'dimensions' => array('pagePath', 'source', 'referralPath'),
