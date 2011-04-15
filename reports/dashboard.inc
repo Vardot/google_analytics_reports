@@ -65,7 +65,7 @@ function google_analytics_reports_usage() {
   if ($GAFeed->error) {
     return 'oops'; // @FIXME
   }
-  return $GAFeed->results[0]; // @FIXME - check_plain this data
+  return $GAFeed->results[0];
 }
 
 function google_analytics_reports_top_pages() {
@@ -83,7 +83,7 @@ function google_analytics_reports_top_pages() {
   if ($GAFeed->error) {
     return 'oops'; // @FIXME
   }
-  return $GAFeed->results; // @FIXME - check_plain this data
+  return $GAFeed->results;
 }
 
 function google_analytics_reports_top_referrals() {
@@ -100,7 +100,7 @@ function google_analytics_reports_top_referrals() {
   if ($GAFeed->error) {
     return 'oops'; // @FIXME
   }
-  return $GAFeed->results; // @FIXME - check_plain this data
+  return $GAFeed->results;
 }
 
 function google_analytics_reports_top_searches() {
@@ -117,5 +117,5 @@ function google_analytics_reports_top_searches() {
   if ($GAFeed->error) {
     return 'oops'; // @FIXME
   }
-  return $GAFeed->results; // @FIXME - check_plain this data
+  return $GAFeed->results;
 }

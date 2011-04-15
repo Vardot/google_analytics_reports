@@ -15,7 +15,7 @@
     <h3><?php print t('Site Usage'); ?></h3>
     <table>
       <tr>
-        <td><?php print $visits; ?></td>
+        <td><?php print $entrances; ?></td>
         <th>Visits</th>
         <td><?php print $bounces; ?></td>
         <th>Bounce Rate</th>
@@ -27,9 +27,9 @@
         <th>Avg. Time on Site</th>
       </tr>
       <tr>
-        <td>@TODO</td>
+        <td><?php print $pages_per_visit; ?></td>
         <th>Pages/Visit</th>
-        <td>@TODO</td>
+        <td><?php print $newVisits ?></td>
         <th>% New Visits</th>
       </tr>
     </table>
