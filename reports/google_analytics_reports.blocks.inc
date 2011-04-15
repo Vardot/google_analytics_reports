@@ -39,7 +39,7 @@ function _google_analytics_reports_page_block() {
     $max_visits = max($row['pageviews'], $max_visits);
   }
   $chart = array(
-    '#chart_id' => 'pageviews_2weeks',
+    '#chart_id' => 'pageviews_small_30d',
     '#data' => $data,
     '#type' => CHART_TYPE_LINE . ':nda',
     '#size' => chart_size(500, 40),
