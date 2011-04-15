@@ -5,7 +5,7 @@
  */
 
 /**
- * Page callback for admin/reports/google-analytics-report.
+ * Page callback for admin/reports/google-analytics.
  *
  * @return An HTML summary of the site-wide statistics.
  */

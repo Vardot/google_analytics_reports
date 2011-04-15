@@ -8,7 +8,7 @@
  * Implementation of hook_menu().
  */
 function google_analytics_reports_menu() {
-  $items['admin/reports/google-analytics-report'] = array(
+  $items['admin/reports/google-analytics'] = array(
     'title' => 'Google Analytics Summary',
     'page callback' => 'google_analytics_reports_summary_page',
     'access arguments' => array('access google analytics reports'),
@@ -227,8 +227,8 @@ function google_analytics_reports_path_report($request, $path = NULL, $group_by 
  * Create a statistics summary block and return it.
  */
 function google_analytics_reports_current_summary($path = NULL) {
-  // Ensure we aren't on the 'admin/reports/google-analytics-report' page implemented below...
-  if ($_GET['q'] == 'admin/reports/google-analytics-report') {
+  // Ensure we aren't on the 'admin/reports/google-analytics' page implemented below...
+  if ($_GET['q'] == 'admin/reports/google-analytics') {
     return FALSE;
   }
 
@@ -279,7 +279,7 @@ function google_analytics_reports_current_summary($path = NULL) {
   $description .= '<p><strong>/' . drupal_get_path_alias($_GET['q']) . '</strong></p>';
 
   // See more link.
-  $more_link = '<p>' . l(t('See more statistics...'), 'admin/reports/google-analytics-report', array('query' => 'path=' . $_GET['q'])) . '</p>';
+  $more_link = '<p>' . l(t('See more statistics...'), 'admin/reports/google-analytics', array('query' => 'path=' . $_GET['q'])) . '</p>';
 
   return $description
     . chart_render($pageviews_chart)
