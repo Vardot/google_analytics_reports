@@ -42,12 +42,12 @@ function _google_analytics_reports_visits() {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
-  $GAFeed = google_analytics_api_report_data($params);
-  if ($GAFeed->error) {
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
     return FALSE;
   }
   $max_visits = 0;
-  foreach ($GAFeed->results as $row) {
+  foreach ($feed->results as $row) {
     $data[] = $row['visits'];
     $x_labels[] = date('M d', strtotime($row['date']));
     $max_visits = max($row['visits'], $max_visits);
@@ -67,7 +67,7 @@ function _google_analytics_reports_visits() {
   foreach ($x_labels as $label) {
     $chart['mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($label);
   }
-  $last_day = end($GAFeed->results);
+  $last_day = end($feed->results);
   $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
   $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
   return $output;
@@ -83,11 +83,11 @@ function _google_analytics_reports_usage() {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
-  $GAFeed = google_analytics_api_report_data($params);
-  if ($GAFeed->error) {
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
     return FALSE;
   }
-  return $GAFeed->results[0];
+  return $feed->results[0];
 }
 
 /**
@@ -104,11 +104,11 @@ function _google_analytics_reports_top_pages() {
     'sort' => '-ga:pageviews',
     'max_results' => 5,
   );
-  $GAFeed = google_analytics_api_report_data($params);
-  if ($GAFeed->error) {
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
     return FALSE;
   }
-  return $GAFeed->results;
+  return $feed->results;
 }
 
 /**
@@ -124,11 +124,11 @@ function _google_analytics_reports_top_referrals() {
     'end_date' => strtotime('-1 day'),
     'max_results' => 5,
   );
-  $GAFeed = google_analytics_api_report_data($params);
-  if ($GAFeed->error) {
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
     return FALSE;
   }
-  return $GAFeed->results;
+  return $feed->results;
 }
 
 /**
@@ -144,9 +144,9 @@ function _google_analytics_reports_top_searches() {
     'filters' => 'ga:keyword!=(not set)',
     'max_results' => 5,
   );
-  $GAFeed = google_analytics_api_report_data($params);
-  if ($GAFeed->error) {
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
     return FALSE;
   }
-  return $GAFeed->results;
+  return $feed->results;
 }
