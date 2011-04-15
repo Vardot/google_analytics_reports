@@ -10,9 +10,36 @@
  */
 
 /**
+ * Page callback for admin/reports/google-analytics-report.
+ *
+ * @return An HTML summary of the site-wide statistics.
+ */
+function google_analytics_reports_summary_page() {
+  if (!variable_get('google_analytics_reports_oauth_token', FALSE)) {
+    drupal_set_message(t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/settings/google-analytics-reports'))), 'warning');
+    return ' ';
+  }
+
+  $summary = array(
+    'visit_chart' => _google_analytics_reports_visits(),
+    'usage' => _google_analytics_reports_usage(),
+    'pages' => _google_analytics_reports_top_pages(),
+    'referrals' => _google_analytics_reports_top_referrals(),
+    'searches' => _google_analytics_reports_top_searches(),
+  );
+
+  if (in_array(FALSE, $summary)) {
+    drupal_set_message(t('There was a problem retrieving the statistics.  Please review the watchdog for details.'), 'error');
+    return ' ';
+  }
+
+  return theme('google_analytics_reports_summary', $summary);
+}
+
+/**
  * Renders an img element with a chart of the number of visits over the past 30 days.
  */
-function google_analytics_reports_visits() {
+function _google_analytics_reports_visits() {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:date'),
@@ -54,7 +81,7 @@ function google_analytics_reports_visits() {
 /**
  *
  */
-function google_analytics_reports_usage() {
+function _google_analytics_reports_usage() {
   // Site usage
   $params = array(
     'metrics' => array('ga:visits', 'ga:bounces', 'ga:entrances', 'ga:pageviews', 'ga:timeOnSite', 'ga:newVisits'),
@@ -68,7 +95,7 @@ function google_analytics_reports_usage() {
   return $GAFeed->results[0];
 }
 
-function google_analytics_reports_top_pages() {
+function _google_analytics_reports_top_pages() {
   // Top pages
   $params = array(
     'metrics' => array('ga:pageviews'),
@@ -86,7 +113,7 @@ function google_analytics_reports_top_pages() {
   return $GAFeed->results;
 }
 
-function google_analytics_reports_top_referrals() {
+function _google_analytics_reports_top_referrals() {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:source', 'ga:medium'),
@@ -103,7 +130,7 @@ function google_analytics_reports_top_referrals() {
   return $GAFeed->results;
 }
 
-function google_analytics_reports_top_searches() {
+function _google_analytics_reports_top_searches() {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:keyword'),
