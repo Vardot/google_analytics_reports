@@ -166,18 +166,22 @@ function _google_analytics_reports_path_filter($node_path = NULL) {
   return $filters;
 }
 
-/*
- * Block for showing statistics of the current path.
+/**
+ * Implements hook_block().
  */
-function google_analytics_reports_block($op = 'list', $delta = 0) {
+function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $blocks[0]['info'] = t('Google Analytics Statistics');
+      $blocks['page_stats']['info'] = t('Google Analytics Statistics');
       return $blocks;
     case 'view':
-      $blocks['subject'] = t('Google Analytics Statistics');
-      $blocks['content'] = google_analytics_reports_current_summary();
-      return $blocks;
+      module_load_include('inc', 'google_analytics_reports', 'google_analytics_reports.blocks');
+      switch ($delta) {
+        case 'page_stats':
+          $blocks['subject'] = t('Page traffic');
+          $blocks['content'] = _google_analytics_reports_page_block();
+          return $blocks;
+      }
   }
 }
 
