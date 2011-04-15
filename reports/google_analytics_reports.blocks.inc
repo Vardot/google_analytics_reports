@@ -52,7 +52,7 @@ function _google_analytics_reports_page_block() {
   $last_day = end($feed->results);
   $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_visits, '@yesterday' => $last_day['pageviews']));
   $output = '';
-  $output .= chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
+  $output .= l(chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%')), 'admin/reports/google-analytics', array('html' => TRUE));
   $output .= '<p>' . l(t('@views views this month', array('@views' => number_format($feed->totals['pageviews']))), 'admin/reports/google-analytics') . '</p>';
   return $output;
 }
