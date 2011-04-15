@@ -17,13 +17,13 @@
       <tr>
         <td><?php print $visits; ?></td>
         <th>Visits</th>
-        <td>@TODO</td>
+        <td><?php print $bounces; ?></td>
         <th>Bounce Rate</th>
       </tr>
       <tr>
         <td><?php print $pageviews; ?></td>
         <th>Pageviews</th>
-        <td>@TODO</td>
+        <td><?php print $timeOnSite; ?></td>
         <th>Avg. Time on Site</th>
       </tr>
       <tr>
