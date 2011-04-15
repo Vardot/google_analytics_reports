@@ -1,5 +1,4 @@
 <?php
-require_once('dashboard.inc');
 /**
  * @file
  * Front-end interfaces that use the Google Analytics API module.
@@ -13,6 +12,7 @@ function google_analytics_reports_menu() {
     'title' => 'Google Analytics Summary',
     'page callback' => 'google_analytics_reports_summary_page',
     'access arguments' => array('access google analytics reports'),
+    'file' => 'google_analytics_reports.pages.inc',
     'type' => MENU_NORMAL_ITEM,
   );
   $items['node/%node/statistics'] = array(
