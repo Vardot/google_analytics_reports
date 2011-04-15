@@ -49,7 +49,6 @@ function _google_analytics_reports_visits() {
   $max_visits = 0;
   foreach ($feed->results as $row) {
     $data[] = $row['visits'];
-    $x_labels[] = date('M d', strtotime($row['date']));
     $max_visits = max($row['visits'], $max_visits);
   }
   $chart = array(
@@ -63,10 +62,6 @@ function _google_analytics_reports_visits() {
     '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
-  $chart['mixed_axis_labels'][CHART_AXIS_Y_LEFT][0][] = chart_mixed_axis_range_label(0, max($data));
-  foreach ($x_labels as $label) {
-    $chart['mixed_axis_labels'][CHART_AXIS_X_BOTTOM][1][] = chart_mixed_axis_label($label);
-  }
   $last_day = end($feed->results);
   $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
   $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
