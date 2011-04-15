@@ -328,6 +328,11 @@ function _google_analytics_reports_sparkline_chart($id, $title, $data, $dates) {
  * @return An HTML summary of the site-wide statistics.
  */
 function google_analytics_reports_summary_page() {
+  if (!variable_get('google_analytics_reports_consumer_key', FALSE)) {
+    drupal_set_message(t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/settings/google-analytics-reports'))), 'warning');
+    return ' ';
+  }
+
   $summary = array(
     'visit_chart' => google_analytics_reports_visits(),
     'usage' => google_analytics_reports_usage(),
@@ -335,6 +340,11 @@ function google_analytics_reports_summary_page() {
     'referrals' => google_analytics_reports_top_referrals(),
     'searches' => google_analytics_reports_top_searches(),
   );
+
+  if (in_array(FALSE, $summary)) {
+    drupal_set_message(t('There was a problem retrieving the statistics.  Please review the watchdog for details.'), 'error');
+    return ' ';
+  }
 
   return theme('google_analytics_reports_summary', $summary);
 }

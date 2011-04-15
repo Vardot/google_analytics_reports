@@ -22,7 +22,7 @@ function google_analytics_reports_visits() {
   );
   $GAFeed = google_analytics_api_report_data($params);
   if ($GAFeed->error) {
-    return 'oops'; // @FIXME
+    return FALSE;
   }
   $max_visits = 0;
   foreach ($GAFeed->results as $row) {
@@ -63,7 +63,7 @@ function google_analytics_reports_usage() {
   );
   $GAFeed = google_analytics_api_report_data($params);
   if ($GAFeed->error) {
-    return 'oops'; // @FIXME
+    return FALSE;
   }
   return $GAFeed->results[0];
 }
@@ -81,7 +81,7 @@ function google_analytics_reports_top_pages() {
   );
   $GAFeed = google_analytics_api_report_data($params);
   if ($GAFeed->error) {
-    return 'oops'; // @FIXME
+    return FALSE;
   }
   return $GAFeed->results;
 }
@@ -98,7 +98,7 @@ function google_analytics_reports_top_referrals() {
   );
   $GAFeed = google_analytics_api_report_data($params);
   if ($GAFeed->error) {
-    return 'oops'; // @FIXME
+    return FALSE;
   }
   return $GAFeed->results;
 }
@@ -115,7 +115,7 @@ function google_analytics_reports_top_searches() {
   );
   $GAFeed = google_analytics_api_report_data($params);
   if ($GAFeed->error) {
-    return 'oops'; // @FIXME
+    return FALSE;
   }
   return $GAFeed->results;
 }
