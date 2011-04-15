@@ -72,7 +72,7 @@ function google_analytics_reports_top_pages() {
   // Top pages
   $params = array(
     'metrics' => array('ga:pageviews'),
-    'dimensions' => array('ga:pageTitle', 'ga:pagePath'),
+    'dimensions' => array('ga:pageTitle', 'ga:hostname', 'ga:pagePath'),
     'sort_metric' => array('-ga:pageviews'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),

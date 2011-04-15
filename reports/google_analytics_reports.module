@@ -75,7 +75,10 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
 
   $pages = array();
   foreach ($vars['summary']['pages'] as $page) {
-    $pages[] = l($page['pageTitle'], $page['pagePath'], array('external' => TRUE, 'html' => TRUE)) . ' - ' . format_plural($page['pageviews'], '1 View', '@views Views', array('@views' => number_format($page['pageviews']))); // @FIXME - set base_url
+    if ($page['pagePath'] == '/index.html') {
+      $page['pagePath'] = '/';
+    }
+    $pages[] = l($page['pageTitle'], "http://$page[hostname]$page[pagePath]", array('external' => TRUE, 'html' => TRUE)) . ' - ' . format_plural($page['pageviews'], '1 View', '@views Views', array('@views' => number_format($page['pageviews'])));
   }
   $vars['pages'] = theme('item_list', $pages, NULL, 'ol');
 
@@ -333,7 +336,7 @@ function google_analytics_reports_summary_page() {
     'searches' => google_analytics_reports_top_searches(),
   );
 
-  return ' ' . theme('google_analytics_reports_summary', $summary);
+  return theme('google_analytics_reports_summary', $summary);
 }
 
 /*
