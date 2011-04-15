@@ -1,12 +1,7 @@
 <?php
-
 /**
  * @file
- * Collecting report queries for the dashboard block.
- * UI will look like http://s.wordpress.org/extend/plugins/google-analyticator/screenshot-1.png?r=371673
- *
- * @FIXME - this file is probably temporary - code to be renamed / integrated elsewhere
- *
+ * Page callbacks for google analytics.
  */
 
 /**
@@ -79,7 +74,7 @@ function _google_analytics_reports_visits() {
 }
 
 /**
- *
+ * Retrieves usage data.
  */
 function _google_analytics_reports_usage() {
   // Site usage
@@ -95,6 +90,9 @@ function _google_analytics_reports_usage() {
   return $GAFeed->results[0];
 }
 
+/**
+ * Retrieves top pages.
+ */
 function _google_analytics_reports_top_pages() {
   // Top pages
   $params = array(
@@ -113,6 +111,9 @@ function _google_analytics_reports_top_pages() {
   return $GAFeed->results;
 }
 
+/**
+ * Retrieves top referrals.
+ */
 function _google_analytics_reports_top_referrals() {
   $params = array(
     'metrics' => array('ga:visits'),
@@ -130,6 +131,9 @@ function _google_analytics_reports_top_referrals() {
   return $GAFeed->results;
 }
 
+/**
+ * Retrieves top searches.
+ */
 function _google_analytics_reports_top_searches() {
   $params = array(
     'metrics' => array('ga:visits'),
