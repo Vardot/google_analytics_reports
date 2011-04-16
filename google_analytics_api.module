@@ -8,9 +8,6 @@
 /* Number of seconds in a day. */
 define('GOOGLE_ANALYTICS_REPORTS_DAY', 60 * 60 * 24);
 
-/* Library class */
-require_once 'GAFeed.lib.php';
-
 /**
  * Implementation of hook_menu().
  */
@@ -52,6 +49,7 @@ function google_analytics_api_perm() {
  * Instantiate a new GAFeed object.
  */
 function google_analytics_api_new_gafeed() {
+  module_load_include('inc', 'google_analytics_api', 'GAFeed.lib');
   $key = variable_get('google_analytics_reports_consumer_key', 'anonymous');
   $secret = variable_get('google_analytics_reports_consumer_secret', 'anonymous');
   $oauth_token = variable_get('google_analytics_reports_oauth_token', NULL);
