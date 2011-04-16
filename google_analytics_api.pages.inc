@@ -20,8 +20,7 @@ function google_analytics_api_admin() {
     $set_default = FALSE;
     
     foreach ($account->results as $profile_key => $profile) {
-      $options[$profile_key] = $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
-      
+      $options[$profile_key] = theme('google_analytics_api_profile_label', $profile);
       /* Rough attempt to see if the current site is in the account list */
       if (empty($profile_id) && (parse_url($profile['title'], PHP_URL_PATH) == $_SERVER['HTTP_HOST'])) {
         $profile_id = $profile_key;
@@ -51,7 +50,7 @@ function google_analytics_api_admin() {
       '#title' => t('Reports profile'),
       '#options' => $options,
       '#default_value' => $profile_id,
-      '#description' => t("Choose your Google Analytics profile."),
+      '#description' => t("Choose your Google Analytics profile.  The currently active profile is: %profile", array('%profile' => theme('google_analytics_api_profile_label', $account->results[$profile_id]))),
       '#required' => TRUE,
     );
     /* Seven days of cache options */
@@ -91,7 +90,7 @@ function google_analytics_api_admin() {
       '#title' => t('Initial setup'),
       '#description' => t("When you submit this form, you will be redirected to Google for authentication.  Login with the account that has credentials to the Google Analytics profile you'd like to use."),
       '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+      '#collapsed' => TRUE,
     );
     $form['setup']['google_analytics_reports_hd'] = array(
       '#type' => 'textfield',
@@ -119,6 +118,7 @@ function google_analytics_api_admin_submit($form, &$form_state) {
         /* Anonymous keys are a Google default */
         $key = variable_get('google_analytics_reports_consumer_key', 'anonymous');
         $secret = variable_get('google_analytics_reports_consumer_secret', 'anonymous');
+        module_load_include('inc', 'google_analytics_api', 'GAFeed.lib');
         $GAFeed = new GAFeed($key, $secret);
 
         /* Step #1 of OAuth */
@@ -180,6 +180,7 @@ function google_analytics_reports_oauth_callback_validate($form, &$form_state) {
     form_set_error('oauth_token', t('Invalid OAuth token.'));
   }
 
+  module_load_include('inc', 'google_analytics_api', 'GAFeed.lib');
   $GAFeed = new GAFeed($key, $secret, $token['oauth_token'], $token['oauth_token_secret']);
 
   /* Google required the verifier */

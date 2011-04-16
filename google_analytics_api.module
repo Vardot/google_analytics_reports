@@ -46,6 +46,18 @@ function google_analytics_api_perm() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function google_analytics_api_theme() {
+  return array(
+    'google_analytics_api_profile_label' => array(
+      'arguments' => array('profile' => NULL),
+    ),
+  );
+}
+
+
+/**
  * Instantiate a new GAFeed object.
  */
 function google_analytics_api_new_gafeed() {
@@ -133,4 +145,13 @@ function google_analytics_api_revoke() {
  */
 function google_analytics_reports_cache_time() {
   return time() + variable_get('google_analytics_reports_cache_length', 259200);
+}
+
+/**
+ * Theme the full string label of profiles.
+ *
+ * @return Themed string label.
+ */
+function theme_google_analytics_api_profile_label($profile) {
+  return $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
 }
