@@ -75,7 +75,7 @@ function google_analytics_api_admin() {
       '#title' => t('Revoke access and logout'),
       '#description' => t('Revoke your access token to Google Analytics.  This action will log you out of your Google Analytics account and stop all reports from displaying on your site.'),
       '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+      '#collapsed' => TRUE,
       '#weight' => 5,
     );
     $form['revoke']['revoke_submit'] = array(
@@ -90,7 +90,7 @@ function google_analytics_api_admin() {
       '#title' => t('Initial setup'),
       '#description' => t("When you submit this form, you will be redirected to Google for authentication.  Login with the account that has credentials to the Google Analytics profile you'd like to use."),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed' => FALSE,
     );
     $form['setup']['google_analytics_reports_hd'] = array(
       '#type' => 'textfield',
