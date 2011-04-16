@@ -5,6 +5,9 @@
  * Implements the API through which Google Analytics data can be accessed.
  */
 
+/* Number of seconds in a day. */
+define('GOOGLE_ANALYTICS_REPORTS_DAY', 60 * 60 * 24);
+
 /* Library class */
 require_once 'GAFeed.lib.php';
 
