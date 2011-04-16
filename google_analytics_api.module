@@ -134,6 +134,7 @@ function google_analytics_api_revoke() {
   variable_del('google_analytics_reports_consumer_secret');
   variable_del('google_analytics_reports_oauth_token');
   variable_del('google_analytics_reports_oauth_token_secret');
+  variable_del('google_analytics_reports_cache_length');
 }
 
 /**
