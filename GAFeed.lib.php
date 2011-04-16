@@ -161,7 +161,7 @@ class GAFeed {
     /* Provide cache defaults if a developer did not override them */
     $cache_defaults = array(
       'cid' => NULL,
-      'expire' => strtotime('+3 days'),
+      'expire' => google_analytics_reports_cache_time(),
       'refresh' => FALSE,
     );
     $cache_options += $cache_defaults;

@@ -41,7 +41,7 @@ function google_analytics_api_admin() {
 
     $form['ga'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Google Analytics settings'),
+      '#title' => t('Google Analytics profile'),
       '#collapsible' => TRUE,
       '#collapsed' => FALSE,
       '#weight' => 1,
@@ -58,6 +58,30 @@ function google_analytics_api_admin() {
       '#type' => 'submit',
       '#value' => t('Save profile'),
     );
+    $form['settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#weight' => 1,
+    );
+    /* Seven days of cache options */
+    $options = array();
+    for ($days = 1; $days <= 7; $days++) {
+      $options[$days * 86400] = format_plural($days, '@numdays day', '@numdays days', array('@numdays' => $days));
+    }
+    $form['settings']['google_analytics_reports_cache_length'] = array(
+      '#type' => 'select',
+      '#title' => t('Query cache'),
+      '#description' => t('The <a href="!link">Google Analytics Quota Policy</a> restricts the number of queries made per day.  This limits the creation of new reports on your site.  We recommend setting this cache option to at least three days.', array('!link' => url('http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html', array('absolute' => TRUE, 'fragment' => 'quota')))),
+      '#options' => $options,
+      '#default_value' => variable_get('google_analytics_reports_cache_length', 259200),
+      '#required' => TRUE,
+    );
+    $form['settings']['settings_submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save settings'),
+    );    
     $form['revoke'] = array(
       '#type' => 'fieldset',
       '#title' => t('Revoke access and logout'),
@@ -119,6 +143,10 @@ function google_analytics_api_admin_submit($form, &$form_state) {
     case t('Save profile'):
         variable_set('google_analytics_reports_profile_id', $form_state['values']['google_analytics_reports_profile_id']);
         drupal_set_message(t('Profile ID has been saved successfully.'));
+      break;  
+    case t('Save settings'):
+        variable_set('google_analytics_reports_cache_length', $form_state['values']['google_analytics_reports_cache_length']);
+        drupal_set_message(t('Settings have been saved successfully.'));
       break;  
     case t('Revoke access token'):
         google_analytics_api_revoke();

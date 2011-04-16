@@ -122,3 +122,14 @@ function google_analytics_api_revoke() {
   variable_del('google_analytics_reports_oauth_token');
   variable_del('google_analytics_reports_oauth_token_secret');
 }
+
+/**
+ * Sets the expiry timestamp for cached queries.
+ *
+ * Default is 3 days.
+ *
+ * @return The UNIX timestamp to expire the query at.
+ */
+function google_analytics_reports_cache_time() {
+  return time() + variable_get('google_analytics_reports_cache_length', 259200);
+}
