@@ -21,10 +21,6 @@ function google_analytics_api_menu() {
     'page arguments' => array('google_analytics_api_admin'),
     'access arguments' => array('administer google analytics api settings'),
   );
-  $items['admin/settings/google-analytics-reports/account'] = array(
-    'title' => 'Account settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
 
   /* OAuth callback from Google */
   $items['google-analytics-reports/oauth'] = array(
