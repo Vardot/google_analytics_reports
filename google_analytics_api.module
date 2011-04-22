@@ -8,6 +8,9 @@
 /* Number of seconds in a day. */
 define('GOOGLE_ANALYTICS_REPORTS_DAY', 60 * 60 * 24);
 
+/* Number of seconds in a week. */
+define('GOOGLE_ANALYTICS_REPORTS_WEEK', GOOGLE_ANALYTICS_REPORTS_DAY * 7);
+
 /**
  * Implementation of hook_menu().
  */
@@ -20,10 +23,6 @@ function google_analytics_api_menu() {
     'file' => 'google_analytics_api.pages.inc',
     'page arguments' => array('google_analytics_api_admin'),
     'access arguments' => array('administer google analytics api settings'),
-  );
-  $items['admin/settings/google-analytics-reports/account'] = array(
-    'title' => 'Account settings',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   /* OAuth callback from Google */

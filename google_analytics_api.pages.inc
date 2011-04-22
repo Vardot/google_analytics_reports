@@ -55,8 +55,11 @@ function google_analytics_api_admin() {
     );
     /* Seven days of cache options */
     $times = array();
-    for ($days = 1; $days <= 7; $days++) {
+    for ($days = 1; $days <= 6; $days++) {
       $times[] = $days * GOOGLE_ANALYTICS_REPORTS_DAY;
+    }
+    for ($weeks = 1; $weeks <= 4; $weeks++) {
+      $times[] = $weeks * GOOGLE_ANALYTICS_REPORTS_WEEK;
     }
     $form['ga']['google_analytics_reports_cache_length'] = array(
       '#type' => 'select',
