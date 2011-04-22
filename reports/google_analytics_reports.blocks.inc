@@ -1,31 +1,30 @@
 <?php
 
 /**
+ * Page callback for google-analytics-reports/ajax/path-mini.
+ */
+function google_analytics_reports_path_mini_ajax() {
+  $path = isset($_GET['path']) ? $_GET['path'] : '/';
+  return drupal_json(array('content' => google_analytics_reports_path_mini_build($path)));
+}
+
+/**
  * Generates a block with the current page statistics.
  */
-function _google_analytics_reports_page_block() {
-  // @TODO - display this block with AHAH, because the API query can add a lot of latency.
-
-  // Ensure user has permission to view this block.
-  if (!user_access('access google analytics reports')) {
-    return FALSE;
-  }
-
+function google_analytics_reports_path_mini_build($path) {
   if (!variable_get('google_analytics_reports_oauth_token', FALSE)) {
     return '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/settings/google-analytics-reports'))) . '</p>';
   }
 
-  // @TODO - consider aliases
-  $page = $_SERVER['REQUEST_URI'];
-  if ($page == '/') {
-    $page = '/index.html';
+  if ($path == '/') {
+    $path = '/index.html';
   }
 
   $params = array(
     'metrics' => array('ga:pageviews'),
     'dimensions' => array('ga:date'),
     'sort_metric' => array('ga:date'),
-    'filters' => "ga:pagePath==$page",
+    'filters' => "ga:pagePath==$path", // @TODO - generate proper filter
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );

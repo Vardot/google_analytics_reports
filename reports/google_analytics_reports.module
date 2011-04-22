@@ -15,15 +15,14 @@ function google_analytics_reports_menu() {
     'file' => 'google_analytics_reports.pages.inc',
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['node/%node/statistics'] = array(
-    'title' => 'Statistics',
-    'page callback' => 'google_analytics_reports_statistics_page',
-    'page arguments' => array(1, 'node'),
-    'access arguments' => array('access google analytics reports'),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-  );
 
+  $items['google-analytics-reports/ajax/path-mini'] = array(
+    'title' => 'Page traffic',
+    'page callback' => 'google_analytics_reports_path_mini_ajax',
+    'access arguments' => array('access google analytics reports'),
+    'file' => 'google_analytics_reports.blocks.inc',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -124,14 +123,14 @@ function _google_analytics_reports_path_filter($node_path = NULL) {
 function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $blocks['page_stats']['info'] = t('Google Analytics Statistics');
+      $blocks['path_mini']['info'] = t('Google Analytics page traffic');
       return $blocks;
     case 'view':
-      module_load_include('inc', 'google_analytics_reports', 'google_analytics_reports.blocks');
+      drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js'); // @TODO preprocess FALSE
       switch ($delta) {
-        case 'page_stats':
+        case 'path_mini':
           $blocks['subject'] = t('Page traffic');
-          $blocks['content'] = _google_analytics_reports_page_block();
+          $blocks['content'] = '<div class="google-analytics-reports-path-mini"></div>';
           return $blocks;
       }
   }
