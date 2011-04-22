@@ -14,19 +14,19 @@
   <div class="google-analytics-usage">
     <h3><?php print t('Site Usage'); ?></h3>
     <table>
-      <tr>
+      <tr class="odd">
         <td><?php print $entrances; ?></td>
         <th>Visits</th>
         <td><?php print $bounces; ?></td>
         <th>Bounce Rate</th>
       </tr>
-      <tr>
+      <tr class="even">
         <td><?php print $pageviews; ?></td>
         <th>Pageviews</th>
         <td><?php print $timeOnSite; ?></td>
         <th>Avg. Time on Site</th>
       </tr>
-      <tr>
+      <tr class="odd">
         <td><?php print $pages_per_visit; ?></td>
         <th>Pages/Visit</th>
         <td><?php print $newVisits ?></td>

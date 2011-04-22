@@ -15,8 +15,8 @@
   font-weight: normal;
 }
 
-/* This style is adapted for Rubik, but should be fairly unintrusive in any theme */
-.google-analytics-summary .item-list ol li {
+/* Rubik doesn't style <ol>s */
+.rubik .google-analytics-summary .item-list ol li {
   float: none;
   display: block;
   padding: 5px 10px 4px;
@@ -26,3 +26,7 @@
   display: list-item;
 }
 
+/* Touch up border in RootCandy */
+.t .b .l .r .bl .br .google-analytics-summary th {
+  border: none;
+}
