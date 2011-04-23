@@ -5,33 +5,47 @@
  */
 ?>
 
-<?php print $pageviews_chart; ?>
+<div class="google-analytics-summary google-analytics-reports">
 
-<table>
-  <tr class="odd">
-    <td><?php print $pageviews; ?></td>
-    <th>Pageviews</th>
-    <td><?php print $bounce_rate; ?>%</td>
-    <th>Bounce Rate</th>
-  </tr>
-  <tr class="even">
-    <td><?php print $unique_pageviews; ?></td>
-    <th>Unique Views</th>
-    <td><?php print $exit_rate; ?>%</td>
-    <th>Exit Rate</th>
-  </tr>
-  <tr class="odd">
-    <td><?php print $avg_time_on_page; ?></td>
-    <th>Time on Page</th>
-    <td>$<?php print $goal_value; ?></td>
-    <th>$ Index</th>
-  </tr>
-</table>
+  <div class="google-analytics-pageviews">
+    <h3><?php print t('Pageviews Over the Past 30 Days'); ?></h3>
+    <?php print $pageviews_chart; ?>
+  </div>
 
-<?php print $referrals; ?>
+  <div class="google-analytics-stats">
+    <h3><?php print t('This page was viewed !count times', array('!count' => $pageviews)) ?></h3>
+    <table>
+      <tr class="odd">
+        <td><?php print $pageviews; ?></td>
+        <th>Pageviews</th>
+        <td><?php print $bounce_rate; ?>%</td>
+        <th>Bounce Rate</th>
+      </tr>
+      <tr class="even">
+        <td><?php print $unique_pageviews; ?></td>
+        <th>Unique Views</th>
+        <td><?php print $exit_rate; ?>%</td>
+        <th>Exit Rate</th>
+      </tr>
+      <tr class="odd">
+        <td><?php print $avg_time_on_page; ?></td>
+        <th>Time on Page</th>
+        <td>$<?php print $goal_value; ?></td>
+        <th>$ Index</th>
+      </tr>
+    </table>
+  </div>
 
-<?php print $searches; ?>
+  <div class="google-analytics-referrals">
+    <h3><?php print t('Top Referrals'); ?></h3>
+    <?php print $referrals; ?>
+  </div>
 
+  <div class="google-analytics-searches">
+    <h3><?php print t('Top Searches'); ?></h3>
+    <?php print $searches; ?>
+  </div>
 
+</div>
 
 

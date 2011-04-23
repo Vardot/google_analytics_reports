@@ -54,6 +54,8 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
 }
 
 function template_preprocess_google_analytics_reports_detail(&$vars) {
+  drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css', 'module', 'all', FALSE);
+
   $vars['pageviews_chart'] = $vars['report']['pageviews_chart'];
   $vars['pageviews'] = number_format($vars['report']['stats']['pageviews']);
   $vars['unique_pageviews'] = number_format($vars['report']['stats']['uniquePageviews']);

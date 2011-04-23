@@ -16,7 +16,7 @@
 }
 
 /* Rubik doesn't style <ol>s */
-.rubik .google-analytics-summary .item-list ol li {
+.rubik .google-analytics-reports .item-list ol li {
   float: none;
   display: block;
   padding: 5px 10px 4px;
@@ -27,6 +27,6 @@
 }
 
 /* Touch up border in RootCandy */
-.t .b .l .r .bl .br .google-analytics-summary th {
+.t .b .l .r .bl .br .google-analytics-reports th {
   border: none;
 }

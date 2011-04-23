@@ -6,7 +6,7 @@
  */
 ?>
 
-<div class="google-analytics-summary">
+<div class="google-analytics-summary google-analytics-reports">
   <div class="google-analytics-visits">
     <h3><?php print t('Visits Over the Past 30 Days'); ?></h3>
     <?php print $visit_chart; ?>
