@@ -9,6 +9,14 @@ function google_analytics_reports_path_mini_ajax() {
 }
 
 /**
+ * Page callback for google-analytics-reports/ajax/summary.
+ */
+function google_analytics_reports_summary_ajax() {
+  module_load_include('inc', 'google_analytics_reports', 'google_analytics_reports.pages');
+  return drupal_json(array('content' => google_analytics_reports_summary_page()));
+}
+
+/**
  * Generates a block with the current page statistics.
  */
 function google_analytics_reports_path_mini_build($path) {

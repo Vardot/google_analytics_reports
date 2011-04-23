@@ -15,10 +15,16 @@ function google_analytics_reports_menu() {
     'file' => 'google_analytics_reports.pages.inc',
     'type' => MENU_NORMAL_ITEM,
   );
-
   $items['google-analytics-reports/ajax/path-mini'] = array(
     'title' => 'Page traffic',
     'page callback' => 'google_analytics_reports_path_mini_ajax',
+    'access arguments' => array('access google analytics reports'),
+    'file' => 'google_analytics_reports.blocks.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['google-analytics-reports/ajax/summary'] = array(
+    'title' => 'Page traffic',
+    'page callback' => 'google_analytics_reports_summary_ajax',
     'access arguments' => array('access google analytics reports'),
     'file' => 'google_analytics_reports.blocks.inc',
     'type' => MENU_CALLBACK,
@@ -128,14 +134,20 @@ function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array(
   switch ($op) {
     case 'list':
       $blocks['path_mini']['info'] = t('Google Analytics page traffic');
+      $blocks['summary']['info'] = t('Google Analytics summary');
       return $blocks;
     case 'view':
-      drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js'); // @TODO preprocess FALSE
+      drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js', 'module', 'footer', FALSE, TRUE, FALSE);
+      drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css', 'module', 'all', FALSE);
       switch ($delta) {
         case 'path_mini':
-          $blocks['subject'] = t('Page traffic');
-          $blocks['content'] = '<div class="google-analytics-reports-path-mini"></div>';
-          return $blocks;
+          $block['subject'] = t('Page traffic');
+          $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
+          return $block;
+        case 'summary':
+          $block['subject'] = t('Google Analytics Summary');
+          $block['content'] = '<div class="google-analytics-reports-summary"></div>';
+          return $block;
       }
   }
 }

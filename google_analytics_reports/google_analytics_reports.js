@@ -8,7 +8,20 @@ Drupal.behaviors.googleAnalyticsReports = function(context) {
         $('.google-analytics-reports-path-mini').html(data.content).hide().slideDown('fast');
       },
       error: function(data) {
+        // @TODO
+      }
+    });
+  }
 
+  if ($('.google-analytics-reports-path-mini', context).length) {
+    $.ajax({
+      url: '/google-analytics-reports/ajax/summary',
+      dataType: 'json',
+      success: function(data) {
+        $('.google-analytics-reports-summary').html(data.content).hide().slideDown('fast');
+      },
+      error: function(data) {
+        // @TODO
       }
     });
   }
