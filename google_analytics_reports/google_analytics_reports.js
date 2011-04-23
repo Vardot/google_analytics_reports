@@ -5,7 +5,7 @@ Drupal.behaviors.googleAnalyticsReports = function(context) {
       dataType: 'json',
       data: ({ path: window.location.pathname }),
       success: function(data) {
-        $('.google-analytics-reports-path-mini').html(data.content);
+        $('.google-analytics-reports-path-mini').html(data.content).hide().slideDown('fast');
       },
       error: function(data) {
 

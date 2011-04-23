@@ -43,6 +43,10 @@ function google_analytics_reports_theme() {
       'template' => 'google_analytics_reports_summary',
       'file' => 'google_analytics_reports.theme.inc',
     ),
+    'google_analytics_reports_path_mini' => array(
+      'arguments' => array('report' => NULL),
+      'file' => 'google_analytics_reports.theme.inc',
+    ),
   );
 }
 

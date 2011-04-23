@@ -52,3 +52,10 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
   }
   $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
 }
+
+/**
+ * Theme function for path_mini block.
+ */
+function theme_google_analytics_reports_path_mini($report) {
+  return $report['chart'] . '<p>' . $report['views'] . '</p>';
+}
