@@ -53,6 +53,32 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
   $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
 }
 
+function template_preprocess_google_analytics_reports_detail(&$vars) {
+  $vars['pageviews_chart'] = $vars['report']['pageviews_chart'];
+  $vars['pageviews'] = number_format($vars['report']['stats']['pageviews']);
+  $vars['unique_pageviews'] = number_format($vars['report']['stats']['uniquePageviews']);
+  $vars['avg_time_on_page'] = format_interval($vars['report']['stats']['avgTimeOnPage']);
+  $vars['bounce_rate'] = round($vars['report']['stats']['entranceBounceRate'], 2);
+  $vars['exit_rate'] = round($vars['report']['stats']['exitRate'], 2);
+  if ($vars['report']['stats']['uniquePageviews'] > 0) {
+    $vars['goal_value'] = money_format('%i', $vars['report']['stats']['goalValueAll'] / $vars['report']['stats']['uniquePageviews']);
+  } else {
+    $vars['goal_value'] = '0.00';
+  }
+
+  $referrals = array();
+  foreach ($vars['report']['referrals'] as $referral) {
+    $referrals[] = '<strong>' . $referral['source'] . '</strong> - ' . format_plural($referral['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($referral['visits'])));
+  }
+  $vars['referrals'] = theme('item_list', $referrals, NULL, 'ol');
+
+  $searches = array();
+  foreach ($vars['report']['searches'] as $search) {
+    $searches[] = '<strong>' . $search['keyword'] . '</strong> - ' . format_plural($search['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($search['visits'])));
+  }
+  $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
+}
+
 /**
  * Theme function for path_mini block.
  */

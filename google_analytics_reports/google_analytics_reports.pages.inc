@@ -32,6 +32,21 @@ function google_analytics_reports_summary_page() {
 }
 
 /**
+ * Page callback for admin/reports/google-analytics/detail.
+ */
+function google_analytics_reports_detail_page() {
+  $path = isset($_GET['path']) ? $_GET['path'] : '/index.html';
+  drupal_set_title(t('Content detail: @path', array('@path' => $path)));
+  $report = array(
+    'pageviews_chart' => _google_analytics_reports_pageviews($path),
+    'stats' => _google_analytics_reports_detail_stats($path),
+    'referrals' => _google_analytics_reports_top_referrals($path),
+    'searches' => _google_analytics_reports_top_searches($path),
+  );
+  return theme('google_analytics_reports_detail', $report);
+}
+
+/**
  * Renders an img element with a chart of the number of visits over the past 30 days.
  */
 function _google_analytics_reports_visits() {
@@ -69,6 +84,45 @@ function _google_analytics_reports_visits() {
 }
 
 /**
+ * Renders an img element with a chart of the number of pageviews over the past 30 days.
+ */
+function _google_analytics_reports_pageviews($path) {
+  $params = array(
+    'metrics' => array('ga:pageviews'),
+    'dimensions' => array('ga:date'),
+    'sort_metric' => array('ga:date'),
+    'start_date' => strtotime('-31 days'),
+    'end_date' => strtotime('-1 day'),
+    'filters' => "ga:pagePath==$path", // @TODO
+  );
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
+    return FALSE;
+  }
+  $max_views = 0;
+  foreach ($feed->results as $row) {
+    $data[] = $row['pageviews'];
+    $max_views = max($row['pageviews'], $max_views);
+  }
+  $chart = array(
+    '#chart_id' => 'visits_large_30d',
+    '#data' => $data,
+    '#type' => CHART_TYPE_LINE . ':nda',
+    '#size' => chart_size(1000, 80),
+    '#adjust_resolution' => TRUE,
+    '#data_colors' => array('AAAAAA'),
+    '#chart_fill' => chart_fill('bg', '00000000'),
+    '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
+    '#line_styles' => array(chart_line_style(2, 10, 0)),
+  );
+  $last_day = end($feed->results);
+  $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_views, '@yesterday' => $last_day['pageviews']));
+  $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
+  return $output;
+}
+
+
+/**
  * Retrieves usage data.
  */
 function _google_analytics_reports_usage() {
@@ -86,10 +140,27 @@ function _google_analytics_reports_usage() {
 }
 
 /**
+ * Retrieves content detail stats.
+ */
+function _google_analytics_reports_detail_stats($path) {
+  // Site usage
+  $params = array(
+    'metrics' => array('ga:pageviews', 'ga:uniquePageviews', 'ga:avgTimeOnPage', 'ga:entranceBounceRate', 'ga:exitRate', 'ga:goalValueAll'),
+    'start_date' => strtotime('-31 days'),
+    'end_date' => strtotime('-1 day'),
+    'filters' => "ga:pagePath==$path", // @TODO
+  );
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error || empty($feed->results)) {
+    return FALSE;
+  }
+  return $feed->results[0];
+}
+
+/**
  * Retrieves top pages.
  */
 function _google_analytics_reports_top_pages() {
-  // Top pages
   $params = array(
     'metrics' => array('ga:pageviews'),
     'dimensions' => array('ga:pageTitle', 'ga:hostname', 'ga:pagePath'),
@@ -109,7 +180,7 @@ function _google_analytics_reports_top_pages() {
 /**
  * Retrieves top referrals.
  */
-function _google_analytics_reports_top_referrals() {
+function _google_analytics_reports_top_referrals($path = '') {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:source', 'ga:medium'),
@@ -119,6 +190,9 @@ function _google_analytics_reports_top_referrals() {
     'end_date' => strtotime('-1 day'),
     'max_results' => 5,
   );
+  if ($path) {
+    $params['filters'] .= ";ga:pagePath==$path"; // @TODO
+  }
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
     return FALSE;
@@ -129,7 +203,7 @@ function _google_analytics_reports_top_referrals() {
 /**
  * Retrieves top searches.
  */
-function _google_analytics_reports_top_searches() {
+function _google_analytics_reports_top_searches($path = '') {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:keyword'),
@@ -139,6 +213,9 @@ function _google_analytics_reports_top_searches() {
     'filters' => 'ga:keyword!=(not set)',
     'max_results' => 5,
   );
+  if ($path) {
+    $params['filters'] .= ";ga:pagePath==$path"; // @TODO
+  }
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
     return FALSE;

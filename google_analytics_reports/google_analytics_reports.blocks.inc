@@ -4,7 +4,7 @@
  * Page callback for google-analytics-reports/ajax/path-mini.
  */
 function google_analytics_reports_path_mini_ajax() {
-  $path = isset($_GET['path']) ? $_GET['path'] : '/';
+  $path = isset($_GET['path']) ? $_GET['path'] : '/index.html';
   return drupal_json(array('content' => google_analytics_reports_path_mini_build($path)));
 }
 

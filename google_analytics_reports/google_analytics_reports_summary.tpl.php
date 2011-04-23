@@ -2,6 +2,7 @@
 /**
  * @file
  * Theme implementation to display the Google Analytics summary.
+ * @FIXME - translate strings
  */
 ?>
 
