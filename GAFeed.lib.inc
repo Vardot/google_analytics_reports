@@ -214,8 +214,11 @@ class GAFeed {
 
     $headers = array();
     $this->response = drupal_http_request($url, $headers, $method, $data);
-
     if ($this->response->code != '200') {
+      // data is undefined if the connection failed.
+      if (!isset($this->response->data)) {
+        $this->response->data = '';
+      }
       $error_msg = 'Code: !code - Error: !message - Message: !details';
       $error_vars = array('!code' => $this->response->code, '!message' => $this->response->error, '!details' => strip_tags($this->response->data));
       $this->error =  t($error_msg, $error_vars);
@@ -339,7 +342,7 @@ class GAFeed {
     }
 
     $parameters['end-date'] = $end_date;
-    
+
     /* Accept only strings, not arrays, for the following parameters */
     $parameters['filters'] = $params['filters'];
     $parameters['segment'] = $params['segment'];
