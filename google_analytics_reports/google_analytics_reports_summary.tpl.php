@@ -2,7 +2,6 @@
 /**
  * @file
  * Theme implementation to display the Google Analytics summary.
- * @FIXME - translate strings
  */
 ?>
 
@@ -17,21 +16,21 @@
     <table>
       <tr class="odd">
         <td><?php print $entrances; ?></td>
-        <th>Visits</th>
+        <th><?php print t('Visits'); ?></th>
         <td><?php print $bounces; ?></td>
-        <th>Bounce Rate</th>
+        <th><?php print t('Bounce Rate'); ?></th>
       </tr>
       <tr class="even">
         <td><?php print $pageviews; ?></td>
-        <th>Pageviews</th>
+        <th><?php print t('Pageviews'); ?></th>
         <td><?php print $timeOnSite; ?></td>
-        <th>Avg. Time on Site</th>
+        <th><?php print t('Avg. Time on Site'); ?></th>
       </tr>
       <tr class="odd">
         <td><?php print $pages_per_visit; ?></td>
-        <th>Pages/Visit</th>
+        <th><?php print t('Pages/Visit'); ?></th>
         <td><?php print $newVisits ?></td>
-        <th>% New Visits</th>
+        <th><?php print t('% New Visits'); ?></th>
       </tr>
     </table>
   </div>

@@ -17,21 +17,21 @@
     <table>
       <tr class="odd">
         <td><?php print $pageviews; ?></td>
-        <th>Pageviews</th>
+        <th><?php print t('Pageviews'); ?></th>
         <td><?php print $bounce_rate; ?>%</td>
-        <th>Bounce Rate</th>
+        <th><?php print t('Bounce Rate'); ?></th>
       </tr>
       <tr class="even">
         <td><?php print $unique_pageviews; ?></td>
-        <th>Unique Views</th>
+        <th><?php print t('Unique Views'); ?></th>
         <td><?php print $exit_rate; ?>%</td>
-        <th>Exit Rate</th>
+        <th><?php print t('Exit Rate'); ?></th>
       </tr>
       <tr class="odd">
         <td><?php print $avg_time_on_page; ?></td>
-        <th>Time on Page</th>
+        <th><?php print t('Time on Page'); ?></th>
         <td>$<?php print $goal_value; ?></td>
-        <th>$ Index</th>
+        <th><?php print t('$ Index'); ?></th>
       </tr>
     </table>
   </div>
