@@ -5,14 +5,14 @@
  */
 ?>
 
-<div class="google-analytics-summary google-analytics-reports">
+<div class="google-analytics-detail google-analytics-reports">
 
   <div class="google-analytics-pageviews">
     <h3><?php print t('Pageviews Over the Past 30 Days'); ?></h3>
     <?php print $pageviews_chart; ?>
   </div>
 
-  <div class="google-analytics-stats">
+  <div class="google-analytics-totals">
     <h3><?php print t('This page was viewed !count times', array('!count' => $pageviews)) ?></h3>
     <table>
       <tr class="odd">

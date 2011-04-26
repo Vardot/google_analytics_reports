@@ -15,6 +15,14 @@
   font-weight: normal;
 }
 
+.google-analytics-totals td {
+  width: 20%;
+}
+
+.google-analytics-totals th {
+  width: 30%;
+}
+
 /* Rubik doesn't style <ol>s */
 .rubik .google-analytics-reports .item-list ol li {
   float: none;

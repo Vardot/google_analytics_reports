@@ -11,7 +11,7 @@
     <?php print $visit_chart; ?>
   </div>
 
-  <div class="google-analytics-usage">
+  <div class="google-analytics-totals">
     <h3><?php print t('Site Usage'); ?></h3>
     <table>
       <tr class="odd">
