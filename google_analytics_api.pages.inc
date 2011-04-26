@@ -12,13 +12,13 @@ function google_analytics_api_admin() {
 
   $form = array();
   $account = google_analytics_api_account_data();
-  
+
   /* If there is at least one profile */
   if (!empty($account->results)) {
     $options = array();
     $profile_id = variable_get('google_analytics_reports_profile_id', 0);
     $set_default = FALSE;
-    
+
     foreach ($account->results as $profile_key => $profile) {
       $options[$profile_key] = theme('google_analytics_api_profile_label', $profile);
       /* Rough attempt to see if the current site is in the account list */
@@ -27,7 +27,7 @@ function google_analytics_api_admin() {
         $set_default = TRUE;
       }
     }
-    
+
     /* If no profile ID is set yet, set the first profile in the list */
     if (empty($profile_id)) {
       $profile_id = key($options);
@@ -72,7 +72,7 @@ function google_analytics_api_admin() {
     $form['ga']['settings_submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save settings'),
-    );    
+    );
     $form['revoke'] = array(
       '#type' => 'fieldset',
       '#title' => t('Revoke access and logout'),
@@ -125,22 +125,22 @@ function google_analytics_api_admin_submit($form, &$form_state) {
         $GAFeed = new GAFeed($key, $secret);
 
         /* Step #1 of OAuth */
-        $token = $GAFeed->getRequestToken();      
+        $token = $GAFeed->getRequestToken();
         $_SESSION['google_analytics_reports_oauth']['token'] = $token;
         $_SESSION['google_analytics_reports_oauth']['destination'] = $_GET['q'];
 
         /* Step #2 of OAuth */
         $GAFeed->obtainAuthorization($token);
-      break;  
+      break;
     case t('Save settings'):
         variable_set('google_analytics_reports_profile_id', $form_state['values']['google_analytics_reports_profile_id']);
         variable_set('google_analytics_reports_cache_length', $form_state['values']['google_analytics_reports_cache_length']);
         drupal_set_message(t('Settings have been saved successfully.'));
-      break;  
+      break;
     case t('Revoke access token'):
         google_analytics_api_revoke();
         drupal_set_message(t('Access token has been successfully revoked.'));
-      break;  
+      break;
   }
 }
 
@@ -164,7 +164,7 @@ function google_analytics_reports_oauth_callback(&$form_state) {
 }
 
 /**
- * Validation handler.  Verify that we have OAuth tokens.  If so, 
+ * Validation handler.  Verify that we have OAuth tokens.  If so,
  * request the Access Token.
  */
 function google_analytics_reports_oauth_callback_validate($form, &$form_state) {
@@ -202,7 +202,7 @@ function google_analytics_reports_oauth_callback_submit(&$form, &$form_state) {
 
   variable_set('google_analytics_reports_oauth_token', $response['oauth_token']);
   variable_set('google_analytics_reports_oauth_token_secret', $response['oauth_token_secret']);
-  
+
   $form_state['redirect'] = $form_state['google_analytics_reports_oauth']['destination'];
   $form['#programmed'] = FALSE;
 }

@@ -80,7 +80,7 @@ function google_analytics_api_new_gafeed() {
  *   - expire: optional [default=CACHE_TEMPORARY]
  *   - refresh: optional [default=FALSE]
  */
- function google_analytics_api_account_data($params = array(), $cache_options = array()) {
+function google_analytics_api_account_data($params = array(), $cache_options = array()) {
   $GAFeed = google_analytics_api_new_gafeed();
   $GAFeed->queryAccountFeed($params, $cache_options);
   return $GAFeed;
