@@ -60,6 +60,6 @@ function google_analytics_reports_path_mini_build($path) {
   $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_visits, '@yesterday' => $last_day['pageviews']));
 
   $report['chart'] = l(chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%')), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path), 'html' => TRUE));
-  $report['views'] = l(t('@views views this month', array('@views' => number_format($feed->totals['pageviews']))), 'admin/reports/google-analytics');
+  $report['views'] = l(t('@views views this month', array('@views' => number_format($feed->totals['pageviews']))), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path)));
   return theme('google_analytics_reports_path_mini', $report);
 }
