@@ -71,7 +71,7 @@ function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array(
  * Implementation of hook_perm().
  */
 function google_analytics_reports_perm() {
-  return array('access google analytics reports', 'administer google analytics reports');
+  return array('access google analytics reports');
 }
 
 /**
