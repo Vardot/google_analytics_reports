@@ -12,13 +12,13 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
 
   if ($vars['visits'] <= 0) {
     $vars['pages_per_visit'] = '0.00';
-    $vars['newVisits'] = '0.00%';
-    $vars['timeOnSite'] = '0:00';
+    $vars['new_visits'] = '0.00%';
+    $vars['time_on_site'] = '0:00';
   }
   else {
     $vars['pages_per_visit'] = number_format(round($vars['pageviews'] / $vars['visits'], 2), 2);
-    $vars['newVisits'] = number_format(round(($vars['newVisits'] / $vars['visits'])*100, 2), 2) . '%';
-    $vars['timeOnSite'] = format_interval($vars['timeOnSite'] / $vars['visits']);
+    $vars['new_visits'] = number_format(round(($vars['newVisits'] / $vars['visits'])*100, 2), 2) . '%';
+    $vars['time_on_site'] = format_interval($vars['timeOnSite'] / $vars['visits']);
   }
 
   if ($vars['entrances'] <= 0) {
@@ -64,7 +64,8 @@ function template_preprocess_google_analytics_reports_detail(&$vars) {
   $vars['exit_rate'] = round($vars['report']['stats']['exitRate'], 2);
   if ($vars['report']['stats']['uniquePageviews'] > 0) {
     $vars['goal_value'] = money_format('%i', $vars['report']['stats']['goalValueAll'] / $vars['report']['stats']['uniquePageviews']);
-  } else {
+  }
+  else {
     $vars['goal_value'] = '0.00';
   }
 

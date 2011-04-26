@@ -23,13 +23,13 @@
       <tr class="even">
         <td><?php print $pageviews; ?></td>
         <th><?php print t('Pageviews'); ?></th>
-        <td><?php print $timeOnSite; ?></td>
+        <td><?php print $time_on_site; ?></td>
         <th><?php print t('Avg. Time on Site'); ?></th>
       </tr>
       <tr class="odd">
         <td><?php print $pages_per_visit; ?></td>
         <th><?php print t('Pages/Visit'); ?></th>
-        <td><?php print $newVisits ?></td>
+        <td><?php print $new_visits ?></td>
         <th><?php print t('% New Visits'); ?></th>
       </tr>
     </table>

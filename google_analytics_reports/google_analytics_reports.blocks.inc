@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Callbacks for building blocks.
+ */
 
 /**
  * Page callback for google-analytics-reports/ajax/path-mini.
