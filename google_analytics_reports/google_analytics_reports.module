@@ -45,8 +45,8 @@ function google_analytics_reports_menu() {
 function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $blocks['path_mini']['info'] = t('Google Analytics page traffic');
-      $blocks['summary']['info'] = t('Google Analytics summary');
+      $blocks['path_mini']['info'] = t('Google Analytics page traffic (small)');
+      $blocks['summary']['info'] = t('Google Analytics site summary (large dashboard style)');
       return $blocks;
     case 'view':
       if (!user_access('access google analytics reports')) {
