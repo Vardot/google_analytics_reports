@@ -15,9 +15,8 @@ define('GOOGLE_ANALYTICS_REPORTS_WEEK', GOOGLE_ANALYTICS_REPORTS_DAY * 7);
  * Implementation of hook_menu().
  */
 function google_analytics_api_menu() {
-
-  $items['admin/settings/google-analytics-reports'] = array(
-    'title' => 'Google Analytics Reports settings',
+  $items['admin/settings/google-analytics-api'] = array(
+    'title' => 'Google Analytics API',
     'description' => 'Configure your account, profiles, and reports.',
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.pages.inc',
@@ -113,7 +112,7 @@ function google_analytics_api_report_data($params = array(), $cache_options = ar
   $params_defaults = array(
     'profile_id' => 'ga:' . variable_get('google_analytics_reports_profile_id', 0),
   );
-  
+
   $params += $params_defaults;
 
   $GAFeed = google_analytics_api_new_gafeed();
@@ -126,7 +125,7 @@ function google_analytics_api_report_data($params = array(), $cache_options = ar
  * Programatically revoke token.
  */
 function google_analytics_api_revoke() {
-  $GAFeed = google_analytics_api_new_gafeed();        
+  $GAFeed = google_analytics_api_new_gafeed();
   $GAFeed->revokeToken();
   variable_del('google_analytics_reports_profile_id');
   variable_del('google_analytics_reports_consumer_key');
