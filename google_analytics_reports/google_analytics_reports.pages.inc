@@ -43,6 +43,10 @@ function google_analytics_reports_detail_page() {
     'referrals' => _google_analytics_reports_top_referrals($path),
     'searches' => _google_analytics_reports_top_searches($path),
   );
+  if (in_array(FALSE, $report)) {
+    drupal_set_message(t('There was a problem retrieving the statistics.  Please review the watchdog for details.'), 'error');
+    return ' ';
+  }
   return theme('google_analytics_reports_detail', $report);
 }
 
