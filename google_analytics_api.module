@@ -21,7 +21,7 @@ function google_analytics_api_menu() {
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.pages.inc',
     'page arguments' => array('google_analytics_api_admin'),
-    'access arguments' => array('administer google analytics api settings'),
+    'access arguments' => array('administer google analytics api'),
   );
 
   /* OAuth callback from Google */
@@ -40,7 +40,7 @@ function google_analytics_api_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('administer google analytics api settings');
+  return array('administer google analytics api');
 }
 
 /**
