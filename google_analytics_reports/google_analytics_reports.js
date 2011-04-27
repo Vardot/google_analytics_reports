@@ -5,6 +5,8 @@
  */
 
 Drupal.behaviors.googleAnalyticsReports = function(context) {
+  $('#block-google_analytics_reports-path_mini,#block-google_analytics_reports-summary', context).show();
+
   if ($('.google-analytics-reports-path-mini', context).length) {
     $.ajax({
       url: Drupal.settings.basePath + 'google-analytics-reports/ajax/path-mini',
