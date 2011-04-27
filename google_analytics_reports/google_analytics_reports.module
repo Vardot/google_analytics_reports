@@ -166,3 +166,14 @@ function _google_analytics_reports_path_filter($node_path = NULL) {
   }
   return $filters;
 }
+
+/**
+ * Helper function to generate an error message.
+ */
+function _google_analytics_reports_error_message() {
+  $message = t('There was a problem retrieving the statistics.');
+  if (user_access('access site reports') && user_access('access administration pages') && module_exists('dblog')) {
+    $message .= ' ' . t('Please review the <a href="!url">watchdog</a> for details.', array('!url' => url('admin/reports/dblog')));
+  }
+  return $message;
+}

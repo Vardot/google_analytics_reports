@@ -24,8 +24,15 @@ function google_analytics_reports_summary_page() {
   );
 
   if (in_array(FALSE, $summary)) {
-    drupal_set_message(t('There was a problem retrieving the statistics.  Please review the watchdog for details.'), 'error');
-    return ' ';
+    $menu_item = menu_get_item();
+    if ($menu_item['href'] == 'admin/reports/google-analytics') {
+      drupal_set_message(_google_analytics_reports_error_message(), 'error');
+      return ' ';
+    }
+    else {
+
+    }
+    return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
 
   return theme('google_analytics_reports_summary', $summary);
@@ -44,7 +51,7 @@ function google_analytics_reports_detail_page() {
     'searches' => _google_analytics_reports_top_searches($path),
   );
   if (in_array(FALSE, $report)) {
-    drupal_set_message(t('There was a problem retrieving the statistics.  Please review the watchdog for details.'), 'error');
+    drupal_set_message(_google_analytics_reports_error_message(), 'error');
     return ' ';
   }
   return theme('google_analytics_reports_detail', $report);

@@ -42,7 +42,7 @@ function google_analytics_reports_path_mini_build($path) {
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
-    return '<p>' . t('There was a problem retrieving the statistics.  Please review the watchdog for details.') . '</p>';
+    return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
   $max_visits = 0;
   foreach ($feed->results as $row) {
