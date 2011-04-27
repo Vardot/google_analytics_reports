@@ -36,7 +36,7 @@ function google_analytics_reports_path_mini_build($path) {
     'metrics' => array('ga:pageviews'),
     'dimensions' => array('ga:date'),
     'sort_metric' => array('ga:date'),
-    'filters' => "ga:pagePath==$path", // @TODO - generate proper filter
+    'filters' => _google_analytics_reports_path_filter($path),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );

@@ -11,7 +11,7 @@ Drupal.behaviors.googleAnalyticsReports = function(context) {
     $.ajax({
       url: Drupal.settings.basePath + 'google-analytics-reports/ajax/path-mini',
       dataType: 'json',
-      data: ({ path: window.location.pathname }),
+      data: ({ path: window.location.pathname + window.location.search }),
       success: function(data) {
         $('.google-analytics-reports-path-mini', context).html(data.content).hide().slideDown('fast');
       },

@@ -23,7 +23,7 @@ function google_analytics_reports_summary_page() {
     'searches' => _google_analytics_reports_top_searches(),
   );
 
-  if (in_array(FALSE, $summary)) {
+  if (in_array(FALSE, $summary, TRUE)) {
     $menu_item = menu_get_item();
     if ($menu_item['href'] == 'admin/reports/google-analytics') {
       drupal_set_message(_google_analytics_reports_error_message(), 'error');
@@ -50,7 +50,7 @@ function google_analytics_reports_detail_page() {
     'referrals' => _google_analytics_reports_top_referrals($path),
     'searches' => _google_analytics_reports_top_searches($path),
   );
-  if (in_array(FALSE, $report)) {
+  if (in_array(FALSE, $report, TRUE)) {
     drupal_set_message(_google_analytics_reports_error_message(), 'error');
     return ' ';
   }
@@ -104,7 +104,7 @@ function _google_analytics_reports_pageviews($path) {
     'sort_metric' => array('ga:date'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
-    'filters' => "ga:pagePath==$path", // @TODO
+    'filters' => _google_analytics_reports_path_filter($path),
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
@@ -147,7 +147,7 @@ function _google_analytics_reports_usage() {
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->results[0];
+  return $feed->totals;
 }
 
 /**
@@ -159,13 +159,13 @@ function _google_analytics_reports_detail_stats($path) {
     'metrics' => array('ga:pageviews', 'ga:uniquePageviews', 'ga:avgTimeOnPage', 'ga:entranceBounceRate', 'ga:exitRate', 'ga:goalValueAll'),
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
-    'filters' => "ga:pagePath==$path", // @TODO
+    'filters' => _google_analytics_reports_path_filter($path),
   );
   $feed = google_analytics_api_report_data($params);
-  if ($feed->error || empty($feed->results)) {
+  if ($feed->error) {
     return FALSE;
   }
-  return $feed->results[0];
+  return $feed->totals;
 }
 
 /**
@@ -202,7 +202,7 @@ function _google_analytics_reports_top_referrals($path = '') {
     'max_results' => 5,
   );
   if ($path) {
-    $params['filters'] .= ";ga:pagePath==$path"; // @TODO
+    $params['filters'] .= ';' . _google_analytics_reports_path_filter($path);
   }
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
@@ -225,7 +225,7 @@ function _google_analytics_reports_top_searches($path = '') {
     'max_results' => 5,
   );
   if ($path) {
-    $params['filters'] .= ";ga:pagePath==$path"; // @TODO
+    $params['filters'] .= ';' . _google_analytics_reports_path_filter($path);
   }
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {

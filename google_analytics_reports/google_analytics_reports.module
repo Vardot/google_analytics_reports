@@ -97,74 +97,22 @@ function google_analytics_reports_theme() {
 }
 
 /*
- * Return a list of paths that are aliased with the given path (including the given path).
+ * Construct a filter string that grabs pagePaths corresponding to the specified path.
  */
-function _google_analytics_reports_path_aliases($node_path = NULL) {
-  // Default path is the current path.
-  if ($node_path == NULL) {
-    $node_path = $_GET['q'];
+function _google_analytics_reports_path_filter($path) {
+  // Google Analytics regex filters have a limit of 32 characters. Therefore we
+  // can't simply create one filter per pagePath. Instead we are going too do a
+  // "contains substring" match on the path, and then take as many of the ending
+  // characters paired with ([?#].*)?$.
+
+  // Use 100 character maximum to allow some room for escaping regex metacharacters.
+  if (strlen($path) <= 121) {
+    $filter = 'ga:pagePath=~^' . preg_quote($path) . '(#.*)?$';
   }
-
-  // Get the normal node path if it is a node.
-  $node_path = drupal_get_normal_path($node_path);
-
-  // Grab all aliases.
-  $aliases = array($node_path);
-  $result = db_query("SELECT * FROM {url_alias} WHERE src = '%s'", $node_path);
-  while ($row = db_fetch_array($result)) {
-    $aliases[] = $row['dst'];
+  else {
+    $filter = 'ga:pagePath=@' . $path . ';ga:pagePath=~' . preg_quote(substr($path, -100)) . '(#.*)?$';
   }
-
-  // If this is the front page, add the base path too, and index.php for good measure.
-  // There may be other ways that the user is accessing the front page but we can't
-  // account for them all.
-  if ($node_path == drupal_get_normal_path(variable_get('site_frontpage', 'node'))) {
-    $aliases[] = '';
-    $aliases[] = 'index.php';
-  }
-
-  return $aliases;
-}
-
-/*
- * Construct a filter string that grabs pagePaths corresponding to the specified node or path.
- */
-function _google_analytics_reports_path_filter($node_path = NULL) {
-  $aliases = _google_analytics_reports_path_aliases($node_path);
-
-  // Okay, this is ridiculous.  Google Analytics regex filters
-  // have a limit of 32 characters.  Therefore we can't simply
-  // create one filter per pagePath.  Instead we are going too
-  // do a "contains substring" match on the path, and then take
-  // as many of the ending characters paired with ([?#].*)?$. If
-  // this will all fit in one regex under 32 characters then so
-  // be it.  Return a string if they all do, or an array if not.
-
-  // 32 - 12 = 20 characters maximum for alias
-  $under_filters = array();
-  $over_filters = array();
-  foreach ($aliases as $alias) {
-    if (strlen($alias) <= 20) {
-      $under_filters[] = 'pagePath=~^/' . $alias . '([?#].*)?$';
-    }
-    else {
-      $over_filters[] = array(
-        'pagePath=@/' . $alias,
-        // 32 - 10 = 22 characters
-        'pagePath=~' . substr($alias, -22) . '([?#].*)?$'
-      );
-    }
-  }
-
-  // Add pipes and put together under and over filters.
-  $filters = array();
-  if ($under_filters) {
-    $filters[] = implode(' || ', $under_filters);
-  }
-  foreach ($over_filters as $filter) {
-    $filters[] = implode(' && ', $filter);
-  }
-  return $filters;
+  return $filter;
 }
 
 /**
