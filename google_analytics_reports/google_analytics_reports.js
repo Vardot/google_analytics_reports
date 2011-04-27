@@ -21,7 +21,7 @@ Drupal.behaviors.googleAnalyticsReports = function(context) {
     });
   }
 
-  if ($('.google-analytics-reports-path-mini', context).length) {
+  if ($('.google-analytics-reports-summary', context).length) {
     $.ajax({
       url: Drupal.settings.basePath + 'google-analytics-reports/ajax/summary',
       dataType: 'json',
