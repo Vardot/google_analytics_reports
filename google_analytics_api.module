@@ -15,13 +15,13 @@ define('GOOGLE_ANALYTICS_REPORTS_WEEK', GOOGLE_ANALYTICS_REPORTS_DAY * 7);
  * Implementation of hook_menu().
  */
 function google_analytics_api_menu() {
-  $items['admin/settings/google-analytics-api'] = array(
-    'title' => 'Google Analytics API',
+  $items['admin/settings/google-analytics-reports'] = array(
+    'title' => 'Google Analytics Reports',
     'description' => 'Configure your account, profiles, and reports.',
     'page callback' => 'drupal_get_form',
     'file' => 'google_analytics_api.pages.inc',
     'page arguments' => array('google_analytics_api_admin'),
-    'access arguments' => array('administer google analytics api'),
+    'access arguments' => array('administer google analytics reports'),
   );
 
   /* OAuth callback from Google */
@@ -40,7 +40,7 @@ function google_analytics_api_menu() {
  * Implementation of hook_perm().
  */
 function google_analytics_api_perm() {
-  return array('administer google analytics api');
+  return array('administer google analytics reports');
 }
 
 /**
