@@ -59,7 +59,10 @@ class GAFeed {
   public function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
 
     /* Drupal OAuth module is required */
-    module_load_include('lib.php', 'oauth');
+    if (!class_exists('OAuthSignatureMethod_HMAC_SHA1')) {
+      // @TODO - find a better solution here.  This is a workaround for http://drupal.org/node/1140852
+      autoload_registry_rebuild();
+    }
     $this->signatureMethod = new OAuthSignatureMethod_HMAC_SHA1();
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
 
