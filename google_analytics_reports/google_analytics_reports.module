@@ -40,6 +40,14 @@ function google_analytics_reports_menu() {
 }
 
 /**
+ * Implements hook_init();
+ */
+function google_analytics_reports_init() {
+  drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js', 'module', 'footer');
+  drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css', 'module', 'all');
+}
+
+/**
  * Implements hook_block().
  */
 function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
@@ -52,8 +60,6 @@ function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array(
       if (!user_access('access google analytics reports')) {
         return FALSE;
       }
-      drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js', 'module', 'footer', FALSE, TRUE, FALSE);
-      drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css', 'module', 'all', FALSE);
       switch ($delta) {
         case 'path_mini':
           $block['subject'] = t('Page traffic');
