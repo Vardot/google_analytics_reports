@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Installation file for Google Analytics Reports module.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function google_analytics_api_enable() {
+  // Make sure the OAuth class is available.
+  module_invoke('autoload', 'flush_caches');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function google_analytics_api_uninstall() {
+  variable_del('google_analytics_reports_hd');
+  variable_del('google_analytics_reports_oauth_token');
+  variable_del('google_analytics_reports_oauth_token_secret');
+  variable_del('google_analytics_reports_profile_id');
+  variable_del('google_analytics_reports_cache_length');
+}
