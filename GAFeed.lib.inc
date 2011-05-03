@@ -1,9 +1,10 @@
 <?php
-
 /**
  * @file
  * Provides the GAFeed object type and associated methods.
  */
+
+require_once('sites/all/libraries/oauth/OAuth.php');
 
 /**
  * GAFeed class to authorize access to and request data from
