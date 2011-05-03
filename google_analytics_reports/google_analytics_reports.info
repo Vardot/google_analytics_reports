@@ -1,6 +1,13 @@
 name = "Google Analytics Reports"
 package = Statistics
 description = "Provides interface to access Google Analytics API statistics."
-core = 6.x
+core = 7.x
 dependencies[] = google_analytics_api
 dependencies[] = chart
+
+files[] = google_analytics_reports.blocks.inc
+files[] = google_analytics_reports.css
+files[] = google_analytics_reports.install
+files[] = google_analytics_reports.module
+files[] = google_analytics_reports.pages.inc
+files[] = google_analytics_reports.theme.inc
