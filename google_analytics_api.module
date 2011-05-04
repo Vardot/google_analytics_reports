@@ -33,7 +33,7 @@ function google_analytics_api_help($path, $arg) {
  * Implementation of hook_menu().
  */
 function google_analytics_api_menu() {
-  $items['admin/config/search/google-analytics-reports'] = array(
+  $items['admin/config/system/google-analytics-reports'] = array(
     'title' => 'Google Analytics Reports',
     'description' => 'Configure your account, profiles, and reports.',
     'page callback' => 'drupal_get_form',

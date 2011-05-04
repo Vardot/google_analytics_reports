@@ -25,7 +25,7 @@ function google_analytics_reports_summary_ajax() {
  */
 function google_analytics_reports_path_mini_build($path) {
   if (!variable_get('google_analytics_reports_oauth_token', FALSE)) {
-    return '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/config/search/google-analytics-reports'))) . '</p>';
+    return '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/config/system/google-analytics-reports'))) . '</p>';
   }
 
   if ($path == '/') {

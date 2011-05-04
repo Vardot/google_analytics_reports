@@ -8,4 +8,4 @@ files[] = google_analytics_api.install
 files[] = google_analytics_api.module
 files[] = google_analytics_api.pages.inc
 
-configure = admin/config/search/google-analytics-reports
+configure = admin/config/system/google-analytics-reports
