@@ -147,62 +147,33 @@ function google_analytics_api_admin_submit($form, &$form_state) {
 /**
  * Page callback - Provided for Google to call back during the OAuth process.
  */
-function google_analytics_reports_oauth_callback(&$form_state) {
-  $form['#post']['oauth_token'] = $_GET['oauth_token'];
-  $form['#post']['oauth_verifier'] = $_GET['oauth_verifier'];
-
-  $form['oauth_token'] = array(
-    '#type' => 'hidden',
-    '#default_value' => $_GET['oauth_token'],
-  );
-  $form['oauth_verifier'] = array(
-    '#type' => 'hidden',
-    '#default_value' => $_GET['oauth_verifier'],
-  );
-
-  return $form;
-}
-
-/**
- * Validation handler.  Verify that we have OAuth tokens.  If so,
- * request the Access Token.
- */
-function google_analytics_reports_oauth_callback_validate($form, &$form_state) {
+function google_analytics_reports_oauth_callback() {
   $key = variable_get('google_analytics_reports_consumer_key', 'anonymous');
   $secret = variable_get('google_analytics_reports_consumer_secret', 'anonymous');
 
-  $form_state['google_analytics_reports_oauth'] = $_SESSION['google_analytics_reports_oauth'];
+  $session_data = $_SESSION['google_analytics_reports_oauth'];
   unset($_SESSION['google_analytics_reports_oauth']);
 
-  $token = $form_state['google_analytics_reports_oauth']['token'];
+  $token = $session_data['token'];
   if (!is_array($token) || !$key || !$secret) {
-    form_set_error('oauth_token', t('Invalid Google Analytics OAuth request'));
+    drupal_set_message(t('Invalid Google Analytics OAuth request'), 'error');
+    return ' ';
   }
 
-  if ($token['oauth_token'] != $form_state['values']['oauth_token']) {
-    form_set_error('oauth_token', t('Invalid OAuth token.'));
+  if ($token['oauth_token'] != $_GET['oauth_token']) {
+    drupal_set_message(t('Invalid OAuth token.'), 'error');
+    return ' ';
   }
 
   module_load_include('inc', 'google_analytics_api', 'GAFeed.lib');
   $GAFeed = new GAFeed($key, $secret, $token['oauth_token'], $token['oauth_token_secret']);
 
   /* Google required the verifier */
-  $GAFeed->setVerifier($form_state['values']['oauth_verifier']);
+  $GAFeed->setVerifier($_GET['oauth_verifier']);
   $response = $GAFeed->getAccessToken();
-  $form_state['google_analytics_reports_oauth']['response'] = $response;
-}
-
-/**
- * Submit handler.  Save the results of OAuth.
- */
-function google_analytics_reports_oauth_callback_submit(&$form, &$form_state) {
-  $key = variable_get('google_analytics_reports_consumer_key', 'anonymous');
-  $secret = variable_get('google_analytics_reports_consumer_secret', 'anonymous');
-  $response = $form_state['google_analytics_reports_oauth']['response'];
 
   variable_set('google_analytics_reports_oauth_token', $response['oauth_token']);
   variable_set('google_analytics_reports_oauth_token_secret', $response['oauth_token_secret']);
 
-  $form_state['redirect'] = $form_state['google_analytics_reports_oauth']['destination'];
-  $form['#programmed'] = FALSE;
+  drupal_goto('admin/config/system/google-analytics-reports');
 }

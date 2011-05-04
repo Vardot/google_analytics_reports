@@ -46,8 +46,7 @@ function google_analytics_api_menu() {
   $items['google-analytics-reports/oauth'] = array(
     'title' => 'Google Analytics Reports OAuth Callback',
     'access callback' => TRUE,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('google_analytics_reports_oauth_callback'),
+    'page callback' => 'google_analytics_reports_oauth_callback',
     'type' => MENU_CALLBACK,
     'file' => 'google_analytics_api.pages.inc',
   );

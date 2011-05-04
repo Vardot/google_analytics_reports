@@ -119,7 +119,7 @@ class GAFeed {
       'hd' => variable_get('google_analytics_reports_hd', 'default'),
     );
 
-    drupal_goto($this->queryPath, $params);
+    drupal_goto($this->queryPath, array('query' => $params));
   }
 
   /**
