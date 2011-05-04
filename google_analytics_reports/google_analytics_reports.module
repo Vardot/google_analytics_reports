@@ -40,28 +40,30 @@ function google_analytics_reports_menu() {
 }
 
 /**
- * Implements hook_block().
+ * Implements hook_block_info().
  */
-function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
-  switch ($op) {
-    case 'list':
-      $blocks['path_mini']['info'] = t('Google Analytics page traffic (small)');
-      $blocks['summary']['info'] = t('Google Analytics site summary (large dashboard style)');
-      return $blocks;
-    case 'view':
-      if (!user_access('access google analytics reports')) {
-        return FALSE;
-      }
-      switch ($delta) {
-        case 'path_mini':
-          $block['subject'] = t('Page traffic');
-          $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
-          return $block;
-        case 'summary':
-          $block['subject'] = t('Google Analytics Summary');
-          $block['content'] = '<div class="google-analytics-reports-summary"></div>';
-          return $block;
-      }
+function google_analytics_reports_block_info() {
+  $blocks['path_mini']['info'] = t('Google Analytics page traffic (small)');
+  $blocks['summary']['info'] = t('Google Analytics site summary (large dashboard style)');
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function google_analytics_reports_block_view($delta = '') {
+  if (!user_access('access google analytics reports')) {
+    return FALSE;
+  }
+  switch ($delta) {
+    case 'path_mini':
+      $block['subject'] = t('Page traffic');
+      $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
+      return $block;
+    case 'summary':
+      $block['subject'] = t('Google Analytics Summary');
+      $block['content'] = '<div class="google-analytics-reports-summary"></div>';
+      return $block;
   }
 }
 
