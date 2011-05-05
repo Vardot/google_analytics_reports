@@ -78,6 +78,7 @@ function _google_analytics_reports_visits() {
     $max_visits = max($row['visits'], $max_visits);
   }
   $chart = array(
+    '#title' => '',
     '#chart_id' => 'visits_large_30d',
     '#data' => $data,
     '#type' => CHART_TYPE_LINE . ':nda',
@@ -90,7 +91,8 @@ function _google_analytics_reports_visits() {
   );
   $last_day = end($feed->results);
   $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
-  $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
+  $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
+  $output = theme('chart', array('chart' => $chart));
   return $output;
 }
 
@@ -116,6 +118,7 @@ function _google_analytics_reports_pageviews($path) {
     $max_views = max($row['pageviews'], $max_views);
   }
   $chart = array(
+    '#title' => '',
     '#chart_id' => 'visits_large_30d',
     '#data' => $data,
     '#type' => CHART_TYPE_LINE . ':nda',
@@ -128,7 +131,8 @@ function _google_analytics_reports_pageviews($path) {
   );
   $last_day = end($feed->results);
   $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_views, '@yesterday' => $last_day['pageviews']));
-  $output = chart_render($chart, array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%'));
+  $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
+  $output = theme('chart', array('chart' => $chart));
   return $output;
 }
 

@@ -40,13 +40,15 @@
     <?php print $pages; ?>
   </div>
 
-  <div class="google-analytics-referrals">
-    <h3><?php print t('Top Referrals'); ?></h3>
-    <?php print $referrals; ?>
-  </div>
+  <div class="clearfix">
+    <div class="google-analytics-referrals">
+      <h3><?php print t('Top Referrals'); ?></h3>
+      <?php print $referrals; ?>
+    </div>
 
-  <div class="google-analytics-searches">
-    <h3><?php print t('Top Searches'); ?></h3>
-    <?php print $searches; ?>
+    <div class="google-analytics-searches">
+      <h3><?php print t('Top Searches'); ?></h3>
+      <?php print $searches; ?>
+    </div>
   </div>
 </div>

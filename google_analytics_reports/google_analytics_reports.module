@@ -80,17 +80,17 @@ function google_analytics_reports_perm() {
 function google_analytics_reports_theme() {
   return array(
     'google_analytics_reports_summary' => array(
-      'arguments' => array('summary' => NULL),
+      'variables' => array('summary' => NULL),
       'template' => 'google_analytics_reports_summary',
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_detail' => array(
-      'arguments' => array('report' => NULL),
+      'variables' => array('report' => NULL),
       'template' => 'google_analytics_reports_detail',
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_path_mini' => array(
-      'arguments' => array('report' => NULL),
+      'variables' => array('report' => NULL),
       'file' => 'google_analytics_reports.theme.inc',
     ),
   );
