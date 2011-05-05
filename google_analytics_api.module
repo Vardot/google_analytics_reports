@@ -54,10 +54,14 @@ function google_analytics_api_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  */
-function google_analytics_api_perm() {
-  return array('administer google analytics reports');
+function google_analytics_api_permission() {
+  return array(
+    'administer google analytics reports' => array(
+      'title' => t('administer google analytics reports'),
+    ),
+  );
 }
 
 /**

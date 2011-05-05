@@ -68,10 +68,14 @@ function google_analytics_reports_block_view($delta = '') {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implementation of hook_permission().
  */
-function google_analytics_reports_perm() {
-  return array('access google analytics reports');
+function google_analytics_reports_permission() {
+  return array(
+    'access google analytics reports' => array(
+      'title' => t('access google analytics reports'),
+    ),
+  );
 }
 
 /**
