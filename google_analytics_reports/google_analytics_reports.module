@@ -10,6 +10,7 @@
 function google_analytics_reports_menu() {
   $items['admin/reports/google-analytics'] = array(
     'title' => 'Google Analytics Summary',
+    'description' => "View a traffic report for your site.",
     'page callback' => 'google_analytics_reports_summary_page',
     'access arguments' => array('access google analytics reports'),
     'file' => 'google_analytics_reports.pages.inc',
