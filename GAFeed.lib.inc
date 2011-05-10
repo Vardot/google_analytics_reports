@@ -119,7 +119,14 @@ class GAFeed {
       'hd' => variable_get('google_analytics_reports_hd', 'default'),
     );
 
-    drupal_goto($this->queryPath, array('query' => $params));
+    // Check for the overlay.
+    if (module_exists('overlay') && overlay_get_mode() == 'child') {
+      overlay_close_dialog($this->queryPath, array('query' => $params, 'external' => TRUE));
+      overlay_deliver_empty_page();
+    }
+    else {
+      drupal_goto($this->queryPath, array('query' => $params));
+    }
   }
 
   /**
