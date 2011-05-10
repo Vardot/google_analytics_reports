@@ -24,7 +24,7 @@
 }
 
 /* Rubik doesn't style <ol>s */
-.rubik .google-analytics-reports .item-list ol li {
+.limiter .page-content .google-analytics-reports .item-list ol li {
   float: none;
   display: block;
   padding: 5px 10px 4px;
