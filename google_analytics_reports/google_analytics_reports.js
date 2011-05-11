@@ -23,12 +23,12 @@ Drupal.behaviors.googleAnalyticsReports = {
       });
     }
 
-    if ($('.google-analytics-reports-summary', context).length) {
+    if ($('.google-analytics-reports-dashboard', context).length) {
       $.ajax({
-        url: Drupal.settings.basePath + 'google-analytics-reports/ajax/summary',
+        url: Drupal.settings.basePath + 'google-analytics-reports/ajax/dashboard',
         dataType: 'json',
         success: function(data) {
-          $('.google-analytics-reports-summary', context).html(data.content).hide().slideDown('fast');
+          $('.google-analytics-reports-dashboard', context).html(data.content).hide().slideDown('fast');
         },
         error: function(data) {
           // @TODO

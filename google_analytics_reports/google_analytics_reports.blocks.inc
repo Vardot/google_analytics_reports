@@ -13,11 +13,10 @@ function google_analytics_reports_path_mini_ajax() {
 }
 
 /**
- * Page callback for google-analytics-reports/ajax/summary.
+ * Page callback for google-analytics-reports/ajax/dashboard.
  */
-function google_analytics_reports_summary_ajax() {
-  module_load_include('inc', 'google_analytics_reports', 'google_analytics_reports.pages');
-  return drupal_json_output(array('content' => google_analytics_reports_summary_page()));
+function google_analytics_reports_dashboard_ajax() {
+  return drupal_json_output(array('content' => google_analytics_reports_dashboard_build()));
 }
 
 /**
@@ -68,4 +67,45 @@ function google_analytics_reports_path_mini_build($path) {
   $report['chart'] = l(theme('chart', array('chart' => $chart)), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path), 'html' => TRUE));
   $report['views'] = l(t('@views views this month', array('@views' => number_format($feed->totals['pageviews']))), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path)));
   return theme('google_analytics_reports_path_mini', $report);
+}
+
+/**
+ * Generates the dashboard block.
+ */
+function google_analytics_reports_dashboard_build() {
+  $params = array(
+    'metrics' => array('ga:visits'),
+    'dimensions' => array('ga:date'),
+    'sort_metric' => array('ga:date'),
+    'start_date' => strtotime('-31 days'),
+    'end_date' => strtotime('-1 day'),
+  );
+  $feed = google_analytics_api_report_data($params);
+  if ($feed->error) {
+    return FALSE;
+  }
+  $max_visits = 0;
+  foreach ($feed->results as $row) {
+    $data[] = $row['visits'];
+    $max_visits = max($row['visits'], $max_visits);
+  }
+  $chart = array(
+    '#title' => '',
+    '#chart_id' => 'visits_large_30d',
+    '#data' => $data,
+    '#type' => CHART_TYPE_LINE . ':nda',
+    '#size' => chart_size(1000, 80),
+    '#adjust_resolution' => TRUE,
+    '#data_colors' => array('AAAAAA'),
+    '#chart_fill' => chart_fill('bg', '00000000'),
+    '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
+    '#line_styles' => array(chart_line_style(2, 10, 0)),
+  );
+  $last_day = end($feed->results);
+  $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
+  $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
+  $report['chart'] = theme('chart', array('chart' => $chart));
+  $report['chart'] = l($report['chart'], 'admin/reports/google-analytics', array('html' => TRUE));
+  $report['visits'] = l(t('@visits visits this month', array('@visits' => number_format($feed->totals['visits']))), 'admin/reports/google-analytics');
+  return theme('google_analytics_reports_dashboard', $report);
 }
