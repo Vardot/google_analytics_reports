@@ -179,7 +179,7 @@ function _google_analytics_reports_top_pages() {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
     'sort' => '-ga:pageviews',
-    'max_results' => 5,
+    'max_results' => 10,
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
@@ -199,7 +199,7 @@ function _google_analytics_reports_top_referrals($path = '') {
     'filters' => 'ga:medium==referral',
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
-    'max_results' => 5,
+    'max_results' => 10,
   );
   if ($path) {
     $params['filters'] .= ';' . _google_analytics_reports_path_filter($path);
@@ -222,7 +222,7 @@ function _google_analytics_reports_top_searches($path = '') {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
     'filters' => 'ga:keyword!=(not set)',
-    'max_results' => 5,
+    'max_results' => 10,
   );
   if ($path) {
     $params['filters'] .= ';' . _google_analytics_reports_path_filter($path);

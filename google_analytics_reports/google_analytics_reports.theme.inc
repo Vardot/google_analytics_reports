@@ -84,3 +84,10 @@ function template_preprocess_google_analytics_reports_detail(&$vars) {
 function theme_google_analytics_reports_path_mini($report) {
   return $report['chart'] . '<p>' . $report['views'] . '</p>';
 }
+
+/**
+ * Theme function for dashboard block.
+ */
+function theme_google_analytics_reports_dashboard($report) {
+  return '<h3>' . t('Visits over the last 30 days') . '</h3>' . $report['chart'] . '<p>' . $report['visits'] . '</p>';
+}

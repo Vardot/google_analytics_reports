@@ -41,6 +41,6 @@
 
 /* Hide blocks initially, since their contents load via ajax. */
 #block-google_analytics_reports-path_mini,
-#block-google_analytics_reports-summary {
+#block-google_analytics_reports-dashboard {
   display: none;
 }

@@ -30,9 +30,9 @@ function google_analytics_reports_menu() {
     'file' => 'google_analytics_reports.blocks.inc',
     'type' => MENU_CALLBACK,
   );
-  $items['google-analytics-reports/ajax/summary'] = array(
+  $items['google-analytics-reports/ajax/dashboard'] = array(
     'title' => 'Page traffic',
-    'page callback' => 'google_analytics_reports_summary_ajax',
+    'page callback' => 'google_analytics_reports_dashboard_ajax',
     'access arguments' => array('access google analytics reports'),
     'file' => 'google_analytics_reports.blocks.inc',
     'type' => MENU_CALLBACK,
@@ -54,8 +54,8 @@ function google_analytics_reports_init() {
 function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $blocks['path_mini']['info'] = t('Google Analytics page traffic (small)');
-      $blocks['summary']['info'] = t('Google Analytics site summary (large dashboard style)');
+      $blocks['path_mini']['info'] = t('Google Analytics page traffic');
+      $blocks['dashboard']['info'] = t('Google Analytics site visits');
       return $blocks;
     case 'view':
       if (!user_access('access google analytics reports')) {
@@ -66,9 +66,9 @@ function google_analytics_reports_block($op = 'list', $delta = 0, $edit = array(
           $block['subject'] = t('Page traffic');
           $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
           return $block;
-        case 'summary':
+        case 'dashboard':
           $block['subject'] = t('Google Analytics Summary');
-          $block['content'] = '<div class="google-analytics-reports-summary"></div>';
+          $block['content'] = '<div class="google-analytics-reports-dashboard"></div>';
           return $block;
       }
   }
@@ -97,6 +97,10 @@ function google_analytics_reports_theme() {
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_path_mini' => array(
+      'arguments' => array('report' => NULL),
+      'file' => 'google_analytics_reports.theme.inc',
+    ),
+    'google_analytics_reports_dashboard' => array(
       'arguments' => array('report' => NULL),
       'file' => 'google_analytics_reports.theme.inc',
     ),
