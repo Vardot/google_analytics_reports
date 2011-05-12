@@ -7,7 +7,7 @@
 
 Drupal.behaviors.googleAnalyticsReports = {
   attach: function (context, settings) {
-    $('#block-google-analytics-reports-path-mini,#block-google-analytics-reports-summary', context).show();
+    $('#block-google-analytics-reports-path-mini,#block-google-analytics-reports-dashboard', context).show();
 
     if ($('.google-analytics-reports-path-mini', context).length) {
       $.ajax({
