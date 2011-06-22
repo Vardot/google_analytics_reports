@@ -175,3 +175,26 @@ function google_analytics_reports_cache_time() {
 function theme_google_analytics_api_profile_label($profile) {
   return $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
 }
+
+/**
+ * Implements hook_domainconf().
+ */
+function google_analytics_api_domainconf() {
+  $profile_id = variable_get('google_analytics_reports_profile_id', 0);
+  $form['google_analytics_reports'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Google Analytics Reports'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  if ($profile_id) {
+    module_load_include('inc', 'google_analytics_api', 'google_analytics_api.pages');
+    $admin_form = google_analytics_api_admin();
+    $form['google_analytics_reports']['google_analytics_reports_profile_id'] = $admin_form['ga']['google_analytics_reports_profile_id'];
+    $form['google_analytics_reports']['google_analytics_reports_profile_id']['#description'] = t('Choose your Google Analytics profile.');
+  }
+  else {
+    $form['google_analytics_reports']['authorize']['#markup'] = '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/config/system/google-analytics-reports'))) . '</p>';
+  }
+  return $form;
+}
