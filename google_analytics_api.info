@@ -3,6 +3,8 @@ package = Statistics
 description = "API to access statistics from the Google Analytics Data Export API."
 core = 7.x
 
+dependencies[] = oauth_common
+
 files[] = GAFeed.lib.inc
 files[] = google_analytics_api.install
 files[] = google_analytics_api.module
