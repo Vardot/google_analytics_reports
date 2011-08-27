@@ -46,6 +46,7 @@ function google_analytics_reports_menu() {
 function google_analytics_reports_init() {
   drupal_add_js(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.js', 'module', 'footer');
   drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css', 'module', 'all');
+  drupal_add_js(array('googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax')), 'setting');
 }
 
 /**
