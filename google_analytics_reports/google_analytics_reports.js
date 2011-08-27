@@ -11,7 +11,7 @@ Drupal.behaviors.googleAnalyticsReports = {
 
     if ($('.google-analytics-reports-path-mini', context).length) {
       $.ajax({
-        url: Drupal.settings.basePath + 'google-analytics-reports/ajax/path-mini',
+        url: Drupal.settings.googleAnalyticsReportsAjaxUrl + '/path-mini',
         dataType: 'json',
         data: ({ path: window.location.pathname + window.location.search }),
         success: function(data) {
@@ -25,7 +25,7 @@ Drupal.behaviors.googleAnalyticsReports = {
 
     if ($('.google-analytics-reports-dashboard', context).length) {
       $.ajax({
-        url: Drupal.settings.basePath + 'google-analytics-reports/ajax/dashboard',
+        url: Drupal.settings.googleAnalyticsReportsAjaxUrl + '/dashboard',
         dataType: 'json',
         success: function(data) {
           $('.google-analytics-reports-dashboard', context).html(data.content).hide().slideDown('fast');

@@ -41,6 +41,13 @@ function google_analytics_reports_menu() {
 }
 
 /**
+ * Implements hook_init().
+ */
+function google_analytics_reports_init() {
+  drupal_add_js(array('googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax')), 'setting');
+}
+
+/**
  * Implements hook_block_info().
  */
 function google_analytics_reports_block_info() {
