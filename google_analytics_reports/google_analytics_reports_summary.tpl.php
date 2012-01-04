@@ -45,8 +45,8 @@
     <?php print $referrals; ?>
   </div>
 
-  <div class="google-analytics-searches">
-    <h3><?php print t('Top Searches'); ?></h3>
-    <?php print $searches; ?>
+  <div class="google-analytics-keywords">
+    <h3><?php print t('Top Keywords'); ?></h3>
+    <?php print $keywords; ?>
   </div>
 </div>

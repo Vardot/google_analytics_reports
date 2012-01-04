@@ -44,11 +44,11 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
   }
   $vars['referrals'] = theme('item_list', $referrals, NULL, 'ol');
 
-  $searches = array();
-  foreach ($vars['summary']['searches'] as $search) {
-    $searches[] = '<strong>' . $search['keyword'] . '</strong> - ' . format_plural($search['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($search['visits'])));
+  $keywords = array();
+  foreach ($vars['summary']['keywords'] as $keyword) {
+    $keywords[] = '<strong>' . $keyword['keyword'] . '</strong> - ' . format_plural($keyword['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($keyword['visits'])));
   }
-  $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
+  $vars['keywords'] = theme('item_list', $keywords, NULL, 'ol');
 }
 
 function template_preprocess_google_analytics_reports_detail(&$vars) {
@@ -71,11 +71,11 @@ function template_preprocess_google_analytics_reports_detail(&$vars) {
   }
   $vars['referrals'] = theme('item_list', $referrals, NULL, 'ol');
 
-  $searches = array();
-  foreach ($vars['report']['searches'] as $search) {
-    $searches[] = '<strong>' . $search['keyword'] . '</strong> - ' . format_plural($search['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($search['visits'])));
+  $keywords = array();
+  foreach ($vars['report']['keywords'] as $keyword) {
+    $keywords[] = '<strong>' . $keyword['keyword'] . '</strong> - ' . format_plural($keyword['visits'], '1 Visit', '@visits Visits', array('@visits' => number_format($keyword['visits'])));
   }
-  $vars['searches'] = theme('item_list', $searches, NULL, 'ol');
+  $vars['keywords'] = theme('item_list', $keywords, NULL, 'ol');
 }
 
 /**

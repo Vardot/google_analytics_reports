@@ -20,7 +20,7 @@ function google_analytics_reports_summary_page() {
     'usage' => _google_analytics_reports_usage(),
     'pages' => _google_analytics_reports_top_pages(),
     'referrals' => _google_analytics_reports_top_referrals(),
-    'searches' => _google_analytics_reports_top_searches(),
+    'keywords' => _google_analytics_reports_top_keywords(),
   );
 
   if (in_array(FALSE, $summary, TRUE)) {
@@ -48,7 +48,7 @@ function google_analytics_reports_detail_page() {
     'pageviews_chart' => _google_analytics_reports_pageviews($path),
     'stats' => _google_analytics_reports_detail_stats($path),
     'referrals' => _google_analytics_reports_top_referrals($path),
-    'searches' => _google_analytics_reports_top_searches($path),
+    'keywords' => _google_analytics_reports_top_keywords($path),
   );
   if (in_array(FALSE, $report, TRUE)) {
     drupal_set_message(_google_analytics_reports_error_message(), 'error');
@@ -212,9 +212,9 @@ function _google_analytics_reports_top_referrals($path = '') {
 }
 
 /**
- * Retrieves top searches.
+ * Retrieves top keywords.
  */
-function _google_analytics_reports_top_searches($path = '') {
+function _google_analytics_reports_top_keywords($path = '') {
   $params = array(
     'metrics' => array('ga:visits'),
     'dimensions' => array('ga:keyword'),
