@@ -31,13 +31,20 @@ function google_analytics_api_requirements($phase) {
   $t = get_t();
 
   if ($phase == 'install') {
-    include_once drupal_get_path('module', 'autoload') . '/autoload.module';
-    if (!function_exists('autoload_registry_rebuild')) {
-      $requirements['autoload_version'] = array(
-        'title' => $t('Autoload version'),
-        'description' => $t('Your version of Autoload appears to be out of date.  Version 2.x is required.'),
-        'severity' => REQUIREMENT_ERROR,
-      );
+    // drupal_get_path() needs the system table to be there, which if
+    // this module is included in an install profile is not yet created.
+    if (function_exists('db_table_exists') && db_table_exists('system')) {
+      $module_directory = drupal_get_path('module', 'autoload');
+      if ($module_directory) {
+        include_once $module_directory . '/autoload.module';
+        if (!function_exists('autoload_registry_rebuild')) {
+          $requirements['autoload_version'] = array(
+            'title' => $t('Autoload version'),
+            'description' => $t('Your version of Autoload appears to be out of date.  Version 2.x is required.'),
+            'severity' => REQUIREMENT_ERROR,
+          );
+        }
+      }
     }
   }
   return $requirements;
