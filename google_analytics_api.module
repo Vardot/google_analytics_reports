@@ -113,7 +113,7 @@ function google_analytics_api_account_data($params = array(), $cache_options = a
  *   - metrics: required.
  *   - dimensions: optional [default=none]
  *   - sort_metric: optional [default=none]
- *   - filter: optional [default=none]
+ *   - filters: optional [default=none]
  *   - segment: optional [default=none]
  *   - start_date: optional [default=GA release date]
  *   - end_date: optional [default=today]
