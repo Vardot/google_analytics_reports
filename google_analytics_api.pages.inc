@@ -11,31 +11,49 @@
 function google_analytics_api_admin() {
 
   $form = array();
-  $account = google_analytics_api_account_data();
+  $account = google_analytics_api_new_gafeed();
 
-  /* If there is at least one profile */
-  if (!empty($account->results)) {
+  if ($account->isAuthenticated()) {
+    $webprops = $account->queryWebProperties()->results->items;
+    $profiles = $account->queryProfiles()->results->items;
     $options = array();
     $profile_id = variable_get('google_analytics_reports_profile_id', 0);
     $set_default = FALSE;
 
-    foreach ($account->results as $profile_key => $profile) {
-      $options[$profile_key] = theme('google_analytics_api_profile_label', $profile);
+    /* Add optgroups for each web property */
+    foreach ($profiles as $profile) {
+      $webprop = null;
+      foreach ($webprops as $webprop_value) {
+        if ($webprop_value->id == $profile->webPropertyId) {
+          $webprop = $webprop_value;  
+          break;
+        }
+      }
+
+      $options[$webprop->name][$profile->id] = theme('google_analytics_api_profile_label', array('profile' => $profile));
       /* Rough attempt to see if the current site is in the account list */
-      if (empty($profile_id) && (parse_url($profile['title'], PHP_URL_PATH) == $_SERVER['HTTP_HOST'])) {
-        $profile_id = $profile_key;
+      if (empty($profile_id) && (parse_url($webprop->websiteUrl, PHP_URL_PATH) == $_SERVER['HTTP_HOST'])) {
+        $profile_id = $profile->id;
         $set_default = TRUE;
       }
     }
 
     /* If no profile ID is set yet, set the first profile in the list */
     if (empty($profile_id)) {
-      $profile_id = key($options);
+      $profile_id = key($options[key($options)]);
       $set_default = TRUE;
     }
 
     if ($set_default) {
       variable_set('google_analytics_reports_profile_id', $profile_id);
+    }
+
+    /* Load current profile object */
+    foreach ($profiles as $profile) {
+      if ($profile->id == $profile_id) {
+        $current_profile = $profile;
+        break;
+      }
     }
 
     $form['ga'] = array(
@@ -50,7 +68,7 @@ function google_analytics_api_admin() {
       '#title' => t('Reports profile'),
       '#options' => $options,
       '#default_value' => $profile_id,
-      '#description' => t("Choose your Google Analytics profile.  The currently active profile is: %profile", array('%profile' => theme('google_analytics_api_profile_label', $account->results[$profile_id]))),
+      '#description' => t("Choose your Google Analytics profile.  The currently active profile is: %profile", array('%profile' => theme('google_analytics_api_profile_label', array('profile' => $current_profile)))),
       '#required' => TRUE,
     );
     /* Seven days of cache options */

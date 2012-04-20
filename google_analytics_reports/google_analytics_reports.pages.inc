@@ -73,7 +73,7 @@ function _google_analytics_reports_visits() {
     return FALSE;
   }
   $max_visits = 0;
-  foreach ($feed->results as $row) {
+  foreach ($feed->results->rows as $row) {
     $data[] = $row['visits'];
     $max_visits = max($row['visits'], $max_visits);
   }
@@ -89,7 +89,7 @@ function _google_analytics_reports_visits() {
     '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
-  $last_day = end($feed->results);
+  $last_day = end($feed->results->rows);
   $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
   $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
   $output = theme('chart', array('chart' => $chart));
@@ -113,7 +113,7 @@ function _google_analytics_reports_pageviews($path) {
     return FALSE;
   }
   $max_views = 0;
-  foreach ($feed->results as $row) {
+  foreach ($feed->results->rows as $row) {
     $data[] = $row['pageviews'];
     $max_views = max($row['pageviews'], $max_views);
   }
@@ -129,7 +129,7 @@ function _google_analytics_reports_pageviews($path) {
     '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
-  $last_day = end($feed->results);
+  $last_day = end($feed->results->rows);
   $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_views, '@yesterday' => $last_day['pageviews']));
   $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
   $output = theme('chart', array('chart' => $chart));
@@ -151,7 +151,7 @@ function _google_analytics_reports_usage() {
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->totals;
+  return $feed->results->totalsForAllResults;
 }
 
 /**
@@ -169,13 +169,13 @@ function _google_analytics_reports_detail_stats($path) {
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->totals;
+  return $feed->results->totalsForAllResults;
 }
 
 /**
  * Retrieves top pages.
  */
-function _google_analytics_reports_top_pages() {
+function _google_analytics_reports_top_pages($max_results = 10) {
   $params = array(
     'metrics' => array('ga:pageviews'),
     'dimensions' => array('ga:pageTitle', 'ga:hostname', 'ga:pagePath'),
@@ -183,13 +183,13 @@ function _google_analytics_reports_top_pages() {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
     'sort' => '-ga:pageviews',
-    'max_results' => 10,
+    'max_results' => $max_results,
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->results;
+  return $feed->results->rows;
 }
 
 /**
@@ -212,7 +212,7 @@ function _google_analytics_reports_top_referrals($path = '') {
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->results;
+  return $feed->results->rows;
 }
 
 /**
@@ -235,5 +235,5 @@ function _google_analytics_reports_top_keywords($path = '') {
   if ($feed->error) {
     return FALSE;
   }
-  return $feed->results;
+  return $feed->results->rows;
 }
