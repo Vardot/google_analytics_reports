@@ -157,9 +157,9 @@ function theme_google_analytics_api_profile_label($variables) {
 }
 
 /**
- * Implements hook_domainconf().
+ * Implements hook_domain_conf().
  */
-function google_analytics_api_domainconf() {
+function google_analytics_api_domain_conf() {
   $profile_id = variable_get('google_analytics_reports_profile_id', 0);
   $form['google_analytics_reports'] = array(
     '#type' => 'fieldset',
