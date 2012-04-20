@@ -341,7 +341,7 @@ class GAFeed {
       $parameters['sort'] = $params['sort_metric'];
     }
 
-    if ($params['start_date'] == NULL) {
+    if (empty($params['start_date']) || !is_int($params['start_date'])) {
       /* Use the day that Google Analytics was released (1 Jan 2005) */
       $start_date = '2005-01-01';
     }
@@ -352,7 +352,7 @@ class GAFeed {
 
     $parameters['start-date'] = $start_date;
 
-    if ($params['end_date'] == NULL) {
+    if (empty($params['end_date']) || !is_int($params['end_date'])) {
       $end_date = date('Y-m-d');
     }
     elseif (is_int($params['end_date'])) {
