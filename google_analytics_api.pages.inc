@@ -52,6 +52,7 @@ function google_analytics_api_admin() {
     foreach ($profiles as $profile) {
       if ($profile->id == $profile_id) {
         $current_profile = $profile;
+        variable_set('google_analytics_reports_default_page', '/' . $current_profile->defaultPage);
         break;
       }
     }

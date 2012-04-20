@@ -31,7 +31,7 @@ function template_preprocess_google_analytics_reports_summary(&$vars) {
   $pages = array();
   foreach ($vars['pages'] as $page) {
     if ($page['pagePath'] == '/index.html') {
-      $page['pagePath'] = '/';
+      $page['pagePath'] = variable_get('google_analytics_reports_default_page', '/');
     }
     $pages[] = l($page['pageTitle'], "http://$page[hostname]$page[pagePath]", array('external' => TRUE, 'html' => TRUE)) . ' - ' . format_plural($page['pageviews'], '1 View', '@views Views', array('@views' => number_format($page['pageviews'])));
   }
@@ -80,7 +80,7 @@ function template_preprocess_google_analytics_reports_dashboard(&$vars) {
   $pages = array();
   foreach ($vars['pages'] as $page) {
     if ($page['pagePath'] == '/index.html') {
-      $page['pagePath'] = '/';
+      $page['pagePath'] = variable_get('google_analytics_reports_default_page', '/');
     }
     $pages[] = l($page['pageTitle'], "http://$page[hostname]$page[pagePath]", array('external' => TRUE, 'html' => TRUE)) . ' - ' . format_plural($page['pageviews'], '1 View', '@views Views', array('@views' => number_format($page['pageviews'])));
   }

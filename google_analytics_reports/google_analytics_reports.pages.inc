@@ -42,7 +42,7 @@ function google_analytics_reports_summary_page() {
  * Page callback for admin/reports/google-analytics/detail.
  */
 function google_analytics_reports_detail_page() {
-  $path = isset($_GET['path']) ? $_GET['path'] : '/index.html';
+  $path = isset($_GET['path']) ? $_GET['path'] : variable_get('google_analytics_reports_default_page', '/index.html');
   drupal_set_title(t('Content detail: @path', array('@path' => $path)));
   $report = array(
     'pageviews_chart' => _google_analytics_reports_pageviews($path),
