@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Filter to handle dates stored as a timestamp.
+ * Filter to handle Google Analytics API start/end dates.
  *
  * @ingroup views_filter_handlers
  */

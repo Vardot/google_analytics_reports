@@ -10,4 +10,6 @@ files[] = handlers/google_analytics_handler_filter_startend.inc
 files[] = handlers/google_analytics_handler_filter_string.inc
 files[] = handlers/google_analytics_handler_filter_numeric.inc
 files[] = handlers/google_analytics_handler_field_string.inc
+files[] = handlers/google_analytics_handler_argument_string.inc
+
 

@@ -1,10 +1,12 @@
 <?php
-
 /**
- *  @file
- *  The main file that describes the "overrides" of the original views
+ * @file
+ * Provide views data and handlers for Google Analytics API
  */
 
+/**
+ * Implements hook_views_data()
+ */
 function google_analytics_views_views_data() {
   $data['google_analytics']['table']['group']  = t('Google Analytics');
 
@@ -19,6 +21,17 @@ function google_analytics_views_views_data() {
     'help' => t('Start/End date of report (required)'),
     'filter' => array(
       'handler' => 'google_analytics_handler_filter_startend',
+    ),
+  );
+
+  $data['google_analytics']['profile_id'] = array(
+    'title' => t('Profile ID'),
+    'help' => t('Profile ID'),
+    'argument' => array(
+      'handler' => 'google_analytics_handler_argument_string',
+    ),
+    'filter' => array(
+      'handler' => 'google_analytics_handler_filter_string',
     ),
   );
 
@@ -37,7 +50,7 @@ function google_analytics_views_views_data() {
         'handler' => 'views_handler_sort',
       ),
       'argument' => array(
-        'handler' => 'views_handler_argument_string',
+        'handler' => ($field['type'] == 'metric') ? 'google_analytics_handler_argument_string' : 'google_analytics_handler_argument_string',
       ),
       'filter' => array(
         'handler' => ($field['type'] == 'metric') ? 'google_analytics_handler_filter_numeric' : 'google_analytics_handler_filter_string',
@@ -48,13 +61,14 @@ function google_analytics_views_views_data() {
   return $data;
 }
 
-
+/**
+ * Implements hook_views_plugins().
+ */
 function google_analytics_views_views_plugins() {
   return array(
     'query' => array(
       'google_analytics_query' => array(
         'title' => t('Google Analytics Query'), 
-        'help' => t('Query will be generated and run using current oData endpoint.'),
         'handler' => 'google_analytics_plugin_query_google_analytics'
       ),
     ),

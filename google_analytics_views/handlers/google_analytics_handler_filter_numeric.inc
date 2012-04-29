@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simple filter to handle greater than/less than filters
+ * Simple filter to handle numerics for Google Analytics
  *
  * @ingroup views_filter_handlers
  */
