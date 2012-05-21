@@ -2,6 +2,7 @@ name = "Google Analytics Views"
 package = Statistics
 description = "API to access statistics from the Google Analytics Data Export API."
 core = 7.x
+dependencies[] = google_analytics_api
 
 files[] = google_analytics_views.module
 files[] = google_analytics_views.views.inc
