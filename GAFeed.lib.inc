@@ -219,7 +219,7 @@ class GAFeed {
       $error_msg = 'Code: !code - Error: !message - Message: !details';
       $error_vars = array('!code' => $this->response->code, '!message' => $this->response->error, '!details' => strip_tags($this->response->data));
       $this->error =  t($error_msg, $error_vars);
-      watchdog('google analytics reports', $error_msg, $error_vars, WATCHDOG_ERROR);
+      watchdog('ga reports', $error_msg, $error_vars, WATCHDOG_ERROR);
     }
   }
 
