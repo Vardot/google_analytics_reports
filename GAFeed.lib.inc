@@ -347,8 +347,8 @@ class GAFeed {
     $parameters['end-date'] = $end_date;
 
     /* Accept only strings, not arrays, for the following parameters */
-    $parameters['filters'] = $params['filters'];
-    $parameters['segment'] = $params['segment'];
+    if (!empty($params['filters'])) $parameters['filters'] = $params['filters'];
+    if (!empty($params['segment'])) $parameters['segment'] = $params['segment'];
     $parameters['start-index'] = $params['start_index'];
     $parameters['max-results'] = $params['max_results'];
 
