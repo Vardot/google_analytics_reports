@@ -173,7 +173,7 @@ function google_analytics_reports_cache_time() {
  * @return Themed string label.
  */
 function theme_google_analytics_api_profile_label($profile) {
-  return $profile['accountName'] . ' (' . $profile['title'] . ' - ' . $profile['webPropertyId'] . ')';
+  return $profile['profileName'] . ' - ' . $profile['webPropertyId'];
 }
 
 /**

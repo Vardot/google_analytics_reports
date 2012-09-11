@@ -35,7 +35,8 @@ class GAFeed {
   public $fromCache = FALSE;
 
   /* Domain of Data Feed API */
-  protected $host = 'www.google.com';
+  protected $host = 'www.googleapis.com';
+  protected $OAuthHost = 'www.google.com';
 
   /* Request header source */
   protected $source = 'drupal';
@@ -90,11 +91,12 @@ class GAFeed {
    * OAuth step #1: Fetch request token.
    */
   public function getRequestToken() {
+    $this->setHost($this->OAuthHost);
     $this->setQueryPath('accounts/OAuthGetRequestToken');
 
     /* xoauth_displayname is displayed on the Google Authentication page */
     $params = array(
-      'scope' => 'https://www.google.com/analytics/feeds',
+      'scope' => 'https://www.googleapis.com/auth/analytics.readonly',
       'oauth_callback' => url('google-analytics-reports/oauth', array('absolute' => TRUE)),
       'xoauth_displayname' => t('Google Analytics Reports Drupal module'),
     );
@@ -109,6 +111,7 @@ class GAFeed {
    * OAuth step #2: Authorize request token.
    */
   public function obtainAuthorization($token) {
+    $this->setHost($this->OAuthHost);
     $this->setQueryPath('accounts/OAuthAuthorizeToken');
 
     /* hd is the best way of dealing with users with multiple domains verified with Google */
@@ -131,6 +134,7 @@ class GAFeed {
    * OAuth step #3: Fetch access token.
    */
   public function getAccessToken() {
+    $this->setHost($this->OAuthHost);
     $this->setQueryPath('accounts/OAuthGetAccessToken');
 
     $params = array(
@@ -239,7 +243,7 @@ class GAFeed {
       'max-results' => 1000,
     );
 
-    $this->setQueryPath('analytics/feeds/accounts/default');
+    $this->setQueryPath('analytics/v2.4/management/accounts/~all/webproperties/~all/profiles');
     if ($this->query($this->queryPath, $params, 'GET', $cache_options)) {
       $this->sanitizeAccount();
     }
@@ -352,7 +356,7 @@ class GAFeed {
     $parameters['start-index'] = $params['start_index'];
     $parameters['max-results'] = $params['max_results'];
 
-    $this->setQueryPath('analytics/feeds/data');
+    $this->setQueryPath('analytics/v2.4/data');
     if ($this->query($this->queryPath, $parameters, 'GET', $cache_options)) {
       $this->sanitizeReport();
     }
