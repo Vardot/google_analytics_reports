@@ -82,7 +82,7 @@ function google_analytics_reports_dashboard_build() {
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
-    return FALSE;
+    return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
   $max_visits = 0;
   foreach ($feed->results->rows as $row) {
@@ -120,8 +120,8 @@ function google_analytics_reports_dashboard_build() {
   );
   $feed = google_analytics_api_report_data($params);
   if ($feed->error) {
-    return FALSE;
+    return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
-  $report['pages'] = $feed->results->rows; 
+  $report['pages'] = $feed->results->rows;
   return theme('google_analytics_reports_dashboard', $report);
 }
