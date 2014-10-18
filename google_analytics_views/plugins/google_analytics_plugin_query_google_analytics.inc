@@ -156,36 +156,40 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
 
     $filters = array();
 
-    foreach ($this->where as $where_group => $where) {
-      foreach ($where['conditions'] as $condition) {
-        if ($condition['field'] == 'start_date') {
-          $query['start_date'] = $condition['value']; 
-          continue;
-        }
-        if ($condition['field'] == 'end_date') {
-          $query['end_date'] = $condition['value']; 
-          continue;
-        }
-        if ($condition['field'] == 'profile_id') {
-          $query['profile_id'] = $condition['value']; 
-          continue;
-        }
+    if (isset($this->where)) {
+      foreach ($this->where as $where_group => $where) {
+        foreach ($where['conditions'] as $condition) {
+          if ($condition['field'] == 'start_date') {
+            $query['start_date'] = $condition['value'];
+            continue;
+          }
+          if ($condition['field'] == 'end_date') {
+            $query['end_date'] = $condition['value'];
+            continue;
+          }
+          if ($condition['field'] == 'profile_id') {
+            $query['profile_id'] = $condition['value'];
+            continue;
+          }
 
-        if ($available_fields[$condition['field']]) {
-          $filters[$where_group][] = 'ga:' . $condition['field'] . $condition['operator'] . $condition['value'];
+          if ($available_fields[$condition['field']]) {
+            $filters[$where_group][] = 'ga:' . $condition['field'] . $condition['operator'] . $condition['value'];
+          }
         }
+        $glue = ($where['type'] == 'AND') ? ';' : ',';
+        $filters[$where_group] = implode($glue, $filters[$where_group]);
       }
-      $glue = ($where['type'] == 'AND') ? ';' : ',';
-      $filters[$where_group] = implode($glue, $filters[$where_group]);
     }
-    
+
     if (!empty($filters)) {
       $glue = ($this->group_operator == 'AND') ? ';' : ',';
       $query['filters'] = implode($glue, $filters);
     }
 
-    foreach ($this->orderby as $field) {
-      $query['sort_metric'][] = $field['direction'] . 'ga:' . $field['field'];
+    if (isset($this->orderby)) {
+      foreach ($this->orderby as $field) {
+        $query['sort_metric'][] = $field['direction'] . 'ga:' . $field['field'];
+      }
     }
 
     return $query;
