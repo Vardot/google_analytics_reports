@@ -196,6 +196,16 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
   }
 
   /**
+   * {@inheritdoc}
+   */
+  function alter(&$view) {
+    foreach (module_implements('views_query_alter') as $module) {
+      $function = $module . '_views_query_alter';
+      $function($view, $this);
+    }
+  }
+
+  /**
    * Builds the necessary info to execute the query.
    */
   function build(&$view) {
