@@ -176,8 +176,10 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
             $filters[$where_group][] = 'ga:' . $condition['field'] . $condition['operator'] . $condition['value'];
           }
         }
-        $glue = ($where['type'] == 'AND') ? ';' : ',';
-        $filters[$where_group] = implode($glue, $filters[$where_group]);
+        if (!empty($filters[$where_group])) {
+          $glue = ($where['type'] == 'AND') ? ';' : ',';
+          $filters[$where_group] = implode($glue, $filters[$where_group]);
+        }
       }
     }
 
