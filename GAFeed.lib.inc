@@ -211,18 +211,19 @@ class GAFeed {
    * Execute a query
    */
   protected function request($url, $params = array(), $method = 'GET') {
-    $data = '';
+    $options = array(
+      'method' => $method,
+    );
     if (count($params) > 0) {
       if ($method == 'GET') {
-        $url .= '?'. http_build_query($params, '', '&');
+        $url .= '?'. drupal_http_build_query($params);
       }
       else {
-        $data = http_build_query($params, '', '&');
+        $options['data'] = drupal_http_build_query($params);
       }
     }
-    $headers = array();
-    
-    $this->response = drupal_http_request($url, $headers, $method, $data);
+
+    $this->response = drupal_http_request($url, $options);
 
     if ($this->response->code == '200') {
       $this->results = json_decode($this->response->data);
