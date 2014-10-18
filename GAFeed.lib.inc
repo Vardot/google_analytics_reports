@@ -381,7 +381,7 @@ class GAFeed {
    */
   protected function sanitizeReport() {
     /* Named keys for report values */
-    $this->results->rawRows = $this->results->rows;
+    $this->results->rawRows = isset($this->results->rows) ? $this->results->rows : array();
     $this->results->rows = array();
     foreach ($this->results->rawRows as $row_key => $row_value) {
       foreach ($row_value as $item_key => $item_value) {

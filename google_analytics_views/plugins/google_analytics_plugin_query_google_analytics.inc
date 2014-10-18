@@ -253,7 +253,7 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
       $views_result[] = (object) $row;
     }
 
-    $view->result = $views_result;
+    $view->result = isset($views_result) ? $views_result : array();
     $view->execute_time = microtime(TRUE) - $start;
     if ($this->pager->use_pager()) {
       $view->total_rows = $this->pager->get_total_items();
