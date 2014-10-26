@@ -5,9 +5,7 @@
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_handler_filter_string extends views_handler_filter {
-  // exposed filter options
-  var $always_multiple = TRUE;
+class google_analytics_handler_filter_string extends google_analytics_handler_filter {
 
   function option_definition() {
     $options = parent::option_definition();
@@ -63,18 +61,6 @@ class google_analytics_handler_filter_string extends views_handler_filter {
     );
 
     return $operators;
-  }
-
-  /**
-   * Build strings from the operators() for 'select' options
-   */
-  function operator_options($which = 'title') {
-    $options = array();
-    foreach ($this->operators() as $id => $info) {
-      $options[$id] = $info[$which];
-    }
-
-    return $options;
   }
 
   function admin_summary() {
@@ -152,13 +138,6 @@ class google_analytics_handler_filter_string extends views_handler_filter {
         '#type' => 'value',
         '#value' => NULL
       );
-    }
-  }
-
-  function query() {
-    $info = $this->operators();
-    if (!empty($info[$this->operator]['method'])) {
-      $this->{$info[$this->operator]['method']}($this->real_field);
     }
   }
 

@@ -1251,3 +1251,25 @@ function google_analytics_views_get_fields() {
 );
 
 }
+
+/**
+ * Determines if a field is custom or not.
+ */
+function google_analytics_views_is_custom($field) {
+  return preg_match('/\(n\)/', $field) ? TRUE : FALSE;
+}
+
+/**
+ * Converts a base custom field name and number into a specific field name.
+ */
+function google_analytics_views_custom_to_variable_field($field, $number) {
+  return preg_replace('/\(n\)/', $number, $field);
+}
+
+/**
+ * Converts a specific field name into a base custom field name.
+ */
+function google_analytics_views_variable_to_custom_field($field) {
+  return preg_replace('/\d/', '(n)', $field);
+}
+

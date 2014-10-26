@@ -5,8 +5,8 @@
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_handler_filter_numeric extends views_handler_filter {
-  var $always_multiple = TRUE;
+class google_analytics_handler_filter_numeric extends google_analytics_handler_filter {
+
   function option_definition() {
     $options = parent::option_definition();
 
@@ -62,18 +62,6 @@ class google_analytics_handler_filter_numeric extends views_handler_filter {
     );
 
     return $operators;
-  }
-
-  /**
-   * Provide a list of all the numeric operators
-   */
-  function operator_options($which = 'title') {
-    $options = array();
-    foreach ($this->operators() as $id => $info) {
-      $options[$id] = $info[$which];
-    }
-
-    return $options;
   }
 
   function operator_values($values = 1) {
@@ -175,14 +163,6 @@ class google_analytics_handler_filter_numeric extends views_handler_filter {
       }
     }
   }
-
-  function query() {
-    $info = $this->operators();
-    if (!empty($info[$this->operator]['method'])) {
-      $this->{$info[$this->operator]['method']}($this->real_field);
-    }
-  }
-
 
   function op_simple($field) {
     $this->query->add_where($this->options['group'], $field, $this->value['value'], $this->operator);

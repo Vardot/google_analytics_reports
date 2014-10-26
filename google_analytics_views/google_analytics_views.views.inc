@@ -43,14 +43,14 @@ function google_analytics_views_views_data() {
       'help' => $field['description'],
       'group' => sprintf('%s %ss', $field['group'], ucfirst($field['type'])),
       'field' => array(
-        'handler' => 'google_analytics_handler_field_string',
+        'handler' => 'google_analytics_handler_field',
         'click sortable' => TRUE,
       ),
       'sort' => array(
         'handler' => 'views_handler_sort',
       ),
       'argument' => array(
-        'handler' => ($field['type'] == 'metric') ? 'google_analytics_handler_argument_string' : 'google_analytics_handler_argument_string',
+        'handler' => 'google_analytics_handler_argument',
       ),
       'filter' => array(
         'handler' => ($field['type'] == 'metric') ? 'google_analytics_handler_filter_numeric' : 'google_analytics_handler_filter_string',

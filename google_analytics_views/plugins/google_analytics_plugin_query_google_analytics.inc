@@ -147,8 +147,10 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
     $query = array();
 
     foreach ($this->fields as $field) {
-      if ($available_fields[$field['field']]) {
-        $type = $available_fields[$field['field']]['type'];
+      $field_name = google_analytics_views_variable_to_custom_field($field['field']);
+
+      if ($available_fields[$field_name]) {
+        $type = $available_fields[$field_name]['type'];
         $type = ($type == 'dimension') ? 'dimensions' : 'metrics';
         $query[$type][] = 'ga:' . $field['field'];
       }
@@ -159,20 +161,12 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
     if (isset($this->where)) {
       foreach ($this->where as $where_group => $where) {
         foreach ($where['conditions'] as $condition) {
-          if ($condition['field'] == 'start_date') {
-            $query['start_date'] = $condition['value'];
-            continue;
-          }
-          if ($condition['field'] == 'end_date') {
-            $query['end_date'] = $condition['value'];
-            continue;
-          }
-          if ($condition['field'] == 'profile_id') {
-            $query['profile_id'] = $condition['value'];
-            continue;
-          }
+          $field_name = google_analytics_views_variable_to_custom_field($condition['field']);
 
-          if ($available_fields[$condition['field']]) {
+          if ($field_name == 'start_date' || $field_name == 'end_date' || $field_name == 'profile_id') {
+            $query[$field_name] = $condition['value'];
+          }
+          elseif ($available_fields[$field_name]) {
             $filters[$where_group][] = 'ga:' . $condition['field'] . $condition['operator'] . $condition['value'];
           }
         }
