@@ -36,12 +36,16 @@ function google_analytics_views_views_data() {
   );
 
   $fields = google_analytics_views_get_fields();
-    
-  foreach($fields as $field_name => $field) {
+
+  foreach ($fields as $field_name => $field) {
+    if (isset($field['calculation'])) {
+      $field['description'] = $field['description'] . '<br />' . t('Calculation: <code>@formula</code>.', array('@formula' => $field['calculation']));
+    }
+    $field['description'] = $field['description'] . '<br />' . t('API name: <code>@ga</code>.', array('@ga' => 'ga:' . $field_name));
     $data['google_analytics'][$field_name] = array(
-      'title' => $field['name'], 
+      'title' => $field['name'],
       'help' => $field['description'],
-      'group' => sprintf('%s %ss', $field['group'], ucfirst($field['type'])),
+      'group' => $field['group'],
       'field' => array(
         'handler' => 'google_analytics_handler_field',
         'click sortable' => TRUE,
