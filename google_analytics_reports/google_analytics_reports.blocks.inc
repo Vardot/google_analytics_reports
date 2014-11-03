@@ -74,7 +74,7 @@ function google_analytics_reports_path_mini_build($path) {
  */
 function google_analytics_reports_dashboard_build() {
   $params = array(
-    'metrics' => array('ga:visits'),
+    'metrics' => array('ga:sessions'),
     'dimensions' => array('ga:date'),
     'sort_metric' => array('ga:date'),
     'start_date' => strtotime('-31 days'),
@@ -86,8 +86,8 @@ function google_analytics_reports_dashboard_build() {
   }
   $max_visits = 0;
   foreach ($feed->results->rows as $row) {
-    $data[] = $row['visits'];
-    $max_visits = max($row['visits'], $max_visits);
+    $data[] = $row['sessions'];
+    $max_visits = max($row['sessions'], $max_visits);
   }
   $chart = array(
     '#title' => '',
@@ -102,11 +102,11 @@ function google_analytics_reports_dashboard_build() {
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
   $last_day = end($feed->results->rows);
-  $title = t('The most visits on a single day was @max.  Yesterday there were @yesterday visits.', array('@max' => $max_visits, '@yesterday' => $last_day['visits']));
+  $title = t('The most sessions on a single day was @max.  Yesterday there were @yesterday sessions.', array('@max' => $max_visits, '@yesterday' => $last_day['sessions']));
   $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
   $report['chart'] = theme('chart', array('chart' => $chart));
   $report['chart'] = l($report['chart'], 'admin/reports/google-analytics', array('html' => TRUE));
-  $report['visits'] = l(t('Full report: @visits visits this month', array('@visits' => number_format($feed->results->totalsForAllResults['visits']))), 'admin/reports/google-analytics');
+  $report['sessions'] = l(t('Full report: @sessions sessions this month', array('@sessions' => number_format($feed->results->totalsForAllResults['sessions']))), 'admin/reports/google-analytics');
 
   /* Top pages summary */
   $params = array(
