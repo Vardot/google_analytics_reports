@@ -164,7 +164,7 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
           $field_name = google_analytics_views_variable_to_custom_field($condition['field']);
 
           if ($field_name == 'start_date' || $field_name == 'end_date' || $field_name == 'profile_id') {
-            $query[$field_name] = $condition['value'];
+            $query[$field_name] = intval($condition['value']);
           }
           elseif ($available_fields[$field_name]) {
             $filters[$where_group][] = 'ga:' . $condition['field'] . $condition['operator'] . $condition['value'];

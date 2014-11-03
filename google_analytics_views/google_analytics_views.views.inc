@@ -16,11 +16,31 @@ function google_analytics_views_views_data() {
     'help' => t('Views Google Analytics query builder'),
   );
 
-  $data['google_analytics']['start_end'] = array(
-    'title' => t('Start/End date of report (required)'),
-    'help' => t('Start/End date of report (required)'),
+  $data['google_analytics']['start_date'] = array(
+    'title' => t('Start date of report'),
+    'help' => t('Start date of report.'),
+    'argument' => array(
+      'handler' => 'google_analytics_handler_argument',
+    ),
     'filter' => array(
-      'handler' => 'google_analytics_handler_filter_startend',
+      'handler' => 'google_analytics_handler_filter_date',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+  );
+
+  $data['google_analytics']['end_date'] = array(
+    'title' => t('End date of report'),
+    'help' => t('End date of report.'),
+    'argument' => array(
+      'handler' => 'google_analytics_handler_argument',
+    ),
+    'filter' => array(
+      'handler' => 'google_analytics_handler_filter_date',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
     ),
   );
 

@@ -11,6 +11,66 @@ function google_analytics_views_install() {
   db_query("UPDATE {system} SET weight = 11 WHERE name = 'google_analytics_views'");
 }
 
+
+/**
+ * Divide start_end filter into two start_date and end_date filters.
+ */
+function google_analytics_views_update_7300() {
+
+  // Find all Google Analytics views.
+  $ga_views = db_select('views_view', 'v')
+    ->fields('v', array('vid'))
+    ->condition('base_table', 'google_analytics')
+    ->execute()
+    ->fetchAll();
+
+  foreach ($ga_views as $ga_view) {
+    // Find all displays settings.
+    $ga_views_displays = db_select('views_display', 'v')
+      ->fields('v', array('id', 'display_options'))
+      ->condition('vid', $ga_view->vid)
+      ->execute()
+      ->fetchAll();
+
+    if ($ga_views_displays) {
+      foreach ($ga_views_displays as $ga_views_display) {
+        $display_options = unserialize($ga_views_display->display_options);
+
+        // If view has start_end filter.
+        if (isset($display_options['filters']['start_end'])) {
+
+          // Copy start_end filter into start_date and end_date filters.
+          $start_date = $end_date = $start_end = $display_options['filters']['start_end'];
+
+          $start_date['operator'] = $end_date['operator'] = '=';
+          $start_date['value']['min'] = $end_date['value']['min'] = '';
+          $start_date['value']['max'] = $end_date['value']['max'] = '';
+          $start_date['value']['value'] = $start_end['value']['max'];
+          $start_date['id'] = $start_date['field'] = 'start_date';
+
+          $end_date['value']['value'] = $start_end['value']['min'];
+          $end_date['id'] = $end_date['field'] = 'end_date';
+
+          unset($display_options['filters']['start_end']);
+          $display_options['filters']['start_date'] = $start_date;
+          $display_options['filters']['end_date'] = $end_date;
+
+          $display_options = serialize($display_options);
+
+          db_update('views_display')
+            ->fields(array('display_options' => $display_options))
+            ->condition('vid', $ga_view->vid)
+            ->condition('id', $ga_views_display->id)
+            ->execute();
+        }
+
+      }
+
+    }
+
+  }
+}
+
 /**
  * Convert datapoins with (n) in name into datapoints with XX.
  */

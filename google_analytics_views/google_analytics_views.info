@@ -6,7 +6,7 @@ dependencies[] = google_analytics_api
 
 files[] = plugins/google_analytics_plugin_query_google_analytics.inc
 files[] = handlers/google_analytics_handler_filter.inc
-files[] = handlers/google_analytics_handler_filter_startend.inc
+files[] = handlers/google_analytics_handler_filter_date.inc
 files[] = handlers/google_analytics_handler_filter_string.inc
 files[] = handlers/google_analytics_handler_filter_numeric.inc
 files[] = handlers/google_analytics_handler_field.inc
