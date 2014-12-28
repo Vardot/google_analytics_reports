@@ -62,13 +62,31 @@ function google_analytics_views_views_data() {
       $field['description'] = $field['description'] . '<br />' . t('Calculation: <code>@formula</code>.', array('@formula' => $field['calculation']));
     }
     $field['description'] = $field['description'] . '<br />' . t('API name: <code>@ga</code>.', array('@ga' => 'ga:' . $field_name));
+
+    // Provide default handler.
+    $field_handler = 'views_handler_field';
+    $float = FALSE;
+
+    if (google_analytics_views_is_custom($field_name)) {
+      $field_handler = 'google_analytics_handler_field';
+    }
+    elseif (in_array($field['datatype'], array('date', 'time'))) {
+      $field_handler = 'views_handler_field_date';
+    }
+    elseif (in_array($field['datatype'],
+      array('integer', 'float', 'percent', 'currency'))) {
+
+      $field_handler = 'views_handler_field_numeric';
+      $float = TRUE;
+    }
     $data['google_analytics'][$field_name] = array(
       'title' => $field['name'],
       'help' => $field['description'],
       'group' => $field['group'],
       'field' => array(
-        'handler' => 'google_analytics_handler_field',
+        'handler' => $field_handler,
         'click sortable' => TRUE,
+        'float' => $float,
       ),
       'sort' => array(
         'handler' => 'views_handler_sort',

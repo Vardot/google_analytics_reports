@@ -380,12 +380,21 @@ class GAFeed {
    * Sanitize report data
    */
   protected function sanitizeReport() {
+    // Get all Google Analytics fields.
+    $fields = google_analytics_views_get_fields();
+
     /* Named keys for report values */
     $this->results->rawRows = isset($this->results->rows) ? $this->results->rows : array();
     $this->results->rows = array();
     foreach ($this->results->rawRows as $row_key => $row_value) {
       foreach ($row_value as $item_key => $item_value) {
-        $this->results->rows[$row_key][str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name)] = $item_value;
+        $field_without_ga = str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name);
+        $item_value = $this->replaceData($field_without_ga, $item_value);
+        // Date and time datatypes should not have the digits after the zero.
+        if (in_array($fields[$field_without_ga]['datatype'], array('date', 'time'))) {
+          $item_value = round($item_value);
+        }
+        $this->results->rows[$row_key][$field_without_ga] = $item_value;
       }
     }
     unset($this->results->rawRows);
@@ -397,5 +406,28 @@ class GAFeed {
       $this->results->totalsForAllResults[str_replace('ga:', '', $row_key)] = $row_value;
     }
     unset($this->results->rawTotals);
+  }
+
+  /**
+   * Addition replacements.
+   */
+  public function replaceData($type, $value) {
+
+    switch ($type) {
+      case 'userType':
+        return ($value == 'New Visitor') ? t('New Visitor') : t('Returning Visitor');
+
+      case 'date':
+        return strtotime($value);
+
+      case 'yearMonth':
+        return strtotime($value . '01');
+
+      case 'userGender':
+        return ($value == 'male') ? t('Male') : t('Female');
+
+      default:
+        return $value;
+    }
   }
 }
