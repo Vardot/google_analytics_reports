@@ -132,6 +132,9 @@ function google_analytics_reports_theme() {
  *   Google Analytics API page filter.
  */
 function _google_analytics_reports_path_filter($path) {
+  // Decode urls, that might appear due to browsers particularities.
+  $path = urldecode($path);
+
   // Google Analytics regex filters have a limit of 32 characters. Therefore we
   // can't simply create one filter per pagePath. Instead we are going too do a
   // "contains substring" match on the path, and then take as many of the ending
