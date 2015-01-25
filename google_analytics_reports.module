@@ -42,14 +42,15 @@ function google_analytics_reports_menu() {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function google_analytics_reports_init() {
+function google_analytics_reports_page_build(&$page) {
   drupal_add_js(
     array(
       'googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax'),
     ),
-    'setting');
+    'setting'
+  );
 }
 
 /**
