@@ -1,14 +1,15 @@
 <?php
+
 /**
- * @file google_analytics_plugin_query_default.inc
+ * @file
  * Defines the default query object which builds queries for the
  * Google Analytics Reports API.
  */
 
 /**
- * Object used to create a Google Analaytics API query.
+ * Object used to create a Google Analytics Core Reporting API query.
  */
-class google_analytics_plugin_query_google_analytics extends views_plugin_query {
+class google_analytics_reports_views_plugin_query_google_analytics extends views_plugin_query {
 
   /**
    * Constructor; Create the basic query object and fill with default values.
@@ -47,11 +48,11 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
       $alias = $table . '_' . $field;
     }
 
-    // Make sure an alias is assigned
+    // Make sure an alias is assigned.
     $alias = $alias ? $alias : $field;
 
     // We limit the length of the original alias up to 60 characters
-    // to get a unique alias later if its have duplicates
+    // to get a unique alias later if its have duplicates.
     $alias = substr($alias, 0, 60);
 
     // Create a field info array.
@@ -143,11 +144,11 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
    *   Provide a countquery if this is true, otherwise provide a normal query.
    */
   function query($get_count = FALSE) {
-    $available_fields = google_analytics_views_get_fields();
+    $available_fields = google_analytics_reports_views_get_fields();
     $query = array();
 
     foreach ($this->fields as $field) {
-      $field_name = google_analytics_views_variable_to_custom_field($field['field']);
+      $field_name = google_analytics_reports_views_variable_to_custom_field($field['field']);
 
       if ($available_fields[$field_name]) {
         $type = $available_fields[$field_name]['type'];
@@ -161,7 +162,7 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
     if (isset($this->where)) {
       foreach ($this->where as $where_group => $where) {
         foreach ($where['conditions'] as $condition) {
-          $field_name = google_analytics_views_variable_to_custom_field($condition['field']);
+          $field_name = google_analytics_reports_views_variable_to_custom_field($condition['field']);
 
           if ($field_name == 'start_date' || $field_name == 'end_date' || $field_name == 'profile_id') {
             $query[$field_name] = intval($condition['value']);
@@ -229,20 +230,20 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
     $count_query = $view->build_info['count_query'];
     $start = microtime(TRUE);
 
-    /* Query for total number of items */
+    // Query for total number of items.
     $count_query['max_results'] = 9999;
     $count_query['start_index'] = 1;
-    $count_feed = google_analytics_api_report_data($count_query);
+    $count_feed = google_analytics_reports_api_report_data($count_query);
     $this->pager->total_items = count($count_feed->results->rows);
     $this->pager->update_page_info();
 
-    /* Adjust based on the pager's modifications to limit and offset */
+    // Adjust based on the pager's modifications to limit and offset.
     if (!empty($this->limit) || !empty($this->offset)) {
       $query['max_results'] = intval(!empty($this->limit) ? $this->limit : 1000);
       $query['start_index'] = intval(!empty($this->offset) ? $this->offset : 0) + 1;
     }
 
-    $feed = google_analytics_api_report_data($query);
+    $feed = google_analytics_reports_api_report_data($query);
 
     $rows = $feed->results->rows;
     foreach ($rows as $row) {
@@ -254,8 +255,9 @@ class google_analytics_plugin_query_google_analytics extends views_plugin_query 
     if ($this->pager->use_pager()) {
       $view->total_rows = $this->pager->get_total_items();
     }
-    
-    /* Add to build_info['query'] to render query in Views UI query summary area. */
+
+    // Add to build_info['query'] to render query in Views UI query summary
+    // area.
     $view->build_info['query'] = print_r($feed->results->query, TRUE);
   }
 

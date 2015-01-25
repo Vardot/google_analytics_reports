@@ -1,49 +1,51 @@
 <?php
+
 /**
  * @file
- * Provides the GAFeed object type and associated methods.
+ * Provides the Google Analytics Reports API Feed object type
+ * and associated methods.
  */
 
 /**
- * GAFeed class to authorize access to and request data from
- * the Google Analytics Data Export API.
+ * GoogleAnalyticsReportsApiFeed class to authorize access to and request data
+ * from the Google Analytics Core Reporting API.
  */
-class GAFeed {
+class GoogleAnalyticsReportsApiFeed {
 
-  /* Response object */
+  // Response object.
   public $response;
 
-  /* Formatted array of request results */
+  // Formatted array of request results.
   public $results;
 
-  /* URL to Google Analytics Data Export API */
+  // URL to Google Analytics Core Reporting API.
   public $queryPath;
 
-  /* Translated error message */
+  // Translated error message.
   public $error;
 
-  /* Boolean TRUE if data is from the cache tables */
+  // Boolean TRUE if data is from the cache tables.
   public $fromCache = FALSE;
 
-  /* Host and endpoint of Google Analytics API */
+  // Host and endpoint of Google Analytics API.
   protected $host = 'www.googleapis.com/analytics/v3';
 
-  /* Request header source */
+  // Request header source.
   protected $source = 'drupal';
 
-  /* Default is HMAC-SHA1 */
+  // Default is HMAC-SHA1.
   protected $signatureMethod;
 
-  /* HMAC-SHA1 Consumer data */
+  // HMAC-SHA1 Consumer data.
   protected $consumer;
 
-  /* OAuth token */
+  // OAuth token.
   protected $token;
 
-  /* Google authorize callback verifier string */
+  // Google authorize callback verifier string.
   protected $verifier;
 
-  /* OAuth host */
+  // OAuth host.
   protected $oAuthHost = 'www.google.com';
 
   /**
@@ -54,37 +56,38 @@ class GAFeed {
   }
 
   /**
-   * Constructor for the GAFeed class
+   * Constructor for the GoogleAnalyticsReportsApiFeed class.
    */
   public function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
     $this->signatureMethod = new OAuthSignatureMethod_HMAC_SHA1();
     $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
 
-    /* Allow developers the option of OAuth authentication without using this class's methods */
+    // Allow developers the option of OAuth authentication without
+    // using this class's methods.
     if (!empty($oauth_token) && !empty($oauth_token_secret)) {
       $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
     }
   }
 
   /**
-   * Set the verifier property
+   * Set the verifier property.
    */
   public function setVerifier($verifier) {
     $this->verifier = $verifier;
   }
 
   /**
-   * Set the host property
+   * Set the host property.
    */
   public function setHost($host) {
     $this->host = $host;
   }
 
   /**
-   * Set the queryPath property
+   * Set the queryPath property.
    */
   protected function setQueryPath($path) {
-    $this->queryPath = 'https://'. $this->host .'/'. $path;
+    $this->queryPath = 'https://' . $this->host . '/' . $path;
   }
 
   /**
@@ -94,7 +97,7 @@ class GAFeed {
     $this->setHost($this->oAuthHost);
     $this->setQueryPath('accounts/OAuthGetRequestToken');
 
-    /* xoauth_displayname is displayed on the Google Authentication page */
+    // Xoauth_displayname is displayed on the Google Authentication page.
     $params = array(
       'scope' => 'https://www.googleapis.com/auth/analytics.readonly',
       'oauth_callback' => url('google-analytics-reports/oauth', array('absolute' => TRUE)),
@@ -114,15 +117,19 @@ class GAFeed {
     $this->setHost($this->oAuthHost);
     $this->setQueryPath('accounts/OAuthAuthorizeToken');
 
-    /* hd is the best way of dealing with users with multiple domains verified with Google */
+    // HD is the best way of dealing with users with multiple domains
+    // verified with Google.
     $params = array(
       'oauth_token' => $token['oauth_token'],
-      'hd' => variable_get('google_analytics_reports_hd', 'default'),
+      'hd' => variable_get('google_analytics_reports_api_hd', 'default'),
     );
 
     // Check for the overlay.
     if (module_exists('overlay') && overlay_get_mode() == 'child') {
-      overlay_close_dialog($this->queryPath, array('query' => $params, 'external' => TRUE));
+      overlay_close_dialog($this->queryPath, array(
+        'query' => $params,
+        'external' => TRUE,
+        ));
       overlay_deliver_empty_page();
     }
     else {
@@ -157,7 +164,7 @@ class GAFeed {
   }
 
   /**
-   * Public query method for all Data Export API features.
+   * Public query method for all Core Reporting API features.
    */
   public function query($path, $params = array(), $method = 'GET', $cache_options = array()) {
     $params_defaults = array(
@@ -166,24 +173,24 @@ class GAFeed {
     );
     $params += $params_defaults;
 
-    /* Provide cache defaults if a developer did not override them */
+    // Provide cache defaults if a developer did not override them.
     $cache_defaults = array(
       'cid' => NULL,
-      'expire' => google_analytics_reports_cache_time(),
+      'expire' => google_analytics_reports_api_cache_time(),
       'refresh' => FALSE,
     );
     $cache_options += $cache_defaults;
 
-    /* Provide a query MD5 for the cid if the developer did not provide one */
+    // Provide a query MD5 for the cid if the developer did not provide one.
     if (empty($cache_options['cid'])) {
-      $cache_options['cid'] = 'GAFeed:' . md5(serialize(array_merge($params, array($path, $method))));
+      $cache_options['cid'] = 'GoogleAnalyticsReportsApiFeed:' . md5(serialize(array_merge($params, array($path, $method))));
     }
 
     $cache = cache_get($cache_options['cid']);
 
     if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data)) {
       $this->response = $cache->data;
-      $this->results = json_decode($this->response->data);      
+      $this->results = json_decode($this->response->data);
       $this->fromCache = TRUE;
     }
     else {
@@ -193,12 +200,13 @@ class GAFeed {
         case 'GET':
           $this->request($request->to_url());
           break;
+
         case 'POST':
           $this->request($request->get_normalized_http_url(), $request->get_parameters(), 'POST');
           break;
       }
 
-      /* Do not cache erroneous queries */
+      // Do not cache erroneous queries.
       if (empty($this->error)) {
         cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['expire']);
       }
@@ -208,7 +216,7 @@ class GAFeed {
   }
 
   /**
-   * Execute a query
+   * Execute a query.
    */
   protected function request($url, $params = array(), $method = 'GET') {
     $options = array(
@@ -216,7 +224,7 @@ class GAFeed {
     );
     if (count($params) > 0) {
       if ($method == 'GET') {
-        $url .= '?'. drupal_http_build_query($params);
+        $url .= '?' . drupal_http_build_query($params);
       }
       else {
         $options['data'] = drupal_http_build_query($params);
@@ -229,28 +237,31 @@ class GAFeed {
       $this->results = json_decode($this->response->data);
     }
     else {
-      // data is undefined if the connection failed.
+      // Data is undefined if the connection failed.
       if (!isset($this->response->data)) {
         $this->response->data = '';
       }
-      $error_msg = 'Code: !code - Error: !message - Message: !details';
-      $error_vars = array('!code' => $this->response->code, '!message' => $this->response->error, '!details' => strip_tags($this->response->data));
-      $this->error =  t($error_msg, $error_vars);
-      watchdog('google analytics reports', $error_msg, $error_vars, WATCHDOG_ERROR);
+      $error_vars = array(
+        '@code' => $this->response->code,
+        '@message' => $this->response->error,
+        '@details' => strip_tags($this->response->data),
+      );
+      $this->error = t('Code: @code, Error: @message, Message: @details', $error_vars);
+      watchdog('google analytics reports api', 'Code: @code, Error: @message, Message: @details', $error_vars, WATCHDOG_ERROR);
     }
   }
 
   /**
-   * Query Management API - Accounts
+   * Query Management API - Accounts.
    */
   public function queryAccounts($params = array(), $cache_options = array()) {
-    $this->setQueryPath('management/accounts');    
+    $this->setQueryPath('management/accounts');
     $this->query($this->queryPath, $params, 'GET', $cache_options);
     return $this;
   }
 
   /**
-   * Query Management API - WebProperties
+   * Query Management API - WebProperties.
    */
   public function queryWebProperties($params = array(), $cache_options = array()) {
     $params += array(
@@ -262,9 +273,9 @@ class GAFeed {
   }
 
   /**
-   * Query Management API - Profiles
+   * Query Management API - Profiles.
    */
-  public function queryProfiles($params = array(), $cache_options = array()) {    
+  public function queryProfiles($params = array(), $cache_options = array()) {
     $params += array(
       'account-id' => '~all',
       'web-property-id' => '~all',
@@ -275,7 +286,7 @@ class GAFeed {
   }
 
   /**
-   * Query Management API - Segments
+   * Query Management API - Segments.
    */
   public function querySegments($params = array(), $cache_options = array()) {
     $this->setQueryPath('management/segments');
@@ -284,7 +295,7 @@ class GAFeed {
   }
 
   /**
-   * Query Management API - Goals
+   * Query Management API - Goals.
    */
   public function queryGoals($params = array(), $cache_options = array()) {
     $params += array(
@@ -298,15 +309,15 @@ class GAFeed {
   }
 
   /**
-   * Query and sanitize report data
+   * Query and sanitize report data.
    */
   public function queryReportFeed($params = array(), $cache_options = array()) {
 
-    /* Provide defaults if the developer did not override them */
+    // Provide defaults if the developer did not override them.
     $params += array(
       'profile_id' => 0,
       'dimensions' => NULL,
-      'metrics' => 'ga:visits',
+      'metrics' => 'ga:sessions',
       'sort_metric' => NULL,
       'filters' => NULL,
       'segment' => NULL,
@@ -343,11 +354,11 @@ class GAFeed {
     }
 
     if (empty($params['start_date']) || !is_int($params['start_date'])) {
-      /* Use the day that Google Analytics was released (1 Jan 2005) */
+      // Use the day that Google Analytics was released (1 Jan 2005).
       $start_date = '2005-01-01';
     }
     elseif (is_int($params['start_date'])) {
-      /* Assume a Unix timestamp */
+      // Assume a Unix timestamp.
       $start_date = date('Y-m-d', $params['start_date']);
     }
 
@@ -357,15 +368,19 @@ class GAFeed {
       $end_date = date('Y-m-d');
     }
     elseif (is_int($params['end_date'])) {
-      /* Assume a Unix timestamp */
+      // Assume a Unix timestamp.
       $end_date = date('Y-m-d', $params['end_date']);
     }
-    
+
     $parameters['end-date'] = $end_date;
 
-    /* Accept only strings, not arrays, for the following parameters */
-    if (!empty($params['filters'])) $parameters['filters'] = $params['filters'];
-    if (!empty($params['segment'])) $parameters['segment'] = $params['segment'];
+    // Accept only strings, not arrays, for the following parameters.
+    if (!empty($params['filters'])) {
+      $parameters['filters'] = $params['filters'];
+    }
+    if (!empty($params['segment'])) {
+      $parameters['segment'] = $params['segment'];
+    }
     $parameters['start-index'] = $params['start_index'];
     $parameters['max-results'] = $params['max_results'];
 
@@ -377,13 +392,13 @@ class GAFeed {
   }
 
   /**
-   * Sanitize report data
+   * Sanitize report data.
    */
   protected function sanitizeReport() {
     // Get all Google Analytics fields.
-    $fields = google_analytics_views_get_fields();
+    $fields = google_analytics_reports_views_get_fields();
 
-    /* Named keys for report values */
+    // Named keys for report values.
     $this->results->rawRows = isset($this->results->rows) ? $this->results->rows : array();
     $this->results->rows = array();
     foreach ($this->results->rawRows as $row_key => $row_value) {
@@ -399,7 +414,7 @@ class GAFeed {
     }
     unset($this->results->rawRows);
 
-    /* Named keys for report totals */
+    // Named keys for report totals.
     $this->results->rawTotals = $this->results->totalsForAllResults;
     $this->results->totalsForAllResults = array();
     foreach ($this->results->rawTotals as $row_key => $row_value) {

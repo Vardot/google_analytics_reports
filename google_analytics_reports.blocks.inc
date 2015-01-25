@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Callbacks for building blocks.
@@ -8,7 +9,7 @@
  * Page callback for google-analytics-reports/ajax/path-mini.
  */
 function google_analytics_reports_path_mini_ajax() {
-  $path = isset($_GET['path']) ? $_GET['path'] : variable_get('google_analytics_reports_default_page', '/index.html');
+  $path = isset($_GET['path']) ? $_GET['path'] : variable_get('google_analytics_reports_api_default_page', '/index.html');
   return drupal_json_output(array('content' => google_analytics_reports_path_mini_build($path)));
 }
 
@@ -23,12 +24,13 @@ function google_analytics_reports_dashboard_ajax() {
  * Generates a block with the current page statistics.
  */
 function google_analytics_reports_path_mini_build($path) {
-  if (!variable_get('google_analytics_reports_oauth_token', FALSE)) {
-    return '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.', array('!url' => url('admin/config/system/google-analytics-reports'))) . '</p>';
+  if (!variable_get('google_analytics_reports_api_oauth_token', FALSE)) {
+    return '<p>' . t('You must <a href="!url">authorize</a> Drupal to use your Analytics account before you can view reports.',
+      array('!url' => url('admin/config/system/google-analytics-reports-api'))) . '</p>';
   }
 
   if ($path == '/') {
-    $path = variable_get('google_analytics_reports_default_page', '/index.html');
+    $path = variable_get('google_analytics_reports_api_default_page', '/index.html');
   }
 
   $params = array(
@@ -39,11 +41,12 @@ function google_analytics_reports_path_mini_build($path) {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
-  $feed = google_analytics_api_report_data($params);
+  $feed = google_analytics_reports_api_report_data($params);
   if ($feed->error) {
     return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
   $max_visits = 0;
+  $data = array();
   foreach ($feed->results->rows as $row) {
     $data[] = $row['pageviews'];
     $max_visits = max($row['pageviews'], $max_visits);
@@ -57,15 +60,38 @@ function google_analytics_reports_path_mini_build($path) {
     '#adjust_resolution' => TRUE,
     '#data_colors' => array('AAAAAA'),
     '#chart_fill' => chart_fill('bg', '00000000'),
-    '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
+    '#shape_markers' => array(
+      chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
   $last_day = end($feed->results->rows);
-  $title = t('The most views on a single day was @max.  Yesterday there were @yesterday views.', array('@max' => $max_visits, '@yesterday' => $last_day['pageviews']));
+  $title = t('The most views on a single day was @max. Yesterday there were @yesterday views.',
+    array(
+      '@max' => $max_visits,
+      '@yesterday' => $last_day['pageviews'],
+    ));
 
-  $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
-  $report['chart'] = l(theme('chart', array('chart' => $chart)), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path), 'html' => TRUE));
-  $report['views'] = l(t('@views views this month', array('@views' => number_format($feed->results->totalsForAllResults['pageviews']))), 'admin/reports/google-analytics/detail', array('query' => array('path' => $path)));
+  $chart['#attributes'] = array(
+    'title' => $title,
+    'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%',
+  );
+  $report['chart'] = l(theme('chart',
+    array('chart' => $chart)),
+    'admin/reports/google-analytics/detail',
+    array(
+      'query' => array(
+        'path' => $path,
+      ),
+      'html' => TRUE,
+    ));
+  $report['views'] = l(t('@views views this month',
+    array('@views' => number_format($feed->results->totalsForAllResults['pageviews']))),
+    'admin/reports/google-analytics/detail',
+    array(
+      'query' => array(
+        'path' => $path,
+      ),
+    ));
   return theme('google_analytics_reports_path_mini', $report);
 }
 
@@ -80,11 +106,12 @@ function google_analytics_reports_dashboard_build() {
     'start_date' => strtotime('-31 days'),
     'end_date' => strtotime('-1 day'),
   );
-  $feed = google_analytics_api_report_data($params);
+  $feed = google_analytics_reports_api_report_data($params);
   if ($feed->error) {
     return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }
   $max_visits = 0;
+  $data = array();
   foreach ($feed->results->rows as $row) {
     $data[] = $row['sessions'];
     $max_visits = max($row['sessions'], $max_visits);
@@ -98,17 +125,27 @@ function google_analytics_reports_dashboard_build() {
     '#adjust_resolution' => TRUE,
     '#data_colors' => array('AAAAAA'),
     '#chart_fill' => chart_fill('bg', '00000000'),
-    '#shape_markers' => array(chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
+    '#shape_markers' => array(
+      chart_shape_marker(0, 0, 'B', 0, $color = 'EEEEEE')),
     '#line_styles' => array(chart_line_style(2, 10, 0)),
   );
   $last_day = end($feed->results->rows);
-  $title = t('The most sessions on a single day was @max.  Yesterday there were @yesterday sessions.', array('@max' => $max_visits, '@yesterday' => $last_day['sessions']));
-  $chart['#attributes'] = array('title' => $title, 'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%');
+  $title = t('The most sessions on a single day was @max. Yesterday there were @yesterday sessions.',
+    array(
+      '@max' => $max_visits,
+      '@yesterday' => $last_day['sessions'],
+    ));
+  $chart['#attributes'] = array(
+    'title' => $title,
+    'style' => 'height:' . $chart['#size']['#height'] . 'px; width:100%',
+  );
   $report['chart'] = theme('chart', array('chart' => $chart));
   $report['chart'] = l($report['chart'], 'admin/reports/google-analytics', array('html' => TRUE));
-  $report['sessions'] = l(t('Full report: @sessions sessions this month', array('@sessions' => number_format($feed->results->totalsForAllResults['sessions']))), 'admin/reports/google-analytics');
+  $report['sessions'] = l(t('Full report: @sessions sessions this month',
+    array('@sessions' => number_format($feed->results->totalsForAllResults['sessions']))),
+    'admin/reports/google-analytics');
 
-  /* Top pages summary */
+  // Top pages summary.
   $params = array(
     'metrics' => array('ga:pageviews'),
     'dimensions' => array('ga:pageTitle', 'ga:hostname', 'ga:pagePath'),
@@ -118,7 +155,7 @@ function google_analytics_reports_dashboard_build() {
     'sort' => '-ga:pageviews',
     'max_results' => 5,
   );
-  $feed = google_analytics_api_report_data($params);
+  $feed = google_analytics_reports_api_report_data($params);
   if ($feed->error) {
     return '<p>' . _google_analytics_reports_error_message() . '</p>';
   }

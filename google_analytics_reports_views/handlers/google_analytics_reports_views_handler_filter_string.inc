@@ -1,11 +1,16 @@
 <?php
 
 /**
+ * @file
+ * Definition of google_analytics_reports_views_handler_filter_string.
+ */
+
+/**
  * Basic textfield filter to handle string filtering commands.
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_handler_filter_string extends google_analytics_handler_filter {
+class google_analytics_reports_views_handler_filter_string extends google_analytics_reports_views_handler_filter {
 
   function option_definition() {
     $options = parent::option_definition();
@@ -57,7 +62,7 @@ class google_analytics_handler_filter_string extends google_analytics_handler_fi
         'short' => t('!regex'),
         'method' => 'op_not_regex',
         'values' => 1,
-      )
+      ),
     );
 
     return $operators;
@@ -70,7 +75,7 @@ class google_analytics_handler_filter_string extends google_analytics_handler_fi
 
     $options = $this->operator_options('short');
     $output = '';
-    if(!empty($options[$this->operator])) {
+    if (!empty($options[$this->operator])) {
       $output = check_plain($options[$this->operator]);
     }
     if (in_array($this->operator, $this->operator_values(1))) {
@@ -91,7 +96,7 @@ class google_analytics_handler_filter_string extends google_analytics_handler_fi
   }
 
   /**
-   * Provide a simple textfield for equality
+   * Provide a simple textfield for equality.
    */
   function value_form(&$form, &$form_state) {
     // We have to make some choices when creating this as an exposed
@@ -106,7 +111,7 @@ class google_analytics_handler_filter_string extends google_analytics_handler_fi
       $identifier = $this->options['expose']['identifier'];
 
       if (empty($this->options['expose']['use_operator']) || empty($this->options['expose']['operator_id'])) {
-        // exposed and locked.
+        // Exposed and locked.
         $which = in_array($this->operator, $this->operator_values(1)) ? 'value' : 'none';
       }
       else {
@@ -136,7 +141,7 @@ class google_analytics_handler_filter_string extends google_analytics_handler_fi
       // Ensure there is something in the 'value'.
       $form['value'] = array(
         '#type' => 'value',
-        '#value' => NULL
+        '#value' => NULL,
       );
     }
   }

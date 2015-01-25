@@ -1,0 +1,9 @@
+name = Google Analytics Reports
+package = Statistics
+description = Provides interface to access Google Analytics Core Reporting API statistics.
+core = 7.x
+dependencies[] = google_analytics_reports_api
+dependencies[] = chart
+
+stylesheets[all][] = google_analytics_reports.css
+scripts[] = google_analytics_reports.js

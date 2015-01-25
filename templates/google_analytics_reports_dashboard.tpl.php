@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Theme implementation to display the Google Analytics dashboard.
+ * Theme implementation to display the Google Analytics Reports dashboard.
  */
 ?>
 
@@ -15,5 +15,5 @@
     <h3><?php print t('Top Pages'); ?></h3>
     <?php print $pages; ?>
   </div>
-  <p><?php print $visits; ?></p>
+  <p><?php print $sessions; ?></p>
 </div>

@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
- * Front-end interfaces that use the Google Analytics API module.
+ * Front-end interfaces that use the Google Analytics Reports API module.
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function google_analytics_reports_menu() {
   $items['admin/reports/google-analytics'] = array(
@@ -44,7 +45,11 @@ function google_analytics_reports_menu() {
  * Implements hook_init().
  */
 function google_analytics_reports_init() {
-  drupal_add_js(array('googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax')), 'setting');
+  drupal_add_js(
+    array(
+      'googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax'),
+    ),
+    'setting');
 }
 
 /**
@@ -69,6 +74,7 @@ function google_analytics_reports_block_view($delta = '') {
       $block['subject'] = t('Page traffic');
       $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
       return $block;
+
     case 'dashboard':
       $block['subject'] = t('Google Analytics Summary');
       $block['content'] = '<div class="google-analytics-reports-dashboard"></div>';
@@ -77,7 +83,7 @@ function google_analytics_reports_block_view($delta = '') {
 }
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  */
 function google_analytics_reports_permission() {
   return array(
@@ -94,17 +100,17 @@ function google_analytics_reports_theme() {
   return array(
     'google_analytics_reports_summary' => array(
       'variables' => array('summary' => NULL),
-      'template' => 'google_analytics_reports_summary',
+      'template' => 'templates/google_analytics_reports_summary',
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_detail' => array(
       'variables' => array('report' => NULL),
-      'template' => 'google_analytics_reports_detail',
+      'template' => 'templates/google_analytics_reports_detail',
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_dashboard' => array(
       'variables' => array('report' => NULL),
-      'template' => 'google_analytics_reports_dashboard',
+      'template' => 'templates/google_analytics_reports_dashboard',
       'file' => 'google_analytics_reports.theme.inc',
     ),
     'google_analytics_reports_path_mini' => array(
@@ -114,8 +120,16 @@ function google_analytics_reports_theme() {
   );
 }
 
-/*
- * Construct a filter string that grabs pagePaths corresponding to the specified path.
+/**
+ * Construct a filter string.
+ *
+ * That grabs pagePaths corresponding to the specified path.
+ *
+ * @param string $path
+ *   Page path.
+ *
+ * @return string
+ *   Google Analytics API page filter.
  */
 function _google_analytics_reports_path_filter($path) {
   // Google Analytics regex filters have a limit of 32 characters. Therefore we
@@ -123,7 +137,8 @@ function _google_analytics_reports_path_filter($path) {
   // "contains substring" match on the path, and then take as many of the ending
   // characters paired with ([?#].*)?$.
 
-  // Use 100 character maximum to allow some room for escaping regex metacharacters.
+  // Use 100 character maximum to allow some room for escaping regex
+  // metacharacters.
   if (strlen($path) <= 121) {
     $filter = 'ga:pagePath=~^' . preg_quote($path) . '(#.*)?$';
   }
@@ -135,6 +150,9 @@ function _google_analytics_reports_path_filter($path) {
 
 /**
  * Helper function to generate an error message.
+ *
+ * @return string
+ *   Error message.
  */
 function _google_analytics_reports_error_message() {
   $message = t('There was a problem retrieving the statistics.');

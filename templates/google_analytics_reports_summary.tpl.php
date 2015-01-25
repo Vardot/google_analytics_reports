@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Theme implementation to display the Google Analytics summary.
+ * Theme implementation to display the Google Analytics Reports summary.
  */
 ?>
 

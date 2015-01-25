@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Simple filter to handle numerics for Google Analytics
+ * @file
+ * Definition of google_analytics_reports_views_handler_filter_numeric.
+ */
+
+/**
+ * Simple filter to handle numerics for Google Analytics.
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_handler_filter_numeric extends google_analytics_handler_filter {
+class google_analytics_reports_views_handler_filter_numeric extends google_analytics_reports_views_handler_filter {
 
   function option_definition() {
     $options = parent::option_definition();
@@ -75,7 +80,7 @@ class google_analytics_handler_filter_numeric extends google_analytics_handler_f
     return $options;
   }
   /**
-   * Provide a simple textfield for equality
+   * Provide a simple textfield for equality.
    */
   function value_form(&$form, &$form_state) {
     $form['value']['#tree'] = TRUE;
@@ -93,7 +98,7 @@ class google_analytics_handler_filter_numeric extends google_analytics_handler_f
       $identifier = $this->options['expose']['identifier'];
 
       if (empty($this->options['expose']['use_operator']) || empty($this->options['expose']['operator_id'])) {
-        // exposed and locked.
+        // Exposed and locked.
         $which = in_array($this->operator, $this->operator_values(2)) ? 'minmax' : 'value';
       }
       else {
@@ -158,7 +163,7 @@ class google_analytics_handler_filter_numeric extends google_analytics_handler_f
         // Ensure there is something in the 'value'.
         $form['value'] = array(
           '#type' => 'value',
-          '#value' => NULL
+          '#value' => NULL,
         );
       }
     }
@@ -185,14 +190,14 @@ class google_analytics_handler_filter_numeric extends google_analytics_handler_f
   }
 
   /**
-   * Do some minor translation of the exposed input
+   * Do some minor translation of the exposed input.
    */
   function accept_exposed_input($input) {
     if (empty($this->options['exposed'])) {
       return TRUE;
     }
 
-    // rewrite the input value so that it's in the correct format so that
+    // Rewrite the input value so that it's in the correct format so that
     // the parent gets the right data.
     if (!empty($this->options['expose']['identifier'])) {
       $value = &$input[$this->options['expose']['identifier']];
@@ -215,6 +220,7 @@ class google_analytics_handler_filter_numeric extends google_analytics_handler_f
               return FALSE;
             }
             break;
+
           case 2:
             if ($value['min'] === '' && $value['max'] === '') {
               return FALSE;

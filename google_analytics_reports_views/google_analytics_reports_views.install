@@ -1,21 +1,26 @@
 <?php
+
 /**
- * @file views.install
- * Contains install and update functions for Views.
+ * @file
+ * Contains install and update functions for Google Analytics Reports Views
+ * module.
  */
 
 /**
  * Implements hook_install().
  */
-function google_analytics_views_install() {
-  db_query("UPDATE {system} SET weight = 11 WHERE name = 'google_analytics_views'");
+function google_analytics_reports_views_install() {
+  db_update('system')
+    ->fields(array('weight' => 11))
+    ->condition('name', 'google_analytics_reports_views', '=')
+    ->execute();
 }
 
 
 /**
  * Divide start_end filter into two start_date and end_date filters.
  */
-function google_analytics_views_update_7300() {
+function google_analytics_reports_views_update_7300() {
 
   // Find all Google Analytics views.
   $ga_views = db_select('views_view', 'v')
@@ -74,7 +79,7 @@ function google_analytics_views_update_7300() {
 /**
  * Convert datapoins with (n) in name into datapoints with XX.
  */
-function google_analytics_views_update_7301() {
+function google_analytics_reports_views_update_7301() {
   // Find all Google Analytics views.
   $ga_views = db_select('views_view', 'v')
     ->fields('v', array('vid'))
@@ -118,7 +123,7 @@ function google_analytics_views_update_7301() {
 /**
  * Replace deprecated datapoins with new ones.
  */
-function google_analytics_views_update_7302() {
+function google_analytics_reports_views_update_7302() {
   // Find all Google Analytics views.
   $ga_views = db_select('views_view', 'v')
     ->fields('v', array('vid'))
