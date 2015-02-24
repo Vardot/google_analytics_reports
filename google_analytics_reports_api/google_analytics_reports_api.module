@@ -50,7 +50,7 @@ function google_analytics_reports_api_menu() {
  */
 function google_analytics_reports_api_permission() {
   return array(
-    'administer google analytics reports' => array(
+    'administer google analytics reports api' => array(
       'title' => t('administer google analytics reports api'),
     ),
   );
