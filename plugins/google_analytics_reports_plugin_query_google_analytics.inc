@@ -9,7 +9,7 @@
 /**
  * Object used to create a Google Analytics Core Reporting API query.
  */
-class google_analytics_reports_views_plugin_query_google_analytics extends views_plugin_query {
+class google_analytics_reports_plugin_query_google_analytics extends views_plugin_query {
 
   /**
    * Constructor; Create the basic query object and fill with default values.
@@ -144,11 +144,12 @@ class google_analytics_reports_views_plugin_query_google_analytics extends views
    *   Provide a countquery if this is true, otherwise provide a normal query.
    */
   function query($get_count = FALSE) {
-    $available_fields = google_analytics_reports_views_get_fields();
+    module_load_include('inc', 'google_analytics_reports');
+    $available_fields = google_analytics_reports_get_fields();
     $query = array();
 
     foreach ($this->fields as $field) {
-      $field_name = google_analytics_reports_views_variable_to_custom_field($field['field']);
+      $field_name = google_analytics_reports_variable_to_custom_field($field['field']);
 
       if ($available_fields[$field_name]) {
         $type = $available_fields[$field_name]['type'];
@@ -162,7 +163,7 @@ class google_analytics_reports_views_plugin_query_google_analytics extends views
     if (isset($this->where)) {
       foreach ($this->where as $where_group => $where) {
         foreach ($where['conditions'] as $condition) {
-          $field_name = google_analytics_reports_views_variable_to_custom_field($condition['field']);
+          $field_name = google_analytics_reports_variable_to_custom_field($condition['field']);
 
           if ($field_name == 'start_date' || $field_name == 'end_date' || $field_name == 'profile_id') {
             $query[$field_name] = intval($condition['value']);
@@ -225,7 +226,14 @@ class google_analytics_reports_views_plugin_query_google_analytics extends views
    * Values to set: $view->result, $view->total_rows, $view->execute_time,
    * $view->current_page.
    */
-  function execute(&$view) {  
+  function execute(&$view) {
+    // Initial check to see if we should attempt to run the query.
+    if (!variable_get('google_analytics_reports_api_access_token', FALSE)) {
+      drupal_set_message(t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.',
+        array('@url' => url('admin/config/system/google-analytics-reports-api'))), 'warning', FALSE);
+      return;
+    }
+
     $query = $view->build_info['query'];
     $count_query = $view->build_info['count_query'];
     $start = microtime(TRUE);

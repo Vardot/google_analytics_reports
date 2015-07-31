@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of google_analytics_reports_views_handler_filter_numeric.
+ * Definition of google_analytics_reports_handler_filter_numeric.
  */
 
 /**
@@ -10,7 +10,7 @@
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_reports_views_handler_filter_numeric extends google_analytics_reports_views_handler_filter {
+class google_analytics_reports_handler_filter_numeric extends google_analytics_reports_handler_filter {
 
   function option_definition() {
     $options = parent::option_definition();

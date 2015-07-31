@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of google_analytics_reports_views_handler_filter_date.
+ * Definition of google_analytics_reports_handler_filter_date.
  */
 
 /**
@@ -10,7 +10,7 @@
  *
  * @ingroup views_filter_handlers
  */
-class google_analytics_reports_views_handler_filter_date extends views_handler_filter_date {
+class google_analytics_reports_handler_filter_date extends views_handler_filter_date {
 
   function operators() {
     $operators = array(

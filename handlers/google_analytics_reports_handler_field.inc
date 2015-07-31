@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Definition of google_analytics_reports_views_handler_argument.
+ * Definition of google_analytics_reports_handler_field.
  */
 
 /**
- * Provides base argument functionality for Google Analytics fields.
+ * Provides base field functionality for Google Analytics fields.
  *
- * @ingroup views_argument_handlers
+ * @ingroup views_field_handlers
  */
-class google_analytics_reports_views_handler_argument extends views_handler_argument {
+class google_analytics_reports_handler_field extends views_handler_field {
 
   /**
    * @var bool
@@ -24,19 +24,18 @@ class google_analytics_reports_views_handler_argument extends views_handler_argu
   function init(&$view, &$options) {
     parent::init($view, $options);
 
-    $this->is_custom = google_analytics_reports_views_is_custom($this->real_field);
+    $this->is_custom = google_analytics_reports_is_custom($this->real_field);
   }
 
   /**
    * {@inheritdoc}
    */
-  function query($group_by = FALSE) {
+  function query() {
     if ($this->is_custom) {
-      $this->real_field = google_analytics_reports_views_custom_to_variable_field($this->real_field, $this->options['custom_field_number']);
+      $this->real_field = google_analytics_reports_custom_to_variable_field($this->real_field, $this->options['custom_field_number']);
     }
 
-    $this->operator = '==';
-    $this->query->add_where(1, $this->real_field, $this->argument, $this->operator);
+    parent::query();
   }
 
   /**

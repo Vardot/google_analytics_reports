@@ -1,9 +1,15 @@
 name = Google Analytics Reports
 package = Statistics
-description = Provides interface to access Google Analytics Core Reporting API statistics.
+description = Display statistics from Google Analytics using Views.
 core = 7.x
 dependencies[] = google_analytics_reports_api
-dependencies[] = chart
+dependencies[] = views
 
-stylesheets[all][] = google_analytics_reports.css
-scripts[] = google_analytics_reports.js
+files[] = handlers/google_analytics_reports_handler_filter.inc
+files[] = handlers/google_analytics_reports_handler_filter_date.inc
+files[] = handlers/google_analytics_reports_handler_filter_string.inc
+files[] = handlers/google_analytics_reports_handler_filter_numeric.inc
+files[] = handlers/google_analytics_reports_handler_field.inc
+files[] = handlers/google_analytics_reports_handler_argument.inc
+files[] = plugins/google_analytics_reports_plugin_query_google_analytics.inc
+files[] = plugins/google_analytics_reports_plugin_argument_default_google_analytics_reports_path.inc

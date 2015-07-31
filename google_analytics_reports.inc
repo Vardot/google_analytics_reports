@@ -2,24 +2,17 @@
 
 /**
  * @file
- * Main file for Google Analytics Reports Views module.
+ * Datapoins from Google Analytics.
  */
-
-/**
- * Implements hook_views_api().
- */
-function google_analytics_reports_views_views_api() {
-  return array(
-    'api' => '3',
-    'path' => drupal_get_path('module', 'google_analytics_reports_views'),
-  );
-}
 
 /**
  * Google Analytics dimensions and metrics.
+ *
+ * TODO: Replace it with Google Analytics Metadata API.
+ * TODO: @see https://www.drupal.org/node/2373151.
  * @see https://developers.google.com/analytics/devguides/reporting/core/dimsmets
  */
-function google_analytics_reports_views_get_fields() {
+function google_analytics_reports_get_fields() {
   return array(
     // User dimensions.
     'userType' => array(
@@ -2795,28 +2788,5 @@ function google_analytics_reports_views_get_fields() {
       'description' => t('Quantity of the related product.'),
       'datatype' => 'integer',
     ),
-
   );
-
-}
-
-/**
- * Determines if a field is custom or not.
- */
-function google_analytics_reports_views_is_custom($field) {
-  return preg_match('/XX/', $field) ? TRUE : FALSE;
-}
-
-/**
- * Converts a base custom field name and number into a specific field name.
- */
-function google_analytics_reports_views_custom_to_variable_field($field, $number) {
-  return preg_replace('/XX/', $number, $field);
-}
-
-/**
- * Converts a specific field name into a base custom field name.
- */
-function google_analytics_reports_views_variable_to_custom_field($field) {
-  return preg_replace('/\d/', 'XX', $field);
 }

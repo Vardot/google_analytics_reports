@@ -12,6 +12,11 @@
  */
 class GoogleAnalyticsReportsApiFeed {
 
+  const OAUTH2_REVOKE_URI = 'https://accounts.google.com/o/oauth2/revoke';
+  const OAUTH2_TOKEN_URI = 'https://accounts.google.com/o/oauth2/token';
+  const OAUTH2_AUTH_URL = 'https://accounts.google.com/o/oauth2/auth';
+  const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly https://www.google.com/analytics/feeds/';
+
   // Response object.
   public $response;
 
@@ -27,20 +32,20 @@ class GoogleAnalyticsReportsApiFeed {
   // Boolean TRUE if data is from the cache tables.
   public $fromCache = FALSE;
 
+  // OAuth access token.
+  public $accessToken;
+
+  // OAuth refresh token.
+  public $refreshToken;
+
+  // OAuth expiration time.
+  public $expiresAt;
+
   // Host and endpoint of Google Analytics API.
   protected $host = 'www.googleapis.com/analytics/v3';
 
   // Request header source.
   protected $source = 'drupal';
-
-  // Default is HMAC-SHA1.
-  protected $signatureMethod;
-
-  // HMAC-SHA1 Consumer data.
-  protected $consumer;
-
-  // OAuth token.
-  protected $token;
 
   // Google authorize callback verifier string.
   protected $verifier;
@@ -52,25 +57,193 @@ class GoogleAnalyticsReportsApiFeed {
    * Check if object is authenticated with Google.
    */
   public function isAuthenticated() {
-    return !empty($this->token);
+    return !empty($this->accessToken);
+  }
+
+  public function __construct($token = NULL) {
+    $this->accessToken = $token;
   }
 
   /**
-   * Constructor for the GoogleAnalyticsReportsApiFeed class.
+   * Get the current page url.
+   *
+   * @return string
+   *   - current page url.
    */
-  public function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
-    $this->signatureMethod = new OAuthSignatureMethod_HMAC_SHA1();
-    $this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
+  public static function currentUrl() {
+    global $base_url;
+    return $base_url . request_uri();
+  }
 
-    // Allow developers the option of OAuth authentication without
-    // using this class's methods.
-    if (!empty($oauth_token) && !empty($oauth_token_secret)) {
-      $this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
+  /**
+   * Create a URL to obtain user authorization.
+   *
+   * The authorization endpoint allows the user to first
+   * authenticate, and then grant/deny the access request.
+   * @param $client_id
+   * @param $redirect_uri
+   * @return string
+   */
+  public function createAuthUrl($client_id, $redirect_uri) {
+    $params = array(
+      'response_type=code',
+      'redirect_uri=' . $redirect_uri,
+      'client_id=' . urlencode($client_id),
+      'scope=' . self::SCOPE,
+      'access_type=offline',
+      'approval_prompt=force',
+    );
+
+    $params = implode('&', $params);
+    return self::OAUTH2_AUTH_URL . "?$params";
+  }
+
+  /**
+   * Authenticate with the Google Analytics API.
+   *
+   * @param String $client_id
+   * @param String $client_secret
+   * @param String $refresh_token
+   * @return GAFeed
+  */
+  protected function fetchToken($client_id, $client_secret, $redirect_uri, $refresh_token = NULL) {
+    if ($refresh_token) {
+      $params = array(
+        'client_id=' . $client_id,
+        'client_secret=' . $client_secret,
+        'refresh_token=' . $refresh_token,
+        'grant_type=refresh_token',
+      );
+    }
+    else {
+      $params = array(
+        'code=' . $_GET['code'],
+        'grant_type=authorization_code',
+        'redirect_uri=' . $redirect_uri,
+        'client_id=' . $client_id,
+        'client_secret=' . $client_secret,
+      );
+    }
+
+    $data = implode('&', $params);
+
+    $this->response = drupal_http_request(self::OAUTH2_TOKEN_URI, array(
+      'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+      'method' => 'POST',
+      'data' => $data,
+    ));
+
+    if ($this->response->code == '200') {
+      $decoded_response = json_decode($this->response->data, TRUE);
+      $this->accessToken = $decoded_response['access_token'];
+      $this->expiresAt = time() + $decoded_response['expires_in'];
+      if (!$refresh_token) {
+        $this->refreshToken = $decoded_response['refresh_token'];
+      }
+    }
+    else {
+      $error_vars = array(
+        '!code' => $this->response->code,
+        '!message' => $this->response->error,
+        '!details' => strip_tags($this->response->data),
+      );
+      $this->error = t('Code: !code - Error: !message - Message: !details', $error_vars);
+      watchdog('google analytics reports api', 'Code: !code - Error: !message - Message: !details', $error_vars, WATCHDOG_ERROR);
     }
   }
 
   /**
-   * Set the verifier property.
+   * Complete the authentication process.
+   *
+   * We got here after being redirected from a successful authorization grant.
+   * Fetch the access token
+   *
+   * @param String $client_id
+   * @param String $client_secret
+   */
+  public function finishAuthentication($client_id, $client_secret, $redirect_uri) {
+    $this->fetchToken($client_id, $client_secret, $redirect_uri);
+  }
+
+  /**
+   * Begin authentication.
+   *
+   * Allowing the user to grant/deny access to the Google account.
+   *
+   * @param String $client_id
+   */
+  public function beginAuthentication($client_id, $redirect_uri) {
+    $url = $this->createAuthUrl($client_id, $redirect_uri);
+    $array = explode("?", $url);
+    $array2 = explode("&", $array[1]);
+    $queries = array();
+    foreach ($array2 as $query) {
+      $array3 = explode("=", $query);
+      $queries[$array3[0]] = $array3[1];
+    }
+    drupal_goto($array[0], array('query' => $queries));
+  }
+
+  /**
+   * Fetches a fresh access token with the given refresh token.
+   * @param String $client_id
+   * @param String $client_secret
+   * @param string $refresh_token
+   */
+  public function refreshToken($client_id, $client_secret, $refresh_token) {
+    $this->refreshToken = $refresh_token;
+    $this->fetchToken($client_id, $client_secret, '', $refresh_token);
+  }
+
+  /**
+   * OAuth step #1: Fetch request token.
+   *
+   * Revoke an OAuth2 access token or refresh token. This method will revoke
+   * the current access token, if a token isn't provided.
+   *
+   * @param string|NULL $token
+   *   The token (access token or a refresh token) that should be revoked.
+   *
+   * @return boll
+   *   Returns True if the revocation was successful, otherwise False.
+   */
+  public function revokeToken($token = NULL) {
+    if (!$token) {
+      $token = $this->refreshToken ? $this->refreshToken : $this->accessToken;
+    }
+
+    $this->response = drupal_http_request(self::OAUTH2_REVOKE_URI, array(
+      'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+      'method' => 'POST',
+      'data' => "token=$token",
+    ));
+
+    if ($this->response->code == 200) {
+      $this->accessToken = NULL;
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * OAuth step #2: Authorize request token.
+   *
+   * Generate authorization token header for all requests
+   *
+   * @return array
+   */
+  public function generateAuthHeader($token = NULL) {
+    if ($token == NULL) {
+      $token = $this->accessToken;
+    }
+    return array('Authorization' => 'Bearer ' . $token);
+  }
+
+  /**
+   * OAuth step #3: Fetch access token.
+   *
+   * Set the verifier property
    */
   public function setVerifier($verifier) {
     $this->verifier = $verifier;
@@ -91,82 +264,9 @@ class GoogleAnalyticsReportsApiFeed {
   }
 
   /**
-   * OAuth step #1: Fetch request token.
-   */
-  public function getRequestToken() {
-    $this->setHost($this->oAuthHost);
-    $this->setQueryPath('accounts/OAuthGetRequestToken');
-
-    // Xoauth_displayname is displayed on the Google Authentication page.
-    $params = array(
-      'scope' => 'https://www.googleapis.com/auth/analytics.readonly',
-      'oauth_callback' => url('google-analytics-reports/oauth', array('absolute' => TRUE)),
-      'xoauth_displayname' => t('Google Analytics Reports Drupal module'),
-    );
-
-    $this->query($this->queryPath, $params, 'GET', array('refresh' => TRUE));
-    parse_str($this->response->data, $token);
-    $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
-    return $token;
-  }
-
-  /**
-   * OAuth step #2: Authorize request token.
-   */
-  public function obtainAuthorization($token) {
-    $this->setHost($this->oAuthHost);
-    $this->setQueryPath('accounts/OAuthAuthorizeToken');
-
-    // HD is the best way of dealing with users with multiple domains
-    // verified with Google.
-    $params = array(
-      'oauth_token' => $token['oauth_token'],
-      'hd' => variable_get('google_analytics_reports_api_hd', 'default'),
-    );
-
-    // Check for the overlay.
-    if (module_exists('overlay') && overlay_get_mode() == 'child') {
-      overlay_close_dialog($this->queryPath, array(
-        'query' => $params,
-        'external' => TRUE,
-        ));
-      overlay_deliver_empty_page();
-    }
-    else {
-      drupal_goto($this->queryPath, array('query' => $params));
-    }
-  }
-
-  /**
-   * OAuth step #3: Fetch access token.
-   */
-  public function getAccessToken() {
-    $this->setHost($this->oAuthHost);
-    $this->setQueryPath('accounts/OAuthGetAccessToken');
-
-    $params = array(
-      'oauth_verifier' => $this->verifier,
-    );
-
-    $this->query($this->queryPath, $params, 'GET', array('refresh' => TRUE));
-    parse_str($this->response->data, $token);
-    $this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
-    return $token;
-  }
-
-  /**
-   * Revoke OAuth token.
-   */
-  public function revokeToken() {
-    $this->setHost($this->oAuthHost);
-    $this->setQueryPath('accounts/AuthSubRevokeToken');
-    $this->query($this->queryPath, array(), 'GET', array('refresh' => TRUE));
-  }
-
-  /**
    * Public query method for all Core Reporting API features.
    */
-  public function query($path, $params = array(), $method = 'GET', $cache_options = array()) {
+  public function query($url, $params = array(), $method = 'GET', $headers, $cache_options = array()) {
     $params_defaults = array(
       'start-index' => 1,
       'max-results' => 1000,
@@ -183,7 +283,7 @@ class GoogleAnalyticsReportsApiFeed {
 
     // Provide a query MD5 for the cid if the developer did not provide one.
     if (empty($cache_options['cid'])) {
-      $cache_options['cid'] = 'GoogleAnalyticsReportsApiFeed:' . md5(serialize(array_merge($params, array($path, $method))));
+      $cache_options['cid'] = 'GoogleAnalyticsReportsApiFeed:' . md5(serialize(array_merge($params, array($url, $method))));
     }
 
     $cache = cache_get($cache_options['cid']);
@@ -194,22 +294,11 @@ class GoogleAnalyticsReportsApiFeed {
       $this->fromCache = TRUE;
     }
     else {
-      $request = OAuthRequest::from_consumer_and_token($this->consumer, $this->token, $method, $this->queryPath, $params);
-      $request->sign_request($this->signatureMethod, $this->consumer, $this->token);
-      switch ($method) {
-        case 'GET':
-          $this->request($request->to_url());
-          break;
+      $this->request($url, $params, $headers);
+    }
 
-        case 'POST':
-          $this->request($request->get_normalized_http_url(), $request->get_parameters(), 'POST');
-          break;
-      }
-
-      // Do not cache erroneous queries.
-      if (empty($this->error)) {
-        cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['expire']);
-      }
+    if (empty($this->error)) {
+      cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['expire']);
     }
 
     return (empty($this->error));
@@ -218,10 +307,12 @@ class GoogleAnalyticsReportsApiFeed {
   /**
    * Execute a query.
    */
-  protected function request($url, $params = array(), $method = 'GET') {
+  protected function request($url, $params = array(), $headers = array(), $method = 'GET') {
     $options = array(
       'method' => $method,
+      'headers' => $headers,
     );
+
     if (count($params) > 0) {
       if ($method == 'GET') {
         $url .= '?' . drupal_http_build_query($params);
@@ -256,7 +347,7 @@ class GoogleAnalyticsReportsApiFeed {
    */
   public function queryAccounts($params = array(), $cache_options = array()) {
     $this->setQueryPath('management/accounts');
-    $this->query($this->queryPath, $params, 'GET', $cache_options);
+    $this->query($this->queryPath, $params, 'GET', $this->generateAuthHeader(), $cache_options);
     return $this;
   }
 
@@ -268,7 +359,7 @@ class GoogleAnalyticsReportsApiFeed {
       'account-id' => '~all',
     );
     $this->setQueryPath('management/accounts/' . $params['account-id'] . '/webproperties');
-    $this->query($this->queryPath, $params, 'GET', $cache_options);
+    $this->query($this->queryPath, $params, 'GET', $this->generateAuthHeader(), $cache_options);
     return $this;
   }
 
@@ -281,7 +372,8 @@ class GoogleAnalyticsReportsApiFeed {
       'web-property-id' => '~all',
     );
     $this->setQueryPath('management/accounts/' . $params['account-id'] . '/webproperties/' . $params['web-property-id'] . '/profiles');
-    $this->query($this->queryPath, $params, 'GET', $cache_options);
+    $this->query($this->queryPath, $params, 'GET', $this->generateAuthHeader(), $cache_options);
+
     return $this;
   }
 
@@ -290,7 +382,7 @@ class GoogleAnalyticsReportsApiFeed {
    */
   public function querySegments($params = array(), $cache_options = array()) {
     $this->setQueryPath('management/segments');
-    $this->query($this->queryPath, $params, 'GET', $cache_options);
+    $this->query($this->queryPath, $params, 'GET', $this->generateAuthHeader(), $cache_options);
     return $this;
   }
 
@@ -385,7 +477,7 @@ class GoogleAnalyticsReportsApiFeed {
     $parameters['max-results'] = $params['max_results'];
 
     $this->setQueryPath('data/ga');
-    if ($this->query($this->queryPath, $parameters, 'GET', $cache_options)) {
+    if ($this->query($this->queryPath, $parameters, 'GET', $this->generateAuthHeader(), $cache_options)) {
       $this->sanitizeReport();
     }
     return $this;
@@ -396,7 +488,11 @@ class GoogleAnalyticsReportsApiFeed {
    */
   protected function sanitizeReport() {
     // Get all Google Analytics fields.
-    $fields = google_analytics_reports_views_get_fields();
+    // TODO: Replace with custom hook.
+    if (module_exists('google_analytics_reports')) {
+      module_load_include('inc', 'google_analytics_reports');
+      $fields = google_analytics_reports_get_fields();
+    }
 
     // Named keys for report values.
     $this->results->rawRows = isset($this->results->rows) ? $this->results->rows : array();
@@ -405,8 +501,10 @@ class GoogleAnalyticsReportsApiFeed {
       foreach ($row_value as $item_key => $item_value) {
         $field_without_ga = str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name);
         $item_value = $this->replaceData($field_without_ga, $item_value);
+
         // Date and time datatypes should not have the digits after the zero.
-        if (in_array($fields[$field_without_ga]['datatype'], array('date', 'time'))) {
+        // TODO: Replace with custom hook.
+        if (module_exists('google_analytics_reports') && in_array($fields[$field_without_ga]['datatype'], array('date', 'time'))) {
           $item_value = round($item_value);
         }
         $this->results->rows[$row_key][$field_without_ga] = $item_value;

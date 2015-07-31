@@ -8,12 +8,12 @@
 /**
  * Implements hook_views_data().
  */
-function google_analytics_reports_views_views_data() {
+function google_analytics_reports_views_data() {
   $data['google_analytics']['table']['group']  = t('Google Analytics');
 
   $data['google_analytics']['table']['base'] = array(
     'title' => t('Google Analytics'),
-    'query class' => 'google_analytics_reports_views_query',
+    'query class' => 'google_analytics_reports_query',
     'help' => t('Views Google Analytics query builder'),
   );
 
@@ -21,10 +21,10 @@ function google_analytics_reports_views_views_data() {
     'title' => t('Start date of report'),
     'help' => t('Start date of report.'),
     'argument' => array(
-      'handler' => 'google_analytics_reports_views_handler_argument',
+      'handler' => 'google_analytics_reports_handler_argument',
     ),
     'filter' => array(
-      'handler' => 'google_analytics_reports_views_handler_filter_date',
+      'handler' => 'google_analytics_reports_handler_filter_date',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort_date',
@@ -35,10 +35,10 @@ function google_analytics_reports_views_views_data() {
     'title' => t('End date of report'),
     'help' => t('End date of report.'),
     'argument' => array(
-      'handler' => 'google_analytics_reports_views_handler_argument',
+      'handler' => 'google_analytics_reports_handler_argument',
     ),
     'filter' => array(
-      'handler' => 'google_analytics_reports_views_handler_filter_date',
+      'handler' => 'google_analytics_reports_handler_filter_date',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort_date',
@@ -49,14 +49,15 @@ function google_analytics_reports_views_views_data() {
     'title' => t('Profile ID'),
     'help' => t('Profile ID'),
     'argument' => array(
-      'handler' => 'google_analytics_reports_views_handler_argument_string',
+      'handler' => 'google_analytics_reports_handler_argument',
     ),
     'filter' => array(
-      'handler' => 'google_analytics_reports_views_handler_filter_string',
+      'handler' => 'google_analytics_reports_handler_filter_string',
     ),
   );
 
-  $fields = google_analytics_reports_views_get_fields();
+  module_load_include('inc', 'google_analytics_reports');
+  $fields = google_analytics_reports_get_fields();
 
   foreach ($fields as $field_name => $field) {
     if (isset($field['calculation'])) {
@@ -70,8 +71,8 @@ function google_analytics_reports_views_views_data() {
     $field_handler = 'views_handler_field';
     $float = FALSE;
 
-    if (google_analytics_reports_views_is_custom($field_name)) {
-      $field_handler = 'google_analytics_reports_views_handler_field';
+    if (google_analytics_reports_is_custom($field_name)) {
+      $field_handler = 'google_analytics_reports_handler_field';
     }
     elseif (in_array($field['datatype'], array('date', 'time'))) {
       $field_handler = 'views_handler_field_date';
@@ -95,10 +96,10 @@ function google_analytics_reports_views_views_data() {
         'handler' => 'views_handler_sort',
       ),
       'argument' => array(
-        'handler' => 'google_analytics_reports_views_handler_argument',
+        'handler' => 'google_analytics_reports_handler_argument',
       ),
       'filter' => array(
-        'handler' => ($field['type'] == 'metric') ? 'google_analytics_reports_views_handler_filter_numeric' : 'google_analytics_reports_views_handler_filter_string',
+        'handler' => ($field['type'] == 'metric') ? 'google_analytics_reports_handler_filter_numeric' : 'google_analytics_reports_handler_filter_string',
       ),
     );
   }
@@ -109,12 +110,18 @@ function google_analytics_reports_views_views_data() {
 /**
  * Implements hook_views_plugins().
  */
-function google_analytics_reports_views_views_plugins() {
+function google_analytics_reports_views_plugins() {
   return array(
     'query' => array(
-      'google_analytics_reports_views_query' => array(
+      'google_analytics_reports_query' => array(
         'title' => t('Google Analytics Query'),
-        'handler' => 'google_analytics_reports_views_plugin_query_google_analytics',
+        'handler' => 'google_analytics_reports_plugin_query_google_analytics',
+      ),
+    ),
+    'argument default' => array(
+      'google_analytics_reports_path' => array(
+        'title' => t('Current page path (Google Analytics Reports)'),
+        'handler' => 'google_analytics_reports_plugin_argument_default_google_analytics_reports_path',
       ),
     ),
   );

@@ -6,84 +6,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function google_analytics_reports_menu() {
-  $items['admin/reports/google-analytics'] = array(
-    'title' => 'Google Analytics Summary',
-    'description' => "View a traffic report for your site.",
-    'page callback' => 'google_analytics_reports_summary_page',
-    'access arguments' => array('access google analytics reports'),
-    'file' => 'google_analytics_reports.pages.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $items['admin/reports/google-analytics/detail'] = array(
-    'title' => 'Content Detail',
-    'page callback' => 'google_analytics_reports_detail_page',
-    'access arguments' => array('access google analytics reports'),
-    'file' => 'google_analytics_reports.pages.inc',
-    'type' => MENU_CALLBACK,
-  );
-  $items['google-analytics-reports/ajax/path-mini'] = array(
-    'title' => 'Page traffic',
-    'page callback' => 'google_analytics_reports_path_mini_ajax',
-    'access arguments' => array('access google analytics reports'),
-    'file' => 'google_analytics_reports.blocks.inc',
-    'type' => MENU_CALLBACK,
-  );
-  $items['google-analytics-reports/ajax/dashboard'] = array(
-    'title' => 'Page traffic',
-    'page callback' => 'google_analytics_reports_dashboard_ajax',
-    'access arguments' => array('access google analytics reports'),
-    'file' => 'google_analytics_reports.blocks.inc',
-    'type' => MENU_CALLBACK,
-  );
-  return $items;
-}
-
-/**
- * Implements hook_page_build().
- */
-function google_analytics_reports_page_build(&$page) {
-  drupal_add_js(
-    array(
-      'googleAnalyticsReportsAjaxUrl' => url('google-analytics-reports/ajax'),
-    ),
-    'setting'
-  );
-}
-
-/**
- * Implements hook_block_info().
- */
-function google_analytics_reports_block_info() {
-  $blocks['path_mini']['info'] = t('Google Analytics page traffic');
-  $blocks['dashboard']['info'] = t('Google Analytics site visits');
-  $blocks['dashboard']['properties']['administrative'] = TRUE;
-  return $blocks;
-}
-
-/**
- * Implements hook_block_view().
- */
-function google_analytics_reports_block_view($delta = '') {
-  if (!user_access('access google analytics reports')) {
-    return FALSE;
-  }
-  switch ($delta) {
-    case 'path_mini':
-      $block['subject'] = t('Page traffic');
-      $block['content'] = '<div class="google-analytics-reports-path-mini"></div>';
-      return $block;
-
-    case 'dashboard':
-      $block['subject'] = t('Google Analytics Summary');
-      $block['content'] = '<div class="google-analytics-reports-dashboard"></div>';
-      return $block;
-  }
-}
-
-/**
  * Implements hook_permission().
  */
 function google_analytics_reports_permission() {
@@ -95,73 +17,73 @@ function google_analytics_reports_permission() {
 }
 
 /**
- * Implements hook_theme().
+ * Implements hook_views_api().
  */
-function google_analytics_reports_theme() {
+function google_analytics_reports_views_api() {
   return array(
-    'google_analytics_reports_summary' => array(
-      'variables' => array('summary' => NULL),
-      'template' => 'templates/google_analytics_reports_summary',
-      'file' => 'google_analytics_reports.theme.inc',
-    ),
-    'google_analytics_reports_detail' => array(
-      'variables' => array('report' => NULL),
-      'template' => 'templates/google_analytics_reports_detail',
-      'file' => 'google_analytics_reports.theme.inc',
-    ),
-    'google_analytics_reports_dashboard' => array(
-      'variables' => array('report' => NULL),
-      'template' => 'templates/google_analytics_reports_dashboard',
-      'file' => 'google_analytics_reports.theme.inc',
-    ),
-    'google_analytics_reports_path_mini' => array(
-      'variables' => array('report' => NULL),
-      'file' => 'google_analytics_reports.theme.inc',
-    ),
+    'api' => 3.0,
   );
 }
 
 /**
- * Construct a filter string.
- *
- * That grabs pagePaths corresponding to the specified path.
- *
- * @param string $path
- *   Page path.
- *
- * @return string
- *   Google Analytics API page filter.
+ * Determines if a field is custom or not.
  */
-function _google_analytics_reports_path_filter($path) {
-  // Decode urls, that might appear due to browsers particularities.
-  $path = urldecode($path);
-
-  // Google Analytics regex filters have a limit of 32 characters. Therefore we
-  // can't simply create one filter per pagePath. Instead we are going too do a
-  // "contains substring" match on the path, and then take as many of the ending
-  // characters paired with ([?#].*)?$.
-
-  // Use 100 character maximum to allow some room for escaping regex
-  // metacharacters.
-  if (strlen($path) <= 121) {
-    $filter = 'ga:pagePath=~^' . preg_quote($path) . '(#.*)?$';
-  }
-  else {
-    $filter = 'ga:pagePath=@' . $path . ';ga:pagePath=~' . preg_quote(substr($path, -100)) . '(#.*)?$';
-  }
-  return $filter;
+function google_analytics_reports_is_custom($field) {
+  return preg_match('/XX/', $field) ? TRUE : FALSE;
 }
 
 /**
- * Helper function to generate an error message.
- *
- * @return string
- *   Error message.
+ * Converts a base custom field name and number into a specific field name.
  */
-function _google_analytics_reports_error_message() {
-  $message = t('There was a problem retrieving the statistics.');
-  if (user_access('access site reports') && user_access('access administration pages') && module_exists('dblog')) {
-    $message .= ' ' . t('Please review the <a href="!url">watchdog</a> for details.', array('!url' => url('admin/reports/dblog')));
+function google_analytics_reports_custom_to_variable_field($field, $number) {
+  return preg_replace('/XX/', $number, $field);
+}
+
+/**
+ * Converts a specific field name into a base custom field name.
+ */
+function google_analytics_reports_variable_to_custom_field($field) {
+  return preg_replace('/\d/', 'XX', $field);
+}
+
+/**
+ * Adds custom CSS style for Google Analytics Reports views pages.
+ */
+function google_analytics_reports_preprocess_views_view(&$vars) {
+  $view = &$vars['view'];
+  if (($view->name == 'google_analytics_reports_summary' && $view->current_display == 'page') ||
+    ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page') ||
+    ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page_front')) {
+    drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css');
   }
-  return $message;
+}
+
+/**
+ * Implements hook_views_pre_build().
+ */
+function google_analytics_reports_views_pre_build(&$view) {
+  if ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page') {
+    // Find page path for Google Analytics.
+    if (!empty($view->display_handler->options['path'])) {
+      // Decode current page url, that might appear due to browsers
+      // particularities.
+      $current_url = check_plain(urldecode(request_uri()));
+      // Return front page path ("/") if it is preview in Views UI.
+      if ($current_url == '/admin/structure/views/view/google_analytics_reports_page/preview/page/ajax') {
+        $view->args[0] = '/';
+        return;
+      }
+      // Menu path for current view without "%" at the end.
+      $menu_path = $view->display_handler->options['path'];
+      $menu_path = str_replace('%', '', $menu_path);
+      // Real url for Google Analytics.
+      $ga_url = str_replace($menu_path, '', $current_url);
+      // Remove old view arguments.
+      foreach ($view->args as $numb => $value) {
+        unset($view->args[$numb]);
+      }
+      // Set up real Google Analytics path as view argument.
+      $view->args[0] = $ga_url;
+    }
+  }
 }
