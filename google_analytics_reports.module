@@ -247,7 +247,8 @@ function google_analytics_reports_preprocess_views_view(&$vars) {
   if (($view->name == 'google_analytics_reports_summary' && $view->current_display == 'page') ||
     ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page') ||
     ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page_front')) {
-    drupal_add_css(drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css');
+    $css['#attached']['css'][] = drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css';
+    drupal_render($css);
   }
 }
 
