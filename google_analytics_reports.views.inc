@@ -56,15 +56,16 @@ function google_analytics_reports_views_data() {
     ),
   );
 
-  module_load_include('inc', 'google_analytics_reports');
   $fields = google_analytics_reports_get_fields();
 
   foreach ($fields as $field_name => $field) {
-    if (isset($field['calculation'])) {
-      $field['description'] = $field['description'] . '<br />' . t('Calculation: <code>@formula</code>.',
-          array('@formula' => $field['calculation']));
+    // Description of filed from Google Analytics.
+    $field->description = t($field->description) . '<br />' . t('Type: @type.', array('@type' => $field->type));
+    if (isset($field->calculation)) {
+      $field->description .= '<br />' . t('Calculation: <code>@formula</code>.',
+          array('@formula' => $field->calculation));
     }
-    $field['description'] = $field['description'] . '<br />' . t('API name: <code>@ga</code>.',
+    $field->description .= '<br />' . t('API name: <code>@ga</code>.',
         array('@ga' => 'ga:' . $field_name));
 
     // Provide default handler.
@@ -74,19 +75,19 @@ function google_analytics_reports_views_data() {
     if (google_analytics_reports_is_custom($field_name)) {
       $field_handler = 'google_analytics_reports_handler_field';
     }
-    elseif (in_array($field['datatype'], array('date', 'time'))) {
+    elseif (in_array($field->data_type, array('date', 'time'))) {
       $field_handler = 'views_handler_field_date';
     }
-    elseif (in_array($field['datatype'],
+    elseif (in_array($field->data_type,
       array('integer', 'float', 'percent', 'currency'))) {
 
       $field_handler = 'views_handler_field_numeric';
       $float = TRUE;
     }
     $data['google_analytics'][$field_name] = array(
-      'title' => $field['name'],
-      'help' => $field['description'],
-      'group' => $field['group'],
+      'title' => t($field->ui_name),
+      'help' => $field->description,
+      'group' => t($field->column_group),
       'field' => array(
         'handler' => $field_handler,
         'click sortable' => TRUE,
@@ -99,7 +100,7 @@ function google_analytics_reports_views_data() {
         'handler' => 'google_analytics_reports_handler_argument',
       ),
       'filter' => array(
-        'handler' => ($field['type'] == 'metric') ? 'google_analytics_reports_handler_filter_numeric' : 'google_analytics_reports_handler_filter_string',
+        'handler' => ($field->type == 'metric') ? 'google_analytics_reports_handler_filter_numeric' : 'google_analytics_reports_handler_filter_string',
       ),
     );
   }

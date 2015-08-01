@@ -144,7 +144,6 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
    *   Provide a countquery if this is true, otherwise provide a normal query.
    */
   function query($get_count = FALSE) {
-    module_load_include('inc', 'google_analytics_reports');
     $available_fields = google_analytics_reports_get_fields();
     $query = array();
 
@@ -152,7 +151,7 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
       $field_name = google_analytics_reports_variable_to_custom_field($field['field']);
 
       if ($available_fields[$field_name]) {
-        $type = $available_fields[$field_name]['type'];
+        $type = $available_fields[$field_name]->type;
         $type = ($type == 'dimension') ? 'dimensions' : 'metrics';
         $query[$type][] = 'ga:' . $field['field'];
       }

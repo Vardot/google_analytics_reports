@@ -5,6 +5,8 @@ core = 7.x
 dependencies[] = google_analytics_reports_api
 dependencies[] = views
 
+configure = admin/config/system/google-analytics-reports-api
+
 files[] = handlers/google_analytics_reports_handler_filter.inc
 files[] = handlers/google_analytics_reports_handler_filter_date.inc
 files[] = handlers/google_analytics_reports_handler_filter_string.inc

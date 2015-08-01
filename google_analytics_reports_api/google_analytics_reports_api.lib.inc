@@ -490,7 +490,6 @@ class GoogleAnalyticsReportsApiFeed {
     // Get all Google Analytics fields.
     // TODO: Replace with custom hook.
     if (module_exists('google_analytics_reports')) {
-      module_load_include('inc', 'google_analytics_reports');
       $fields = google_analytics_reports_get_fields();
     }
 
@@ -504,7 +503,7 @@ class GoogleAnalyticsReportsApiFeed {
 
         // Date and time datatypes should not have the digits after the zero.
         // TODO: Replace with custom hook.
-        if (module_exists('google_analytics_reports') && in_array($fields[$field_without_ga]['datatype'], array('date', 'time'))) {
+        if (module_exists('google_analytics_reports') && in_array($fields[$field_without_ga]->data_type, array('date', 'time'))) {
           $item_value = round($item_value);
         }
         $this->results->rows[$row_key][$field_without_ga] = $item_value;
