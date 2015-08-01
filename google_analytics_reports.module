@@ -26,6 +26,15 @@ function google_analytics_reports_views_api() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function google_analytics_reports_ctools_plugin_directory($owner, $plugin_type) {
+  if (($owner == 'views_ui') && ($plugin_type == 'views_wizard')) {
+    return 'plugins/views_wizard';
+  }
+}
+
+/**
  * Implements hook_form_BASE_FORM_ID_alter().
  *
  * Adds module settings to Google Analytics Reports API admin page.
