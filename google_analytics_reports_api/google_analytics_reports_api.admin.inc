@@ -65,6 +65,84 @@ function google_analytics_reports_api_admin() {
   }
 
   elseif ($account->isAuthenticated()) {
+
+    // Load profiles list.
+    $profile_list = google_analytics_reports_api_profiles_list();
+
+    $form['settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Settings'),
+      '#collapsible' => FALSE,
+      '#collapsed' => FALSE,
+    );
+
+    $form['settings']['google_analytics_reports_api_profile_id'] = array(
+      '#type' => 'select',
+      '#title' => t('Reports profile'),
+      '#options' => $profile_list['options'],
+      '#default_value' => $profile_list['profile_id'],
+      '#description' => t('Choose your Google Analytics profile.  The currently active profile is: %profile.', array(
+        '%profile' => theme('google_analytics_reports_api_profile_label',
+          array('profile' => $profile_list['current_profile'])),
+      )),
+    );
+
+    // Default cache periods.
+    $times = array();
+    // 1-6 days.
+    for ($days = 1; $days <= 6; $days++) {
+      $times[] = $days * 60 * 60 * 24;
+    }
+    // 1-4 weeks.
+    for ($weeks = 1; $weeks <= 4; $weeks++) {
+      $times[] = $weeks * 60 * 60 * 24 * 7;
+    }
+
+    $form['settings']['google_analytics_reports_api_cache_length'] = array(
+      '#type' => 'select',
+      '#title' => t('Query cache'),
+      '#description' => t('The <a href="!link">Google Analytics Quota Policy</a> restricts the number of queries made per day. This limits the creation of new reports on your site.  We recommend setting this cache option to at least three days.', array(
+        '!link' => url('https://developers.google.com/analytics/devguides/reporting/core/v3/limits-quotas', array(
+          'fragment' => 'core_reporting',
+        )),
+      )),
+      '#options' => drupal_map_assoc($times, 'format_interval'),
+      '#default_value' => variable_get('google_analytics_reports_api_cache_length', 259200),
+    );
+    $form['settings']['settings_submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save settings'),
+      '#submit' => array('google_analytics_reports_api_admin_submit_settings'),
+    );
+    $form['revoke'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Revoke access and logout'),
+      '#description' => t('Revoke your access token from Google Analytics. This action will log you out of your Google Analytics account and stop all reports from displaying on your site.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    $form['revoke']['revoke_submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Revoke access token'),
+      '#submit' => array('google_analytics_reports_api_admin_submit_revoke'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Google Analytics reports profiles for current authorized user.
+ *
+ * @return array/null
+ *   An associative array containing:
+ *   - options: list of current available profiles.
+ *   - profile_id: current default profile id.
+ *   - current_profile: current default profile object.
+ */
+function google_analytics_reports_api_profiles_list() {
+  $account = google_analytics_reports_api_gafeed();
+  if (($account) && ($account->isAuthenticated())) {
     $web_properties = $account->queryWebProperties()->results->items;
     $profiles = $account->queryProfiles()->results->items;
     $options = array();
@@ -111,67 +189,14 @@ function google_analytics_reports_api_admin() {
         break;
       }
     }
-
-    $form['settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Settings'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
+    $return = array(
+      'options' => $options,
+      'profile_id' => $profile_id,
+      'current_profile' => $current_profile,
     );
 
-    $form['settings']['google_analytics_reports_api_profile_id'] = array(
-      '#type' => 'select',
-      '#title' => t('Reports profile'),
-      '#options' => $options,
-      '#default_value' => $profile_id,
-      '#description' => t('Choose your Google Analytics profile.  The currently active profile is: %profile.', array(
-        '%profile' => theme('google_analytics_reports_api_profile_label',
-          array('profile' => $current_profile)),
-      )),
-    );
-
-    // Default cache periods.
-    $times = array();
-    // 1-6 days.
-    for ($days = 1; $days <= 6; $days++) {
-      $times[] = $days * 60 * 60 * 24;
-    }
-    // 1-4 weeks.
-    for ($weeks = 1; $weeks <= 4; $weeks++) {
-      $times[] = $weeks * 60 * 60 * 24 * 7;
-    }
-
-    $form['settings']['google_analytics_reports_api_cache_length'] = array(
-      '#type' => 'select',
-      '#title' => t('Query cache'),
-      '#description' => t('The <a href="!link">Google Analytics Quota Policy</a> restricts the number of queries made per day. This limits the creation of new reports on your site.  We recommend setting this cache option to at least three days.', array(
-        '!link' => url('https://developers.google.com/analytics/devguides/reporting/core/v3/limits-quotas', array(
-          'fragment' => 'core_reporting',
-        )),
-      )),
-      '#options' => drupal_map_assoc($times, 'format_interval'),
-      '#default_value' => variable_get('google_analytics_reports_api_cache_length', 259200),
-    );
-    $form['settings']['settings_submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Save settings'),
-      '#submit' => array('google_analytics_reports_api_admin_submit_settings'),
-    );
-    $form['revoke'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Revoke access and logout'),
-      '#description' => t('Revoke your access token from Google Analytics. This action will log you out of your Google Analytics account and stop all reports from displaying on your site.'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['revoke']['revoke_submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Revoke access token'),
-      '#submit' => array('google_analytics_reports_api_admin_submit_revoke'),
-    );
+    return $return;
   }
-
-  return $form;
 }
 
 /**

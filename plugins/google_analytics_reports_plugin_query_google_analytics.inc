@@ -189,6 +189,11 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
       }
     }
 
+    // Change reports profile.
+    if (($this->options['reports_profile']) && (!empty($this->options['profile_id']))) {
+      $query['profile_id'] = $this->options['profile_id'];
+    }
+
     return $query;
   }
 
@@ -268,4 +273,59 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
     $view->build_info['query'] = print_r($feed->results->query, TRUE);
   }
 
+  /**
+   * Definition of views options.
+   */
+  function option_definition() {
+    $options = parent::option_definition();
+
+    // Load profiles list.
+    module_load_include('inc', 'google_analytics_reports_api', 'google_analytics_reports_api.admin');
+    $profile_list = google_analytics_reports_api_profiles_list();
+
+    if ($profile_list) {
+      $options['reports_profile'] = array(
+        'default' => FALSE,
+        'translatable' => FALSE,
+        'bool' => TRUE,
+      );
+      $options['profile_id'] = array(
+        'default' => $profile_list['profile_id'],
+      );
+    }
+
+    return $options;
+  }
+
+  /**
+   * Add settings for the ui.
+   */
+  function options_form(&$form, &$form_state) {
+    parent::options_form($form, $form_state);
+
+    // Load profiles list.
+    module_load_include('inc', 'google_analytics_reports_api', 'google_analytics_reports_api.admin');
+    $profile_list = google_analytics_reports_api_profiles_list();
+
+    if ($profile_list) {
+      $form['reports_profile'] = array(
+        '#title' => t('Use another reports profile'),
+        '#description' => t('This view will use another reports profile rather than system default profile: %profile.', array(
+          '%profile' => theme('google_analytics_reports_api_profile_label',
+            array('profile' => $profile_list['current_profile'])),
+        )),
+        '#type' => 'checkbox',
+        '#default_value' => !empty($this->options['reports_profile']),
+      );
+      $form['profile_id'] = array(
+        '#type' => 'select',
+        '#title' => t('Reports profile'),
+        '#options' => $profile_list['options'],
+        '#description' => t('Choose your Google Analytics profile.'),
+        '#default_value' => $this->options['profile_id'],
+        '#dependency' => array('edit-query-options-reports-profile' => '1'),
+      );
+    }
+
+  }
 }
