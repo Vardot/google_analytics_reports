@@ -108,7 +108,7 @@ function google_analytics_reports_requirements($phase) {
   }
 
   // Warning about using Google Analytics Reports blocks without Ajax loading.
-  if (($phase == 'runtime') && (!module_exists('ajaxblocks'))) {
+  if (($phase == 'runtime') && (module_exists('blocks')) && (!module_exists('ajaxblocks'))) {
     $theme_default = variable_get('theme_default');
     module_load_include('inc', 'block', 'block.admin');
     // List of all blocks.
