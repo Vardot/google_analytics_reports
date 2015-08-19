@@ -167,7 +167,7 @@ function google_analytics_reports_api_report_data($params = array(), $cache_opti
   }
   else {
     drupal_set_message(t('There was an authentication error. Please check your Google Analytics API settings and try again.'), 'error', FALSE);
-    watchdog('google analytics reports api', 'There was an authentication error. Please check your Google Analytics API settings and try again.', WATCHDOG_ERROR);
+    watchdog('google analytics reports api', 'There was an authentication error. Please check your Google Analytics API settings and try again.', array(), WATCHDOG_ERROR);
     return array('error' => TRUE);
   }
 }
