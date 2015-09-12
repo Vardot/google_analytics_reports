@@ -233,8 +233,11 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
   function execute(&$view) {
     // Initial check to see if we should attempt to run the query.
     if (!variable_get('google_analytics_reports_api_access_token', FALSE)) {
-      drupal_set_message(t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.',
-        array('@url' => url('admin/config/system/google-analytics-reports-api'))), 'warning', FALSE);
+      // Optionally do not warn users on every query attempt before auth.
+      if (variable_get('google_analytics_reports_warning', TRUE)) {
+        drupal_set_message(t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.',
+          array('@url' => url('admin/config/system/google-analytics-reports-api'))), 'warning', FALSE);
+      }
       return;
     }
 
