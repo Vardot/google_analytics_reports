@@ -14,8 +14,6 @@ function google_analytics_reports_api_admin() {
 
   // There are no profiles, and we should just leave it at setup.
   if (!$account) {
-    global $base_url;
-
     $setup_help = t('To access data from Google Analytics you have to create a new project in Google Developers Console.');
     $setup_help .= '<ol>';
     $setup_help .= '<li>' . t('Open !google_developers_console.',
@@ -27,7 +25,7 @@ function google_analytics_reports_api_admin() {
     $setup_help .= '<li>' . t('Open <strong>APIs & auth -> APIs</strong> page in created project, search for <strong>Analytics API</strong>, open API page and press <strong>Enable API</strong>.') . '</li>';
     $setup_help .= '<li>' . t('Open <strong>APIs & auth -> Consent screen</strong> page, enter <strong>Product name</strong> and press <strong>Save</strong> button.') . '</li>';
     $setup_help .= '<li>' . t('Open <strong>APIs & auth -> Credentials</strong> page and press <strong>Create new Client ID</strong> button.') . '</li>';
-    $setup_help .= '<li>' . t('Select <strong>Web application</strong> in <strong>Application type</strong>, leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => $base_url . '/admin/config/system/google-analytics-reports-api')) . '</li>';
+    $setup_help .= '<li>' . t('Select <strong>Web application</strong> in <strong>Application type</strong>, leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => url(request_path(), array('absolute' => TRUE)))) . '</li>';
     $setup_help .= '<li>' . t('Copy <strong>Client ID</strong> and <strong>Client secret</strong> from opened page to the form below.') . '</li>';
     $setup_help .= '<li>' . t('Press <strong>Start setup and authorize account</strong> in the form below and allow the project access to Google Analytics data.') . '</li>';
     $setup_help .= '</ol>';
