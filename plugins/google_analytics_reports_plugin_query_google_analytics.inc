@@ -190,7 +190,7 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
     }
 
     // Change reports profile.
-    if (($this->options['reports_profile']) && (!empty($this->options['profile_id']))) {
+    if (isset($this->options['reports_profile']) && (!empty($this->options['profile_id']))) {
       $query['profile_id'] = $this->options['profile_id'];
     }
 
