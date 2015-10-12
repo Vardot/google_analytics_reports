@@ -142,12 +142,12 @@ class GoogleAnalyticsReportsApiFeed {
     }
     else {
       $error_vars = array(
-        '!code' => $this->response->code,
-        '!message' => $this->response->error,
-        '!details' => strip_tags($this->response->data),
+        '@code' => $this->response->code,
+        '@message' => $this->response->error,
+        '@details' => print_r(drupal_json_decode($this->response->data), TRUE),
       );
-      $this->error = t('Code: !code - Error: !message - Message: !details', $error_vars);
-      watchdog('google analytics reports api', 'Code: !code - Error: !message - Message: !details', $error_vars, WATCHDOG_ERROR);
+      $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
+      watchdog('google analytics reports api', '<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars, WATCHDOG_ERROR);
     }
   }
 
@@ -334,10 +334,10 @@ class GoogleAnalyticsReportsApiFeed {
       $error_vars = array(
         '@code' => $this->response->code,
         '@message' => $this->response->error,
-        '@details' => strip_tags($this->response->data),
+        '@details' => print_r(drupal_json_decode($this->response->data), TRUE),
       );
-      $this->error = t('Code: @code, Error: @message, Message: @details', $error_vars);
-      watchdog('google analytics reports api', 'Code: @code, Error: @message, Message: @details', $error_vars, WATCHDOG_ERROR);
+      $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
+      watchdog('google analytics reports api', '<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars, WATCHDOG_ERROR);
     }
   }
 
