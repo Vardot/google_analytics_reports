@@ -124,26 +124,72 @@ function google_analytics_reports_fields_import() {
 /**
  * Save Google Analytics fields from Metadata API to database.
  */
-function google_analytics_reports_fields_save($item, &$context) {
-  $attributes = $item['attributes'];
-  $gaid = str_replace('ga:', '', $item['id']);
-  $data_type = strtolower($attributes['dataType']);
-  // Change data type for Date field.
-  if ($gaid == 'date') {
-    $data_type = 'date';
-  }
+function google_analytics_reports_fields_save($field, &$context) {
+  $attributes = &$field['attributes'];
+  $field['id'] = str_replace('ga:', '', $field['id']);
+  $attributes['type'] = strtolower($attributes['type']);
+  $attributes['dataType'] = strtolower($attributes['dataType']);
+  $attributes['status'] = strtolower($attributes['status']);
+  $attributes['description'] = isset($attributes['description']) ? $attributes['description'] : '';
+  $attributes['calculation'] = isset($attributes['calculation']) ? $attributes['calculation'] : NULL;
+
+  // Allow other modules to alter Google Analytics fields before saving
+  // in database.
+  drupal_alter('google_analytics_reports_field_import', $field);
+
   db_insert('google_analytics_reports_fields')
     ->fields(array(
-      'gaid' => $gaid,
-      'type' => strtolower($attributes['type']),
-      'data_type' => $data_type,
+      'gaid' => $field['id'],
+      'type' => $attributes['type'],
+      'data_type' => $attributes['dataType'],
       'column_group' => $attributes['group'],
       'ui_name' => $attributes['uiName'],
-      'description' => ($attributes['description']) ? $attributes['description'] : '',
-      'calculation' => !empty($attributes['calculation']) ? $attributes['calculation'] : NULL,
+      'description' => $attributes['description'],
+      'calculation' => $attributes['calculation'],
     ))
     ->execute();
-  $context['results'][] = $item['id'];
+  $context['results'][] = $field['id'];
+}
+
+/**
+ * Implements hook_google_analytics_reports_field_import_alter().
+ */
+function google_analytics_reports_google_analytics_reports_field_import_alter(&$field) {
+  // Change data type for Date field.
+  if ($field['id'] == 'date') {
+    $field['attributes']['dataType'] = 'date';
+  }
+}
+
+/**
+ * Implements hook_google_analytics_reports_api_reported_data_alter().
+ */
+function google_analytics_reports_google_analytics_reports_api_reported_data_alter(&$name, &$value) {
+  // Get all Google Analytics fields.
+  $fields = google_analytics_reports_get_fields();
+
+  // Date and time datatypes should not have the digits after the zero.
+  if (in_array($fields[$name]->data_type, array('date', 'time'))) {
+    $value = round($value);
+  }
+
+  switch ($name) {
+    case 'userType':
+      $value = ($value == 'New Visitor') ? t('New Visitor') : t('Returning Visitor');
+      break;
+
+    case 'date':
+      $value = strtotime($value);
+      break;
+
+    case 'yearMonth':
+      $value = strtotime($value . '01');
+      break;
+
+    case 'userGender':
+      $value = ($value == 'male') ? t('Male') : t('Female');
+      break;
+  }
 }
 
 /**

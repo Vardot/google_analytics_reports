@@ -487,25 +487,16 @@ class GoogleAnalyticsReportsApiFeed {
    * Sanitize report data.
    */
   protected function sanitizeReport() {
-    // Get all Google Analytics fields.
-    // TODO: Replace with custom hook.
-    if (module_exists('google_analytics_reports')) {
-      $fields = google_analytics_reports_get_fields();
-    }
-
     // Named keys for report values.
     $this->results->rawRows = isset($this->results->rows) ? $this->results->rows : array();
     $this->results->rows = array();
     foreach ($this->results->rawRows as $row_key => $row_value) {
       foreach ($row_value as $item_key => $item_value) {
         $field_without_ga = str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name);
-        $item_value = $this->replaceData($field_without_ga, $item_value);
 
-        // Date and time datatypes should not have the digits after the zero.
-        // TODO: Replace with custom hook.
-        if (module_exists('google_analytics_reports') && in_array($fields[$field_without_ga]->data_type, array('date', 'time'))) {
-          $item_value = round($item_value);
-        }
+        // Allow other modules to alter executed data before display.
+        drupal_alter('google_analytics_reports_api_reported_data', $field_without_ga, $item_value);
+
         $this->results->rows[$row_key][$field_without_ga] = $item_value;
       }
     }
@@ -520,26 +511,4 @@ class GoogleAnalyticsReportsApiFeed {
     unset($this->results->rawTotals);
   }
 
-  /**
-   * Addition replacements.
-   */
-  public function replaceData($type, $value) {
-
-    switch ($type) {
-      case 'userType':
-        return ($value == 'New Visitor') ? t('New Visitor') : t('Returning Visitor');
-
-      case 'date':
-        return strtotime($value);
-
-      case 'yearMonth':
-        return strtotime($value . '01');
-
-      case 'userGender':
-        return ($value == 'male') ? t('Male') : t('Female');
-
-      default:
-        return $value;
-    }
-  }
 }
