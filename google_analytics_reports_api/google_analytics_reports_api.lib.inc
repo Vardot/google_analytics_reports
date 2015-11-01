@@ -275,6 +275,7 @@ class GoogleAnalyticsReportsApiFeed {
     // Provide cache defaults if a developer did not override them.
     $cache_defaults = array(
       'cid' => NULL,
+      'bin' => 'cache',
       'expire' => google_analytics_reports_api_cache_time(),
       'refresh' => FALSE,
     );
@@ -285,7 +286,7 @@ class GoogleAnalyticsReportsApiFeed {
       $cache_options['cid'] = 'GoogleAnalyticsReportsApiFeed:' . md5(serialize(array_merge($params, array($url, $method))));
     }
 
-    $cache = cache_get($cache_options['cid']);
+    $cache = cache_get($cache_options['cid'], $cache_options['bin']);
 
     if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data)) {
       $this->response = $cache->data;
@@ -297,7 +298,7 @@ class GoogleAnalyticsReportsApiFeed {
     }
 
     if (empty($this->error)) {
-      cache_set($cache_options['cid'], $this->response, 'cache', $cache_options['expire']);
+      cache_set($cache_options['cid'], $this->response, $cache_options['bin'], $cache_options['expire']);
     }
 
     return (empty($this->error));
