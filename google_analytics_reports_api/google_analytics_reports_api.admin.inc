@@ -81,7 +81,10 @@ function google_analytics_reports_api_admin() {
       '#default_value' => $profile_list['profile_id'],
       '#description' => t('Choose your Google Analytics profile.  The currently active profile is: %profile.', array(
         '%profile' => theme('google_analytics_reports_api_profile_label',
-          array('profile' => $profile_list['current_profile'])),
+          array(
+            'profile' => $profile_list['current_profile'],
+            'active' => TRUE,
+          )),
       )),
     );
 

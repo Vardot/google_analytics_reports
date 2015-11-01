@@ -321,7 +321,10 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
         '#title' => t('Use another reports profile'),
         '#description' => t('This view will use another reports profile rather than system default profile: %profile.', array(
           '%profile' => theme('google_analytics_reports_api_profile_label',
-            array('profile' => $profile_list['current_profile'])),
+            array(
+              'profile' => $profile_list['current_profile'],
+              'active' => TRUE,
+            )),
         )),
         '#type' => 'checkbox',
         '#default_value' => !empty($this->options['reports_profile']),

@@ -55,6 +55,7 @@ function google_analytics_reports_api_theme() {
     'google_analytics_reports_api_profile_label' => array(
       'arguments' => array(
         'profile' => NULL,
+        'active' => FALSE,
       ),
     ),
   );
@@ -206,7 +207,12 @@ function google_analytics_reports_api_cache_time() {
  * @ingroup themeable
  */
 function theme_google_analytics_reports_api_profile_label($variables) {
-  return $variables['profile']->name . ' (' . $variables['profile']->id . ')';
+  if (isset($variables['active']) && ($variables['active'])) {
+    return parse_url($variables['profile']->websiteUrl, PHP_URL_HOST) . ' - ' . $variables['profile']->name . ' (' . $variables['profile']->id . ')';
+  }
+  else {
+    return $variables['profile']->name . ' (' . $variables['profile']->id . ')';
+  }
 }
 
 /**
