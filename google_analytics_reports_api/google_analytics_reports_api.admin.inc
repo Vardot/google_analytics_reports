@@ -145,6 +145,7 @@ function google_analytics_reports_api_profiles_list() {
     $profiles = $account->queryProfiles()->results->items;
     $options = array();
     $profile_id = variable_get('google_analytics_reports_api_profile_id', 0);
+    $google_analytics_account = variable_get('googleanalytics_account');
     $set_default = FALSE;
 
     // Add optgroups for each web property.
@@ -159,10 +160,18 @@ function google_analytics_reports_api_profiles_list() {
         }
 
         $options[$web_property->name][$profile->id] = theme('google_analytics_reports_api_profile_label', array('profile' => $profile));
-        // Rough attempt to see if the current site is in the account list.
-        if (empty($profile_id) && (parse_url($web_property->websiteUrl, PHP_URL_PATH) == $_SERVER['HTTP_HOST'])) {
-          $profile_id = $profile->id;
-          $set_default = TRUE;
+        // Find current site in the account list.
+        if (empty($profile_id)) {
+          // If Google Analytics module is enabled check it first.
+          if (isset($google_analytics_account) && ($google_analytics_account == $profile->webPropertyId)) {
+            $profile_id = $profile->id;
+            $set_default = TRUE;
+          }
+          // Rough attempt to see if the current site is in the account list.
+          elseif (parse_url($web_property->websiteUrl, PHP_URL_HOST) == $_SERVER['HTTP_HOST']) {
+            $profile_id = $profile->id;
+            $set_default = TRUE;
+          }
         }
       }
     }
