@@ -128,6 +128,14 @@ function google_analytics_reports_requirements($phase) {
   return $requirements;
 }
 
+/**
+ * Implements hook_uninstall().
+ */
+function google_analytics_reports_uninstall() {
+  // Delete module variables.
+  variable_del('google_analytics_reports_metadata_etag');
+  variable_del('google_analytics_reports_metadata_last_time');
+}
 
 /**
  * Divide start_end filter into two start_date and end_date filters.
