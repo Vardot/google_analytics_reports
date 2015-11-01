@@ -169,7 +169,7 @@ function google_analytics_reports_google_analytics_reports_api_reported_data_alt
   $fields = google_analytics_reports_get_fields();
 
   // Date and time datatypes should not have the digits after the zero.
-  if (in_array($fields[$name]->data_type, array('date', 'time'))) {
+  if ((isset($fields[$name])) && (in_array($fields[$name]->data_type, array('date', 'time')))) {
     $value = round($value);
   }
 
