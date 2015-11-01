@@ -283,7 +283,7 @@ class GoogleAnalyticsReportsApiFeed {
 
     // Provide a query MD5 for the cid if the developer did not provide one.
     if (empty($cache_options['cid'])) {
-      $cache_options['cid'] = 'GoogleAnalyticsReportsApiFeed:' . md5(serialize(array_merge($params, array($url, $method))));
+      $cache_options['cid'] = 'google_analytics_reports_data:' . md5(serialize(array_merge($params, array($url, $method))));
     }
 
     $cache = cache_get($cache_options['cid'], $cache_options['bin']);
