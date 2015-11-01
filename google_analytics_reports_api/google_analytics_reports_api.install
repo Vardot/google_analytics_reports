@@ -43,9 +43,19 @@ function google_analytics_reports_api_install() {
  */
 function google_analytics_reports_api_uninstall() {
   // Delete module variables.
-  db_delete('variable')
-    ->condition('name', 'google_analytics_reports_api_%', 'LIKE')
-    ->execute();
+  variable_del('google_analytics_reports_api_access_token');
+  variable_del('google_analytics_reports_api_cache_length');
+  variable_del('google_analytics_reports_api_client_id');
+  variable_del('google_analytics_reports_api_client_secret');
+  variable_del('google_analytics_reports_api_default_page');
+  variable_del('google_analytics_reports_api_expires_at');
+  variable_del('google_analytics_reports_api_profile_id');
+  variable_del('google_analytics_reports_api_redirect_uri');
+  variable_del('google_analytics_reports_api_refresh_token');
+  // From old version.
+  variable_del('google_analytics_reports_api_hd');
+  variable_del('google_analytics_reports_api_oauth_token');
+  variable_del('google_analytics_reports_api_oauth_token_secret');
 }
 
 /**
