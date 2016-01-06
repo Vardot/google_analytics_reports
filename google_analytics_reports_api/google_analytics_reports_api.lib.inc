@@ -288,7 +288,7 @@ class GoogleAnalyticsReportsApiFeed {
 
     $cache = cache_get($cache_options['cid'], $cache_options['bin']);
 
-    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data)) {
+    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > REQUEST_TIME)) {
       $this->response = $cache->data;
       $this->results = json_decode($this->response->data);
       $this->fromCache = TRUE;
