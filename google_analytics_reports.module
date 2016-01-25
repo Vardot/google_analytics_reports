@@ -282,7 +282,7 @@ function google_analytics_reports_custom_to_variable_field($field, $number) {
  * Converts a specific field name into a base custom field name.
  */
 function google_analytics_reports_variable_to_custom_field($field) {
-  return preg_replace('/\d/', 'XX', $field);
+  return preg_replace('/\d+/', 'XX', $field);
 }
 
 /**
