@@ -251,35 +251,44 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
     $count_feed = google_analytics_reports_api_report_data($count_query);
 
     // Process only if data is available.
-    if (empty($count_feed->results->rows)) {
-      return;
+    if (!empty($count_feed->results->rows)) {
+      $this->pager->total_items = count($count_feed->results->rows);
+      $this->pager->update_page_info();
+
+      // Adjust based on the pager's modifications to limit and offset.
+      if (!empty($this->limit) || !empty($this->offset)) {
+        $query['max_results'] = intval(!empty($this->limit) ? $this->limit : 1000);
+        $query['start_index'] = intval(!empty($this->offset) ? $this->offset : 0) + 1;
+      }
+
+      $feed = google_analytics_reports_api_report_data($query);
+
+      $rows = $feed->results->rows;
+      foreach ($rows as $row) {
+        $views_result[] = (object) $row;
+      }
+
+      $view->result = isset($views_result) ? $views_result : array();
+      $view->execute_time = microtime(TRUE) - $start;
+      if ($this->pager->use_pager()) {
+        $view->total_rows = $this->pager->get_total_items();
+      }
+
+      // Add to build_info['query'] to render query in Views UI query summary
+      // area.
+      $view->build_info['query'] = print_r($feed->results->query, TRUE);
+    }
+    else {
+      // Set empty query instead of current query array to prevent error
+      // in Views UI.
+      $view->build_info['query'] = '';
+      // Display the error from Google.
+      $response_data = drupal_json_decode($count_feed->response->data);
+      if (isset($response_data['error']['message'])) {
+        drupal_set_message($response_data['error']['message'], 'error');
+      }
     }
 
-    $this->pager->total_items = count($count_feed->results->rows);
-    $this->pager->update_page_info();
-
-    // Adjust based on the pager's modifications to limit and offset.
-    if (!empty($this->limit) || !empty($this->offset)) {
-      $query['max_results'] = intval(!empty($this->limit) ? $this->limit : 1000);
-      $query['start_index'] = intval(!empty($this->offset) ? $this->offset : 0) + 1;
-    }
-
-    $feed = google_analytics_reports_api_report_data($query);
-
-    $rows = $feed->results->rows;
-    foreach ($rows as $row) {
-      $views_result[] = (object) $row;
-    }
-
-    $view->result = isset($views_result) ? $views_result : array();
-    $view->execute_time = microtime(TRUE) - $start;
-    if ($this->pager->use_pager()) {
-      $view->total_rows = $this->pager->get_total_items();
-    }
-
-    // Add to build_info['query'] to render query in Views UI query summary
-    // area.
-    $view->build_info['query'] = print_r($feed->results->query, TRUE);
   }
 
   /**
