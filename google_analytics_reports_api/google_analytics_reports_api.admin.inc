@@ -21,11 +21,15 @@ function google_analytics_reports_api_admin() {
           '!google_developers_console' => l(t('Google Developers Console'), 'https://console.developers.google.com',
             array('attributes' => array('target' => '_blank'))),
         )) . '</li>';
-    $setup_help .= '<li>' . t('Press <strong>Create Project</strong> button, enter project name and press <strong>Create</strong>.') . '</li>';
-    $setup_help .= '<li>' . t('Open <strong>APIs & auth -> APIs</strong> page in created project, search for <strong>Analytics API</strong>, open API page and press <strong>Enable API</strong>.') . '</li>';
-    $setup_help .= '<li>' . t('Open <strong>APIs & auth -> Consent screen</strong> page, enter <strong>Product name</strong> and press <strong>Save</strong> button.') . '</li>';
-    $setup_help .= '<li>' . t('Open <strong>APIs & auth -> Credentials</strong> page and press <strong>Create new Client ID</strong> button.') . '</li>';
-    $setup_help .= '<li>' . t('Select <strong>Web application</strong> in <strong>Application type</strong>, leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => url(request_path(), array('absolute' => TRUE)))) . '</li>';
+    $setup_help .= '<li>' . t('Along the toolbar click the pull down arrow and the press <strong>Create a Project</strong> button, enter project name and press <strong>Create</strong>.') . '</li>';
+    $setup_help .= '<li>' . t('Click <strong>Enable and manage APIs</strong>.') . '</li>';
+    $setup_help .= '<li>' . t('In the search box type <strong>Analytics</strong> and then press <strong>Analytics API</strong>, this opens the API page, press <strong>Enable</strong>.') . '</li>';
+    $setup_help .= '<li>' . t('Click on <strong>Go to Credentials</strong>') . '</li>';
+    $setup_help .= '<li>' . t('Under <strong>Where will you be calling the API from?</strong> select <strong>Web Browser Javascript</strong> and then select <strong>User Data</strong>') . '</li>';
+    $setup_help .= '<li>' . t('Hit <strong>What credentials do I need</strong>, edit the name if necessary.') . '</li>';
+    $setup_help .= '<li>' . t('Leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => url(request_path(), array('absolute' => TRUE)))) . '</li>';
+    $setup_help .= '<li>' . t('Type a Product name to show to users and hit <strong>Continue</strong> and then <strong>Done</strong>') . '</li>';
+    $setup_help .= '<li>' . t('Click on the name of your new client ID to be shown both the <strong>Client ID</strong> and <strong>Client Secret</strong>.') . '</li>';
     $setup_help .= '<li>' . t('Copy <strong>Client ID</strong> and <strong>Client secret</strong> from opened page to the form below.') . '</li>';
     $setup_help .= '<li>' . t('Press <strong>Start setup and authorize account</strong> in the form below and allow the project access to Google Analytics data.') . '</li>';
     $setup_help .= '</ol>';
