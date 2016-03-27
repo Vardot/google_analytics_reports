@@ -242,3 +242,25 @@ function google_analytics_reports_api_domain_conf() {
 
   return $form;
 }
+
+/**
+ * No overlay for config page.
+ *
+ * Implements hook_admin_paths()
+ */
+function google_analytics_reports_admin_paths() {
+  return array(
+    'admin/config/system/google-analytics-reports-api' => FALSE,
+  );
+}
+
+/**
+ * However config page should still use the admin theme.
+ *
+ * Implements hook_custom_theme().
+ */
+function google_analytics_reports_custom_theme() {
+  if ('admin/config/system/google-analytics-reports-api' == current_path()) {
+    return variable_get('admin_theme', 'seven');
+  }
+}
