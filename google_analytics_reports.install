@@ -13,6 +13,9 @@ function google_analytics_reports_install() {
     ->fields(array('weight' => 11))
     ->condition('name', 'google_analytics_reports', '=')
     ->execute();
+
+  // Import Google Analytics fields.
+  google_analytics_reports_fields_import();
 }
 
 /**
@@ -87,12 +90,6 @@ function google_analytics_reports_requirements($phase) {
   $requirements = array();
   // Ensure translations don't break during installation.
   $t = get_t();
-
-  // Import Google Analytics fields.
-  if ($phase == 'install') {
-    module_load_include('module', 'google_analytics_reports');
-    google_analytics_reports_fields_import();
-  }
 
   // Do not install module if old Google Analytics Reports Views module
   // is exists.
