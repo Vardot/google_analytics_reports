@@ -1,8 +1,0 @@
-name = Google Analytics Reports API
-package = Statistics
-description = API to access statistics from the <a href="https://developers.google.com/analytics/devguides/reporting/core/v3/">Google Analytics Core Reporting API</a>.
-core = 7.x
-
-files[] = google_analytics_reports_api.lib.inc
-
-configure = admin/config/system/google-analytics-reports-api
