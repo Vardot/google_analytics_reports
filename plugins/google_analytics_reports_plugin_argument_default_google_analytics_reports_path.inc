@@ -17,6 +17,6 @@ class google_analytics_reports_plugin_argument_default_google_analytics_reports_
    */
   public function get_argument() {
     // Decode urls, that might appear due to browsers particularities.
-    return check_plain(urldecode(request_uri()));
+    return urldecode(request_uri());
   }
 }

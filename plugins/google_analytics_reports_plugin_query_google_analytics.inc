@@ -285,7 +285,7 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
       // Display the error from Google.
       $response_data = drupal_json_decode($count_feed->response->data);
       if (isset($response_data['error']['message'])) {
-        drupal_set_message($response_data['error']['message'], 'error');
+        drupal_set_message(check_plain($response_data['error']['message']), 'error');
       }
     }
 
