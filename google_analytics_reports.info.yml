@@ -3,6 +3,7 @@ type: module
 description: 'Display statistics from Google Analytics using Views.'
 package: Statistics
 core: 8.x
+configure: google_analytics_reports_api.settings
 dependencies:
   - google_analytics_reports_api
 
