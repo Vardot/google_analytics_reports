@@ -94,7 +94,6 @@ function google_analytics_reports_requirements($phase) {
   // Do not install module if old Google Analytics Reports Views module
   // is exists.
   if (($phase == 'install') || ($phase == 'runtime')) {
-    module_load_include('inc', 'content', 'includes/module');
     if (module_exists('google_analytics_reports_views')) {
       $requirements['google_analytics_reports_views'] = array(
         'title' => $t('Google Analytics Reports'),
