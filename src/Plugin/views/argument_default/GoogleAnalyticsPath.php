@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports\Plugin\views\argument_default\GoogleAnalyticsPath.
- */
 
 namespace Drupal\google_analytics_reports\Plugin\views\argument_default;
 

@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports\Plugin\views\wizard\
- * GoogleAnalyticsWizard.
- */
 
 namespace Drupal\google_analytics_reports\Plugin\views\wizard;
 

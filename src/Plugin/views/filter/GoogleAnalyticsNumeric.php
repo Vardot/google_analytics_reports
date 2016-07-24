@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports\Plugin\views\filter\GoogleAnalyticsNumeric.
- */
 
 namespace Drupal\google_analytics_reports\Plugin\views\filter;
 use Drupal\Component\Utility\Html;

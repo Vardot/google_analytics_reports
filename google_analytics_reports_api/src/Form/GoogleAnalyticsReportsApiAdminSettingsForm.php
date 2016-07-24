@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports_api\Form\GoogleAnalyticsReportsApi
- * AdminSettingsForm.
- */
 
 namespace Drupal\google_analytics_reports_api\Form;
 

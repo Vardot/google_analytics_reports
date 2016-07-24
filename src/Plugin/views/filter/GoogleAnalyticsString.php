@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports\Plugin\views\filter\GoogleAnalyticsString.
- */
 
 namespace Drupal\google_analytics_reports\Plugin\views\filter;
 

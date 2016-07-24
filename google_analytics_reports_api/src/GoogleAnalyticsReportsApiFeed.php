@@ -1,13 +1,5 @@
 <?php
 
-/**
- * @file
- * Google Analytics Reports API Feed.
- *
- * Provides the Google Analytics Reports API Feed object type
- * and associated methods.
- */
-
 namespace Drupal\google_analytics_reports_api;
 
 use Drupal\Core\Url;
