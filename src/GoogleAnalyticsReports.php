@@ -24,32 +24,34 @@ class GoogleAnalyticsReports {
    * @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/devguide#etag
    */
   public static function checkUpdates() {
-    $etag_old = \Drupal::config('google_analytics_reports.settings')->get('metadata_etag');
+    if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE != 'install' &&  MAINTENANCE_MODE != 'update') {
+      $etag_old = \Drupal::config('google_analytics_reports.settings')->get('metadata_etag');
 
-    try {
-      $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl . '?fields=etag', ['timeout' => 2.0]);
-    }
-    catch (RequestException $e) {
-      \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
-      return;
-    }
-
-    if ($response->getStatusCode() == 200) {
-      $data = $response->getBody()->getContents();
-      if (empty($data)) {
-        \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions. Received empty content.');
+      try {
+        $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl . '?fields=etag', ['timeout' => 2.0]);
+      }
+      catch (RequestException $e) {
+        \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
         return;
       }
-      $data = json_decode($data, TRUE);
-      if ($etag_old == $data['etag']) {
-        drupal_set_message(t('All Google Analytics fields is up to date.'));
+
+      if ($response->getStatusCode() == 200) {
+        $data = $response->getBody()->getContents();
+        if (empty($data)) {
+          \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions. Received empty content.');
+          return;
+        }
+        $data = json_decode($data, TRUE);
+        if ($etag_old == $data['etag']) {
+          drupal_set_message(t('All Google Analytics fields is up to date.'));
+        }
+        else {
+          drupal_set_message(t('New Google Analytics fields has been found. Press "Import fields" button to update Google Analytics fields.'));
+        }
       }
       else {
-        drupal_set_message(t('New Google Analytics fields has been found. Press "Import fields" button to update Google Analytics fields.'));
+        drupal_set_message(t('An error has occurred: @error.', ['@error' => $response->getStatusCode()]), 'error');
       }
-    }
-    else {
-      drupal_set_message(t('An error has occurred: @error.', ['@error' => $response->getStatusCode()]), 'error');
     }
   }
 
@@ -59,59 +61,61 @@ class GoogleAnalyticsReports {
    * @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/
    */
   public static function importFields() {
-    try {
-      $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl, ['timeout' => 2.0]);
-    }
-    catch (RequestException $e) {
-      \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
-      return;
-    }
-    if ($response->getStatusCode() == 200) {
-      $data = $response->getBody()->getContents();
-      if (empty($data)) {
-        \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions. Received empty content.');
+    if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE != 'install' &&  MAINTENANCE_MODE != 'update') {
+      try {
+        $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl, ['timeout' => 2.0]);
+      }
+      catch (RequestException $e) {
+        \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
         return;
       }
-      $data = json_decode($data, TRUE);
-      // Remove old fields.
-      if (\Drupal::database()->schema()->tableExists('google_analytics_reports_fields')) {
-        \Drupal::database()->truncate('google_analytics_reports_fields')
-          ->execute();
-      }
-      $google_analytics_reports_settings = \Drupal::config('google_analytics_reports.settings')->get();
-      // Save current time as last executed time.
-      $google_analytics_reports_settings['metadata_last_time'] = REQUEST_TIME;
-      // Save etag identifier. It is used to check updates for the fields.
-      // @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/devguide#etag
-      if (!empty($data['etag'])) {
-        $google_analytics_reports_settings['metadata_etag'] = $data['etag'];
-      }
-
-      \Drupal::configFactory()->getEditable('google_analytics_reports.settings')
-        ->setData($google_analytics_reports_settings)
-        ->save();
-
-      if (!empty($data['items'])) {
-        $operations = [];
-        foreach ($data['items'] as $item) {
-          // Do not import deprecated fields.
-          if ($item['attributes']['status'] == 'PUBLIC') {
-            $operations[] = [
-              [GoogleAnalyticsReports::class, 'saveFields'],
-              [$item],
-            ];
-          }
+      if ($response->getStatusCode() == 200) {
+        $data = $response->getBody()->getContents();
+        if (empty($data)) {
+          \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions. Received empty content.');
+          return;
         }
-        $batch = [
-          'operations' => $operations,
-          'title' => t('Importing Google Analytics fields'),
-          'finished' => [GoogleAnalyticsReports::class, 'importFieldsFinished'],
-        ];
-        batch_set($batch);
+        $data = json_decode($data, TRUE);
+        // Remove old fields.
+        if (\Drupal::database()->schema()->tableExists('google_analytics_reports_fields')) {
+          \Drupal::database()->truncate('google_analytics_reports_fields')
+            ->execute();
+        }
+        $google_analytics_reports_settings = \Drupal::config('google_analytics_reports.settings')->get();
+        // Save current time as last executed time.
+        $google_analytics_reports_settings['metadata_last_time'] = REQUEST_TIME;
+        // Save etag identifier. It is used to check updates for the fields.
+        // @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/devguide#etag
+        if (!empty($data['etag'])) {
+          $google_analytics_reports_settings['metadata_etag'] = $data['etag'];
+        }
+
+        \Drupal::configFactory()->getEditable('google_analytics_reports.settings')
+          ->setData($google_analytics_reports_settings)
+          ->save();
+
+        if (!empty($data['items'])) {
+          $operations = [];
+          foreach ($data['items'] as $item) {
+            // Do not import deprecated fields.
+            if ($item['attributes']['status'] == 'PUBLIC') {
+              $operations[] = [
+                [GoogleAnalyticsReports::class, 'saveFields'],
+                [$item],
+              ];
+            }
+          }
+          $batch = [
+            'operations' => $operations,
+            'title' => t('Importing Google Analytics fields'),
+            'finished' => [GoogleAnalyticsReports::class, 'importFieldsFinished'],
+          ];
+          batch_set($batch);
+        }
       }
-    }
-    else {
-      drupal_set_message(t('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->getStatusCode()]), 'error');
+      else {
+        drupal_set_message(t('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->getStatusCode()]), 'error');
+      }
     }
   }
 
