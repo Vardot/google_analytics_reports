@@ -1,11 +1,15 @@
 <?php
+/**
+ * @file
+ * Contains \Drupal\google_analytics_reports\Plugin\views\query\GoogleAnalyticsQuery.
+ */
 
 namespace Drupal\google_analytics_reports\Plugin\views\query;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -307,7 +311,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     // Initial check to see if we should attempt to run the query.
     if (!$this->configFactory->get('google_analytics_reports_api.settings')->get('access_token')) {
       // Optionally do not warn users on every query attempt before auth.
-      drupal_set_message(t('You must @link Drupal to use your Google Analytics account before you can view reports.', ['@link' => Link::createFromRoute('Authorize', 'google_analytics_reports_api.settings')]));
+      drupal_set_message(t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
       return;
     }
 
