@@ -38,6 +38,7 @@ INSTALLATION
    sites/all/modules directory as usual. See https://www.drupal.org/documentati
    on/install/modules-themes/modules-7 for details.
 
+
 CONFIGURATION
 -------------
 Configuration of Google Analytics Reports API module:
@@ -76,6 +77,7 @@ Note that Google has a moderately strict Quota Policy https://developers.google
 .com/analytics/devguides/reporting/core/v3/limits-quotas#core_reporting. To aid
 with this limitation, this module caches query results for a time that you
 specify in the admin settings. Our recommendation is at least three days.
+
 
 CREDITS
 -------
