@@ -5,5 +5,4 @@ package: Statistics
 core: 8.x
 configure: google_analytics_reports_api.settings
 dependencies:
-  - google_analytics_reports_api
-
+  - google_analytics_reports:google_analytics_reports_api
