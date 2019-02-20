@@ -41,25 +41,55 @@ INSTALLATION
 
 CONFIGURATION
 -------------
-Configuration of Google Analytics Reports API module:
-1.  Open Google Developers Console https://console.developers.google.com.
-2.  Press "Create Project" button, enter project name and press "Create".
-3.  Open "APIs & auth" -> "APIs" page in created project, search for
-    "Analytics API", open API page and press "Enable API".
-4.  Open "APIs & auth" -> "Consent screen" page, enter "Product name" and press
-    "Save" button.
-5.  Open "APIs & auth" -> "Credentials" page and press "Create new Client ID"
-    button.
-6.  Select "Web application in Application type", leave empty "Authorized
-    JavaScript origins", fill in "Authorized redirect URIs" with
-    "http://YOURSITEDOMAIN/admin/config/system/google-analytics-reports-api"
-    and press "Create Client ID" button.
-7.  Go to "admin/config/system/google-analytics-reports-api" page.
-8.  Copy "Client ID" and "Client secret" from opened Google Console page into
-    your google-analytics-reports-api page.
-9.  Press "Start setup and authorize" account and allow the project access
-    to Google Analytics data.
-10. Select reports profile for which you want to see the reports.
+Configuration of Google Analytics Reports API module.
+
+Before you can get the credentials you may need to create a new
+project and enable the analytics API for it:
+
+ 1. Open Google Developers Console:
+    https://console.developers.google.com.
+    Log in to you Google account if required.
+ 2. This will take you to a screen to manage your Google analytics
+    APIs. In the top bar there will be a menu to select an API project
+    (if you have one), and to create a new project. Click on the
+    down-triangle of the menu.
+ 3. This will produce a modal pop-up. To create a new project, click
+    on the plus (+) sign.
+ 4. Give the project a name and press "Create".
+ 5. Make this the active project.
+ 6. Use the hamburger menu to select API & Services » Library Filter
+    on "Analytics". Select "Analytics API"
+ 7. Press "Enable",
+
+Then get the credentials:
+
+ 8. Use the hamburger menu to select API & Services » Credentials.
+ 9. Click the pull-down menu "Create credentials". Select "Help me
+    choose".
+10. Under "What API are you using", select "Analytics API". (If this
+    option does not appear, you have not yet enabled this API for this
+    project, see steps 6 and 7 above).
+11. Under "Where will you be calling the API from?" select "Web
+    Browser (Javascript)". Under "What data will you be accessing?",
+    select "User Data".
+12. Press "What credentials do I need?" and edit the name if
+    necessary.
+13. Leave empty "Authorized JavaScript origins".
+14. Fill in "Authorized redirect URIs" with
+    "http://YOURSITEDOMAIN/admin/config/services/google-analytics-reports-api".
+    Replace  "YOURSITEDOMAIN" with the base URL of your site.
+15. Press "Create Client ID"-button.
+16. Type a product name to show to users and hit "Continue" and then
+    "Done".
+17. Use the hamburger menu to select API & Services » Credentials.
+18. Click on the name of your new client ID to be shown both the
+    "Client ID" and "Client Secret".
+
+On the Drupal site navigate to "Configuration » System » Google
+Analytics Reports API" and copy "Client ID" and "Client secret" from
+the Google Developers console into the fields. Press "Start setup and
+authorize account" to allow the project access to Google Analytics
+data.
 
 Configuration of Google Analytics Reports module:
 1. Configure Google Analytics Reports API module first.
