@@ -342,9 +342,9 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $views_result = [];
       $count = 0;
       foreach ($rows as $row) {
-        $count++;
         $row['index'] = $count;
         $views_result[] = new ResultRow($row);
+        $count++;
       }
 
       $view->result = isset($views_result) ? $views_result : [];
