@@ -24,7 +24,7 @@ class GoogleAnalyticsReports {
    * @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/devguide#etag
    */
   public static function checkUpdates() {
-    if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE != 'install' &&  MAINTENANCE_MODE != 'update') {
+    if (!defined('MAINTENANCE_MODE')) {
       $etag_old = \Drupal::config('google_analytics_reports.settings')->get('metadata_etag');
 
       try {
@@ -61,7 +61,7 @@ class GoogleAnalyticsReports {
    * @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/
    */
   public static function importFields() {
-    if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE != 'install' &&  MAINTENANCE_MODE != 'update') {
+    if (!defined('MAINTENANCE_MODE')) {
       try {
         $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl, ['timeout' => 2.0]);
       }
