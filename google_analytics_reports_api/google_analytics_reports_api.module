@@ -43,7 +43,7 @@ function google_analytics_reports_api_gafeed() {
         return $google_analytics_reports_api_feed;
       }
       catch (\Exception $e) {
-        drupal_set_message(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
+        \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
         \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
         return NULL;
       }
@@ -65,13 +65,13 @@ function google_analytics_reports_api_gafeed() {
             ->clear('redirect_uri')
             ->save();
 
-          drupal_set_message(t('You have been successfully authenticated.'));
+          \Drupal::messenger()->addMessage(t('You have been successfully authenticated.'));
 
           $response = new CacheableRedirectResponse(Url::fromUri($redirect_uri)->toString());
           $response->send();
         }
         catch (Exception $e) {
-          drupal_set_message(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
+          \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
           \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
           return NULL;
         }
@@ -122,7 +122,7 @@ function google_analytics_reports_api_report_data($params = [], $cache_options =
     return $ga_feed;
   }
   else {
-    drupal_set_message(t('There was an authentication error. Please check your Google Analytics API settings and try again.'), 'error', FALSE);
+    \Drupal::messenger()->addMessage(t('There was an authentication error. Please check your Google Analytics API settings and try again.'), 'error', FALSE);
     \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Please check your Google Analytics API settings and try again.');
     return ['error' => TRUE];
   }

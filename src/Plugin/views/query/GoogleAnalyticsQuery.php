@@ -311,7 +311,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     // Initial check to see if we should attempt to run the query.
     if (!$this->configFactory->get('google_analytics_reports_api.settings')->get('access_token')) {
       // Optionally do not warn users on every query attempt before auth.
-      drupal_set_message(t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
+      $this->messenger->addMessage(t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
       return;
     }
 
@@ -365,7 +365,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       if (!empty($count_feed->response->data)) {
         $response_data = json_decode($count_feed->response->data);
         if (isset($response_data['error']['message'])) {
-          drupal_set_message(Html::escape($response_data['error']['message']), 'error');
+          $this->messenger->addMessage(Html::escape($response_data['error']['message']), 'error');
         }
       }
     }

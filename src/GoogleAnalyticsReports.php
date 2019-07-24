@@ -43,14 +43,14 @@ class GoogleAnalyticsReports {
         }
         $data = json_decode($data, TRUE);
         if ($etag_old == $data['etag']) {
-          drupal_set_message(t('All Google Analytics fields is up to date.'));
+          \Drupal::messenger()->addMessage(t('All Google Analytics fields is up to date.'));
         }
         else {
-          drupal_set_message(t('New Google Analytics fields has been found. Press "Import fields" button to update Google Analytics fields.'));
+          \Drupal::messenger()->addMessage(t('New Google Analytics fields has been found. Press "Import fields" button to update Google Analytics fields.'));
         }
       }
       else {
-        drupal_set_message(t('An error has occurred: @error.', ['@error' => $response->getStatusCode()]), 'error');
+        \Drupal::messenger()->addMessage(t('An error has occurred: @error.', ['@error' => $response->getStatusCode()]), 'error');
       }
     }
   }
@@ -114,7 +114,7 @@ class GoogleAnalyticsReports {
         }
       }
       else {
-        drupal_set_message(t('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->getStatusCode()]), 'error');
+        \Drupal::messenger()->addMessage(t('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->getStatusCode()]), 'error');
       }
     }
   }
@@ -166,12 +166,12 @@ class GoogleAnalyticsReports {
    */
   public static function importFieldsFinished($success, $results) {
     if ($success) {
-      drupal_set_message(t('Imported @count Google Analytics fields.', ['@count' => count($results)]));
+      \Drupal::messenger()->addMessage(t('Imported @count Google Analytics fields.', ['@count' => count($results)]));
       // Hook_views_data() doesn't see the GA fields before cleaning cache.
       drupal_flush_all_caches();
     }
     else {
-      drupal_set_message(t('An error has occurred during importing Google Analytics fields.'), 'error');
+      \Drupal::messenger()->addMessage(t('An error has occurred during importing Google Analytics fields.'), 'error');
     }
   }
 
