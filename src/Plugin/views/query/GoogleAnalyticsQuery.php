@@ -9,6 +9,7 @@ namespace Drupal\google_analytics_reports\Plugin\views\query;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\State\StateInterface;
@@ -75,6 +76,13 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   public $configFactory;
+  
+  /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
 
   /**
    * The state service.
@@ -86,11 +94,12 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory, StateInterface $state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory, StateInterface $state, MessengerInterface $messenger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->moduleHandler = $module_handler;
     $this->configFactory = $config_factory;
     $this->state = $state;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -103,6 +112,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $plugin_definition,
       $container->get('module_handler'),
       $container->get('config.factory'),
+      $container->get('messenger'),
       $container->get('state')
     );
   }
