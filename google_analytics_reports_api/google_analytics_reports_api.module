@@ -216,7 +216,7 @@ function google_analytics_reports_api_profiles_list() {
             $set_default = TRUE;
           }
           // Rough attempt to see if the current site is in the account list.
-          elseif (parse_url($web_property->websiteUrl, PHP_URL_HOST) == $_SERVER['HTTP_HOST']) {
+          elseif (isset($web_property->websiteUrl) ? parse_url($web_property->websiteUrl, PHP_URL_HOST) == $_SERVER['HTTP_HOST'] : '') {
             $profile_id = $profile->id;
             $set_default = TRUE;
           }
