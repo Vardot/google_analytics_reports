@@ -56,6 +56,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
     /* Filter criterion: Google Analytics: Start date of report */
     $display_options['filters']['start_date'] = [
       'id' => 'start_date',
+      'plugin_id' => 'google_analytics_date',
       'table' => 'google_analytics',
       'field' => 'start_date',
       'value' => [
@@ -68,6 +69,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
     /* Filter criterion: Google Analytics: End date of report */
     $display_options['filters']['end_date'] = [
       'id' => 'end_date',
+      'plugin_id' => 'google_analytics_date',
       'table' => 'google_analytics',
       'field' => 'end_date',
       'value' => [
