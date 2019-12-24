@@ -51,7 +51,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
     $config = $this->config('google_analytics_reports_api.settings');
 
     // There are no profiles, and we should just leave it at setup.
-    if (!$account) {
+    if (!$account || !$account->isAuthenticated()) {
       $dev_console_url = Url::fromUri('https://console.developers.google.com');
       $dev_console_link = Link::fromTextAndUrl($this->t('Google Developers Console'), $dev_console_url)->toRenderable();
       $dev_console_link['#attributes']['target'] = '_blank';
