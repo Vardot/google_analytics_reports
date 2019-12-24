@@ -126,10 +126,10 @@ class GoogleAnalyticsReports {
    *
    * @param array $field
    *   Field definition.
-   * @param array $context
+   * @param array|\ArrayAccess $context.
    *   Context.
    */
-  public static function saveFields(array $field, array &$context) {
+  public static function saveFields(array $field, &$context) {
     $attributes = &$field['attributes'];
     $field['id'] = str_replace('ga:', '', $field['id']);
     $attributes['type'] = strtolower($attributes['type']);
