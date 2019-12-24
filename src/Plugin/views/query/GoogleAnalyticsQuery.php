@@ -397,19 +397,14 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
   public function defineOptions() {
     $options = parent::defineOptions();
 
-    // Load profiles list.
-    $profile_list = google_analytics_reports_api_profiles_list();
-
-    if ($profile_list) {
-      $options['reports_profile'] = [
-        'default' => FALSE,
-        'translatable' => FALSE,
-        'bool' => TRUE,
-      ];
-      $options['profile_id'] = [
-        'default' => $profile_list['profile_id'],
-      ];
-    }
+    $options['reports_profile'] = [
+      'default' => FALSE,
+      'translatable' => FALSE,
+      'bool' => TRUE,
+    ];
+    $options['profile_id'] = [
+      'default' => FALSE,
+    ];
 
     return $options;
   }
