@@ -2,8 +2,8 @@
 
 namespace Drupal\google_analytics_reports_api;
 
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Url;
-use Drupal\Core\Cache\CacheableRedirectResponse;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
@@ -202,10 +202,11 @@ class GoogleAnalyticsReportsApiFeed {
    *   Client id.
    * @param string $redirect_uri
    *   Redirect uri.
+   *
+   * @return \Drupal\Core\Routing\TrustedRedirectResponse
    */
   public function beginAuthentication($client_id, $redirect_uri) {
-    $response = new CacheableRedirectResponse($this->createAuthUrl($client_id, $redirect_uri));
-    $response->send();
+    return new TrustedRedirectResponse($this->createAuthUrl($client_id, $redirect_uri));
   }
 
   /**

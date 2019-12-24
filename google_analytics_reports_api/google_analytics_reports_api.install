@@ -12,7 +12,7 @@ use Drupal\Core\Url;
 function google_analytics_reports_api_requirements($phase) {
   $requirements = [];
   if ($phase == 'runtime') {
-    $access_token = \Drupal::config('google_analytics_reports_api.settings')->get('access_token');
+    $access_token = \Drupal::state()->get('google_analytics_reports_api.access_token');
     $value = ($access_token) ? t('You have successfully authorized.') :
       t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.', [
       '@url' => Url::fromRoute('google_analytics_reports_api.settings')
@@ -27,4 +27,32 @@ function google_analytics_reports_api_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Move the access_token, expires_at and refresh_token from config to state.
+ */
+function google_analytics_reports_api_update_8001() {
+  $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
+  $state = \Drupal::state();
+
+  $access_token = $config->get('access_token');
+  if ($access_token) {
+    $state->set('google_analytics_reports_api.access_token', $access_token);
+    $config->clear('access_token');
+  }
+
+  $expires_at = $config->get('expires_at');
+  if ($expires_at) {
+    $state->set('google_analytics_reports_api.expires_at', $expires_at);
+    $config->clear('expires_at');
+  }
+
+  $refresh_token = $config->get('refresh_token');
+  if ($refresh_token) {
+    $state->set('google_analytics_reports_api.refresh_token', $refresh_token);
+    $config->clear('refresh_token');
+  }
+
+  $config->save();
 }

@@ -11,6 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\State\StateInterface;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
@@ -76,12 +77,20 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
   public $configFactory;
 
   /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory, StateInterface $state) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->moduleHandler = $module_handler;
     $this->configFactory = $config_factory;
+    $this->state = $state;
   }
 
   /**
@@ -93,7 +102,8 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $plugin_id,
       $plugin_definition,
       $container->get('module_handler'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('state')
     );
   }
 
@@ -309,7 +319,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    */
   public function execute(ViewExecutable $view) {
     // Initial check to see if we should attempt to run the query.
-    if (!$this->configFactory->get('google_analytics_reports_api.settings')->get('access_token')) {
+    if (!$this->state->get('google_analytics_reports_api.access_token')) {
       // Optionally do not warn users on every query attempt before auth.
       $this->messenger->addMessage(t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
       return;

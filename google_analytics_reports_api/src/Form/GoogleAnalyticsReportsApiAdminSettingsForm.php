@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
@@ -31,6 +32,21 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    // TODO move to a separate controller/url? Problematic could be that
+    // users have set this url as the allowed redirect url in google console.
+    // We could use a event listener?
+    $code = $this->getRequest()->query->get('code');
+    if ($code) {
+      google_analytics_reports_api_authenticate($code);
+
+      $redirect_uri = Url::fromRoute('google_analytics_reports_api.settings')
+        ->setAbsolute()
+        ->toString();
+      $redirect = new RedirectResponse($redirect_uri);
+      $redirect->send();
+      exit;
+    }
+
     $account = google_analytics_reports_api_gafeed();
     $config = $this->config('google_analytics_reports_api.settings');
 
@@ -171,17 +187,19 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    * Save Google Analytics Reports API admin setup.
    */
   public function adminSubmitSetup(array &$form, FormStateInterface $form_state) {
-    $redirect_uri = GoogleAnalyticsReportsApiFeed::currentUrl();
-
     $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
     $config
       ->set('client_id', $form_state->getValue('client_id'))
       ->set('client_secret', $form_state->getValue('client_secret'))
-      ->set('redirect_uri', $redirect_uri)
       ->save();
 
+    $redirect_uri = Url::fromRoute('google_analytics_reports_api.settings')
+      ->setAbsolute()
+      ->toString();
+
     $google_analytics_reports_api_feed = new GoogleAnalyticsReportsApiFeed();
-    $google_analytics_reports_api_feed->beginAuthentication($form_state->getValue('client_id'), $redirect_uri);
+    $response = $google_analytics_reports_api_feed->beginAuthentication($form_state->getValue('client_id'), $redirect_uri);
+    $form_state->setResponse($response);
   }
 
   /**

@@ -5,9 +5,8 @@
  * Implements the API through which Google Analytics data can be accessed.
  */
 
-use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
-use Drupal\Core\Cache\CacheableRedirectResponse;
 use Drupal\Core\Url;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Instantiate a new GoogleAnalyticsReportsApiFeed object.
@@ -17,66 +16,64 @@ use Drupal\Core\Url;
  *   from the Google Analytics Core Reporting API.
  */
 function google_analytics_reports_api_gafeed() {
-  $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
+  $config = \Drupal::configFactory()->get('google_analytics_reports_api.settings');
+  $state = \Drupal::state();
 
   // If the access token is still valid, return an authenticated
   // GoogleAnalyticsReportsApiFeed.
-  $access_token = $config->get('access_token');
-
-  if ($access_token && time() < $config->get('expires_at')) {
+  $access_token = $state->get('google_analytics_reports_api.access_token');
+  if ($access_token && time() < $state->get('google_analytics_reports_api.expires_at')) {
     return new GoogleAnalyticsReportsApiFeed($access_token);
   }
-  else {
-    // If the site has an access token and refresh token, but the access
-    // token has expired, authenticate the user with the refresh token.
-    $refresh_token = $config->get('refresh_token');
-    if ($refresh_token) {
-      try {
-        $google_analytics_reports_api_feed = new GoogleAnalyticsReportsApiFeed();
-        $google_analytics_reports_api_feed->refreshToken($config->get('client_id'), $config->get('client_secret'), $refresh_token);
 
-        $config
-          ->set('access_token', $google_analytics_reports_api_feed->accessToken)
-          ->set('expires_at', $google_analytics_reports_api_feed->expiresAt)
-          ->save();
+  // If the site has an access token and refresh token, but the access
+  // token has expired, authenticate the user with the refresh token.
+  $refresh_token = $state->get('google_analytics_reports_api.refresh_token');
+  if ($refresh_token) {
+    try {
+      $google_analytics_reports_api_feed = new GoogleAnalyticsReportsApiFeed();
+      $google_analytics_reports_api_feed->refreshToken($config->get('client_id'), $config->get('client_secret'), $refresh_token);
 
-        return $google_analytics_reports_api_feed;
-      }
-      catch (\Exception $e) {
-        \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
-        \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
-        return NULL;
-      }
+      $state->setMultiple([
+        'google_analytics_reports_api.access_token' => $google_analytics_reports_api_feed->accessToken,
+        'google_analytics_reports_api.expires_at' => $google_analytics_reports_api_feed->expiresAt,
+      ]);
+
+      return $google_analytics_reports_api_feed;
     }
-    else {
-      // If there is no access token or refresh token and client is returned
-      // to the config page with an access code, complete the authentication.
-      if (isset($_GET['code'])) {
-        try {
-          $google_analytics_reports_api_feed = new GoogleAnalyticsReportsApiFeed();
-          $redirect_uri = $config->get('redirect_uri');
-
-          $google_analytics_reports_api_feed->finishAuthentication($config->get('client_id'), $config->get('client_secret'), $redirect_uri);
-
-          $config
-            ->set('access_token', $google_analytics_reports_api_feed->accessToken)
-            ->set('expires_at', $google_analytics_reports_api_feed->expiresAt)
-            ->set('refresh_token', $google_analytics_reports_api_feed->refreshToken)
-            ->clear('redirect_uri')
-            ->save();
-
-          \Drupal::messenger()->addMessage(t('You have been successfully authenticated.'));
-
-          $response = new CacheableRedirectResponse(Url::fromUri($redirect_uri)->toString());
-          $response->send();
-        }
-        catch (Exception $e) {
-          \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
-          \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
-          return NULL;
-        }
-      }
+    catch (\Exception $e) {
+      \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
+      \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
     }
+  }
+}
+
+/**
+ * Finish authentication.
+ */
+function google_analytics_reports_api_authenticate($code) {
+  $config = \Drupal::config('google_analytics_reports_api.settings');
+  $state = \Drupal::state();
+
+  $redirect_uri = Url::fromRoute('google_analytics_reports_api.settings')
+    ->setAbsolute()
+    ->toString();
+
+  try {
+    $google_analytics_reports_api_feed = new GoogleAnalyticsReportsApiFeed();
+    $google_analytics_reports_api_feed->finishAuthentication($config->get('client_id'), $config->get('client_secret'), $redirect_uri);
+
+    $state->setMultiple([
+      'google_analytics_reports_api.access_token' => $google_analytics_reports_api_feed->accessToken,
+      'google_analytics_reports_api.expires_at' => $google_analytics_reports_api_feed->expiresAt,
+      'google_analytics_reports_api.refresh_token' => $google_analytics_reports_api_feed->refreshToken,
+    ]);
+
+    \Drupal::messenger()->addMessage(t('You have been successfully authenticated.'));
+  }
+  catch (Exception $e) {
+    \Drupal::messenger()->addMessage(t('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]), 'error', FALSE);
+    \Drupal::logger('google_analytics_reports_api')->error('There was an authentication error. Message: @message.', ['@message' => $e->getMessage()]);
   }
 }
 
@@ -136,18 +133,21 @@ function google_analytics_reports_api_revoke() {
   $ga_feed->revokeToken();
 
   $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
+  $state = \Drupal::state();
+
   // Delete module variables.
   $config
-    ->clear('access_token')
     ->clear('client_id')
     ->clear('client_secret')
     ->clear('default_page')
-    ->clear('expires_at')
     ->clear('profile_id')
-    ->clear('redirect_uri')
-    ->clear('refresh_token')
     ->save();
 
+  $state->deleteMultiple([
+    'google_analytics_reports_api.access_token',
+    'google_analytics_reports_api.expires_at',
+    'google_analytics_reports_api.refresh_token',
+  ]);
 }
 
 /**

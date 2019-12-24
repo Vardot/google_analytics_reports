@@ -4,9 +4,6 @@ google_analytics_reports_api.settings:
   type: config_object
   label: 'Google Analytics Reports API settings'
   mapping:
-    access_token:
-      type: string
-      label: 'Access token from Google Analytics API'
     cache_length:
       type: integer
       label: 'Query cache length'
@@ -19,15 +16,6 @@ google_analytics_reports_api.settings:
     default_page:
       type: string
       label: 'Default page for selected profile'
-    expires_at:
-      type: integer
-      label: 'Token will work before this timestamp'
     profile_id:
       type: integer
       label: 'Google Analytics profile ID'
-    redirect_uri:
-      type: string
-      label: 'Redirect URI for Google Aanalytics API'
-    refresh_token:
-      type: string
-      label: 'Google Analytics API refresh token'
