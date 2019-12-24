@@ -211,7 +211,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       ->set('profile_id', $form_state->getValue('profile_id'))
       ->set('cache_length', $form_state->getValue('cache_length'))
       ->save();
-    $this->messenger->addMessage(t('Settings have been saved successfully.'));
+    $this->messenger()->addMessage(t('Settings have been saved successfully.'));
   }
 
   /**
@@ -219,7 +219,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    */
   public function adminSubmitRevoke(array &$form, FormStateInterface $form_state) {
     google_analytics_reports_api_revoke();
-    $this->messenger->addMessage(t('Access token has been successfully revoked.'));
+    $this->messenger()->addMessage(t('Access token has been successfully revoked.'));
   }
 
 }
