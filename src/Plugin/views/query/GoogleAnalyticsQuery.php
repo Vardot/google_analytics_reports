@@ -294,7 +294,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     }
 
     // Change reports profile.
-    if (isset($this->options['reports_profile']) && (!empty($this->options['profile_id']))) {
+    if (!empty($this->options['reports_profile']) && (!empty($this->options['profile_id']))) {
       $query['profile_id'] = $this->options['profile_id'];
     }
 
