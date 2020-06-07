@@ -76,7 +76,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   public $configFactory;
-  
+
   /**
    * The messenger.
    *
@@ -112,8 +112,8 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $plugin_definition,
       $container->get('module_handler'),
       $container->get('config.factory'),
-      $container->get('messenger'),
-      $container->get('state')
+      $container->get('state'),
+      $container->get('messenger')
     );
   }
 
