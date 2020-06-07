@@ -12,4 +12,3 @@ views.filter.google_analytics_date:
         value:
           type: string
           label: 'value'
-

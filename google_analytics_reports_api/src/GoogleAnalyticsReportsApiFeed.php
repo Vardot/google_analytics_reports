@@ -6,6 +6,7 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Url;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Class GoogleAnalyticsReportsApiFeed.
@@ -15,45 +16,95 @@ use GuzzleHttp\Exception\ClientException;
  */
 class GoogleAnalyticsReportsApiFeed {
 
+  use StringTranslationTrait;
+
   const OAUTH2_REVOKE_URI = 'https://accounts.google.com/o/oauth2/revoke';
   const OAUTH2_TOKEN_URI = 'https://accounts.google.com/o/oauth2/token';
   const OAUTH2_AUTH_URL = 'https://accounts.google.com/o/oauth2/auth';
   const SCOPE = 'https://www.googleapis.com/auth/analytics.readonly https://www.google.com/analytics/feeds/';
 
-  // Response object.
+  /**
+   * Response object.
+   *
+   * @var string
+   */
   public $response;
 
-  // Formatted array of request results.
+  /**
+   * Formatted array of request results.
+   *
+   * @var string
+   */
   public $results;
 
-  // URL to Google Analytics Core Reporting API.
+  /**
+   * URL to Google Analytics Core Reporting API.
+   *
+   * @var string
+   */
   public $queryPath;
 
-  // Translated error message.
+  /**
+   * Translated error message.
+   *
+   * @var string
+   */
   public $error;
 
-  // Boolean TRUE if data is from the cache tables.
+  /**
+   * Boolean TRUE if data is from the cache tables.
+   *
+   * @var bool
+   */
   public $fromCache = FALSE;
 
-  // OAuth access token.
+  /**
+   * OAuth access token.
+   *
+   * @var string
+   */
   public $accessToken;
 
-  // OAuth refresh token.
+  /**
+   * OAuth refresh token.
+   *
+   * @var string
+   */
   public $refreshToken;
 
-  // OAuth expiration time.
+  /**
+   * OAuth expiration time.
+   *
+   * @var time
+   */
   public $expiresAt;
 
-  // Host and endpoint of Google Analytics API.
+  /**
+   * Host and endpoint of Google Analytics API.
+   *
+   * @var string
+   */
   protected $host = 'www.googleapis.com/analytics/v3';
 
-  // Request header source.
+  /**
+   * Request header source.
+   *
+   * @var string
+   */
   protected $source = 'drupal';
 
-  // Google authorize callback verifier string.
+  /**
+   * Google authorize callback verifier string.
+   *
+   * @var string
+   */
   protected $verifier;
 
-  // OAuth host.
+  /**
+   * OAuth host.
+   *
+   * @var string
+   */
   protected $oAuthHost = 'www.google.com';
 
   /**
@@ -118,7 +169,7 @@ class GoogleAnalyticsReportsApiFeed {
    * @param string $redirect_uri
    *   Redirect uri.
    * @param string $refresh_token
-   *   Referesh token.
+   *   Refresh token.
    */
   protected function fetchToken($client_id, $client_secret, $redirect_uri, $refresh_token = NULL) {
     if ($refresh_token) {
@@ -160,7 +211,7 @@ class GoogleAnalyticsReportsApiFeed {
           '@code' => $response->getStatusCode(),
           '@details' => print_r(json_decode($this->response), TRUE),
         ];
-        $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+        $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
         \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
       }
     }
@@ -173,7 +224,7 @@ class GoogleAnalyticsReportsApiFeed {
         '@message' => $e->getMessage(),
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
-      $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
+      $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
       \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
   }
@@ -188,6 +239,8 @@ class GoogleAnalyticsReportsApiFeed {
    *   Client id.
    * @param string $client_secret
    *   Client secret.
+   * @param string $redirect_uri
+   *   Redirect uri.
    */
   public function finishAuthentication($client_id, $client_secret, $redirect_uri) {
     $this->fetchToken($client_id, $client_secret, $redirect_uri);
@@ -204,6 +257,7 @@ class GoogleAnalyticsReportsApiFeed {
    *   Redirect uri.
    *
    * @return \Drupal\Core\Routing\TrustedRedirectResponse
+   *   The trusted redirect response.
    */
   public function beginAuthentication($client_id, $redirect_uri) {
     return new TrustedRedirectResponse($this->createAuthUrl($client_id, $redirect_uri));
@@ -230,7 +284,7 @@ class GoogleAnalyticsReportsApiFeed {
    * Revoke an OAuth2 access token or refresh token. This method will revoke
    * the current access token, if a token isn't provided.
    *
-   * @param string|NULL $token
+   * @param string|null $token
    *   The token (access token or a refresh token) that should be revoked.
    *
    * @return boll
@@ -265,7 +319,7 @@ class GoogleAnalyticsReportsApiFeed {
         '@message' => $e->getMessage(),
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
-      $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
+      $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
       \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
 
@@ -313,7 +367,7 @@ class GoogleAnalyticsReportsApiFeed {
   /**
    * Public query method for all Core Reporting API features.
    */
-  public function query($url, $params = [], $method = 'GET', $headers, $cache_options = []) {
+  public function query($url, $params = [], $method = 'GET', $headers = [], $cache_options = []) {
     $params_defaults = [
       'start-index' => 1,
       'max-results' => 1000,
@@ -390,7 +444,7 @@ class GoogleAnalyticsReportsApiFeed {
           '@code' => $response->getStatusCode(),
           '@details' => print_r(json_decode($this->response), TRUE),
         ];
-        $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+        $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
         \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
       }
     }
@@ -403,7 +457,7 @@ class GoogleAnalyticsReportsApiFeed {
         '@message' => $e->getMessage(),
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
-      $this->error = t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
+      $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
       \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
   }

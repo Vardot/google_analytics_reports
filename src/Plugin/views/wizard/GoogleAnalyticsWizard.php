@@ -64,7 +64,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
         'value' => '-31 day',
       ],
       'group' => 1,
-      'expose' => ['operator' => FALSE]
+      'expose' => ['operator' => FALSE],
     ];
     /* Filter criterion: Google Analytics: End date of report */
     $display_options['filters']['end_date'] = [
@@ -77,7 +77,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
         'value' => '-1 day',
       ],
       'group' => 1,
-      'expose' => ['operator' => FALSE]
+      'expose' => ['operator' => FALSE],
     ];
 
     return $display_options;

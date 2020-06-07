@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\google_analytics_reports\Plugin\views\query\GoogleAnalyticsQuery.
- */
 
 namespace Drupal\google_analytics_reports\Plugin\views\query;
 
@@ -18,6 +14,7 @@ use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Defines a Views query class for Google Analytics Reports API.
@@ -30,18 +27,26 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class GoogleAnalyticsQuery extends QueryPluginBase {
 
+  use StringTranslationTrait;
+
   /**
    * A list of tables in the order they should be added, keyed by alias.
+   *
+   * @var array
    */
   protected $tableQueue = [];
 
   /**
    * An array of fields.
+   *
+   * @var array
    */
   protected $fields = [];
 
   /**
    * An array mapping table aliases and field names to field aliases.
+   *
+   * @var array
    */
   protected $fieldAliases = [];
 
@@ -50,23 +55,29 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    *
    * Each section is in itself an array of pieces and a flag as to whether
    * or not it should be AND or OR.
+   *
+   * @var array
    */
   protected $where = [];
 
   /**
    * A simple array of order by clauses.
+   *
+   * @var array
    */
   protected $orderby = [];
 
   /**
    * The default operator to use when connecting the WHERE groups.
+   *
+   * @var string
    */
   protected $groupOperator = 'AND';
 
   /**
    * Module handler.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler;
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   public $moduleHandler;
 
@@ -106,7 +117,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static (
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
@@ -142,7 +153,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @return string
    *   The name that this field can be referred to as.
    */
-  public function addField($table, $field, $alias = '', $params = []) {
+  public function addField($table, $field, $alias = '', array $params = []) {
     // We check for this specifically because it gets a special alias.
     if ($table == $this->view->storage->get('base_table') && $field == $this->view->storage->get('base_field') && empty($alias)) {
       $alias = $this->view->storage->get('base_field');
@@ -237,7 +248,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @param array $params
    *   Don't use this yet (at all?).
    */
-  public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', $params = []) {
+  public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', array $params = []) {
     $this->orderby[] = [
       'field' => $field,
       'direction' => (strtoupper($order) == 'DESC') ? '-' : '',
@@ -331,7 +342,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     // Initial check to see if we should attempt to run the query.
     if (!$this->state->get('google_analytics_reports_api.access_token')) {
       // Optionally do not warn users on every query attempt before auth.
-      $this->messenger->addMessage(t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
+      $this->messenger->addMessage($this->t('You must <a href=":url">authorize your site</a> to use your Google Analytics account before you can view reports.', [':url' => Url::fromRoute('google_analytics_reports_api.settings')->toString()]));
       return;
     }
 
@@ -424,8 +435,8 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
 
     if ($profile_list) {
       $form['reports_profile'] = [
-        '#title' => t('Use another reports profile'),
-        '#description' => t('This view will use another reports profile rather than system default profile: %profile.', [
+        '#title' => $this->t('Use another reports profile'),
+        '#description' => $this->t('This view will use another reports profile rather than system default profile: %profile.', [
           '%profile' => $profile_info,
         ]),
         '#type' => 'checkbox',
@@ -433,16 +444,15 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       ];
       $form['profile_id'] = [
         '#type' => 'select',
-        '#title' => t('Reports profile'),
+        '#title' => $this->t('Reports profile'),
         '#options' => $profile_list['options'],
-        '#description' => t('Choose your Google Analytics profile.'),
+        '#description' => $this->t('Choose your Google Analytics profile.'),
         '#default_value' => $this->options['profile_id'],
         '#dependency' => ['edit-query-options-reports-profile' => '1'],
       ];
     }
 
   }
-
 
   /**
    * Make sure table exists.

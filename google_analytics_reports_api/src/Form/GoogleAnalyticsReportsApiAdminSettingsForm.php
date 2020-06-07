@@ -8,11 +8,14 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
  */
 class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -142,7 +145,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       $date_formatter = \Drupal::service('date.formatter');
       $options = array_map([
         $date_formatter,
-        'formatInterval'
+        'formatInterval',
       ], array_combine($times, $times));
 
       $form['settings']['cache_length'] = [
@@ -165,7 +168,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       $form['revoke'] = [
         '#type' => 'details',
         '#title' => $this->t('Revoke access and logout'),
-        '#description' => t('Revoke your access token from Google Analytics. This action will log you out of your Google Analytics account and stop all reports from displaying on your site.'),
+        '#description' => $this->t('Revoke your access token from Google Analytics. This action will log you out of your Google Analytics account and stop all reports from displaying on your site.'),
       ];
       $form['revoke']['revoke_submit'] = [
         '#type' => 'submit',
@@ -211,7 +214,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       ->set('profile_id', $form_state->getValue('profile_id'))
       ->set('cache_length', $form_state->getValue('cache_length'))
       ->save();
-    $this->messenger()->addMessage(t('Settings have been saved successfully.'));
+    $this->messenger()->addMessage($this->t('Settings have been saved successfully.'));
   }
 
   /**
@@ -219,7 +222,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    */
   public function adminSubmitRevoke(array &$form, FormStateInterface $form_state) {
     google_analytics_reports_api_revoke();
-    $this->messenger()->addMessage(t('Access token has been successfully revoked.'));
+    $this->messenger()->addMessage($this->t('Access token has been successfully revoked.'));
   }
 
 }

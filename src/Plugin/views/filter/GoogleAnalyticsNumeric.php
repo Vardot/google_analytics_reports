@@ -1,8 +1,10 @@
 <?php
 
 namespace Drupal\google_analytics_reports\Plugin\views\filter;
+
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Simple filter to handle numerics for Google Analytics.
@@ -12,6 +14,8 @@ use Drupal\Core\Form\FormStateInterface;
  * @ViewsFilter("google_analytics_numeric")
  */
 class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -34,39 +38,39 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
   public function operators() {
     $operators = [
       '<' => [
-        'title' => t('Is less than'),
+        'title' => $this->t('Is less than'),
         'method' => 'opSimple',
-        'short' => t('<'),
+        'short' => $this->t('<'),
         'values' => 1,
       ],
       '<=' => [
-        'title' => t('Is less than or equal to'),
+        'title' => $this->t('Is less than or equal to'),
         'method' => 'opSimple',
-        'short' => t('<='),
+        'short' => $this->t('<='),
         'values' => 1,
       ],
       '==' => [
-        'title' => t('Is equal to'),
+        'title' => $this->t('Is equal to'),
         'method' => 'opSimple',
-        'short' => t('=='),
+        'short' => $this->t('=='),
         'values' => 1,
       ],
       '!=' => [
-        'title' => t('Is not equal to'),
+        'title' => $this->t('Is not equal to'),
         'method' => 'opSimple',
-        'short' => t('!='),
+        'short' => $this->t('!='),
         'values' => 1,
       ],
       '>=' => [
-        'title' => t('Is greater than or equal to'),
+        'title' => $this->t('Is greater than or equal to'),
         'method' => 'opSimple',
-        'short' => t('>='),
+        'short' => $this->t('>='),
         'values' => 1,
       ],
       '>' => [
-        'title' => t('Is greater than'),
+        'title' => $this->t('Is greater than'),
         'method' => 'opSimple',
-        'short' => t('>'),
+        'short' => $this->t('>'),
         'values' => 1,
       ],
     ];
@@ -109,7 +113,7 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
     if ($which == 'all') {
       $form['value']['value'] = [
         '#type' => 'textfield',
-        '#title' => empty($values['exposed']) ? t('Value') : '',
+        '#title' => empty($values['exposed']) ? $this->t('Value') : '',
         '#size' => 30,
         '#default_value' => $this->value['value'],
         '#dependency' => [$source => $this->operatorValues(1)],
@@ -123,7 +127,7 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
       // the operator is locked.
       $form['value'] = [
         '#type' => 'textfield',
-        '#title' => empty($values['exposed']) ? t('Value') : '',
+        '#title' => empty($values['exposed']) ? $this->t('Value') : '',
         '#size' => 30,
         '#default_value' => $this->value['value'],
       ];
@@ -135,13 +139,13 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
     if ($which == 'all' || $which == 'minmax') {
       $form['value']['min'] = [
         '#type' => 'textfield',
-        '#title' => empty($values['exposed']) ? t('Min') : '',
+        '#title' => empty($values['exposed']) ? $this->t('Min') : '',
         '#size' => 30,
         '#default_value' => $this->value['min'],
       ];
       $form['value']['max'] = [
         '#type' => 'textfield',
-        '#title' => empty($values['exposed']) ? t('And max') : t('And'),
+        '#title' => empty($values['exposed']) ? $this->t('And max') : $this->t('And'),
         '#size' => 30,
         '#default_value' => $this->value['max'],
       ];
@@ -181,13 +185,13 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
    */
   public function adminSummary() {
     if (!empty($this->options['exposed'])) {
-      return t('exposed');
+      return $this->t('exposed');
     }
 
     $options = $this->operatorOptions('short');
     $output = Html::escape($options[$this->operator]);
     if (in_array($this->operator, $this->operatorValues(2))) {
-      $output .= ' ' . t('@min and @max', ['@min' => $this->value['min'], '@max' => $this->value['max']]);
+      $output .= ' ' . $this->t('@min and @max', ['@min' => $this->value['min'], '@max' => $this->value['max']]);
     }
     elseif (in_array($this->operator, $this->operatorValues(1))) {
       $output .= ' ' . Html::escape($this->value['value']);

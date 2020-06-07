@@ -39,7 +39,7 @@
  *     - allowedInSegments: Indicates whether the field can be used in
  *       the segment query parameter.
  */
-function hook_google_analytics_reports_field_import_alter(&$field) {
+function hook_google_analytics_reports_field_import_alter(array &$field) {
   // Change data type for Date field.
   if ($field['id'] == 'date') {
     $field['attributes']['dataType'] = 'date';

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Installation file for Google Analytics Reports API module.
@@ -15,9 +16,9 @@ function google_analytics_reports_api_requirements($phase) {
     $access_token = \Drupal::state()->get('google_analytics_reports_api.access_token');
     $value = ($access_token) ? t('You have successfully authorized.') :
       t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.', [
-      '@url' => Url::fromRoute('google_analytics_reports_api.settings')
-        ->toString(),
-    ]);
+        '@url' => Url::fromRoute('google_analytics_reports_api.settings')
+          ->toString(),
+      ]);
     $severity = ($access_token) ? REQUIREMENT_OK : REQUIREMENT_ERROR;
     $requirements['google_analytics_reports_api_authorization'] = [
       'title' => t('Google Analytics Reports API authorization'),

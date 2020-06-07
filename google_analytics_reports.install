@@ -1,72 +1,73 @@
 <?php
+
 /**
  * @file
  * Contains install and update functions for Google Analytics Reports module.
  */
 
-use \Drupal\google_analytics_reports\GoogleAnalyticsReports;
+use Drupal\google_analytics_reports\GoogleAnalyticsReports;
 
 /**
  * Implements hook_schema().
  */
 function google_analytics_reports_schema() {
-  $schema['google_analytics_reports_fields'] = array(
+  $schema['google_analytics_reports_fields'] = [
     'description' => 'Dimensions and metrics from Google Analytics.',
-    'fields' => array(
-      'gaid' => array(
+    'fields' => [
+      'gaid' => [
         'description' => 'The primary identifier for a column.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'type' => array(
+      ],
+      'type' => [
         'description' => 'The type of column.',
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'data_type' => array(
+      ],
+      'data_type' => [
         'description' => 'The type of data this column represents.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'column_group' => array(
+      ],
+      'column_group' => [
         'description' => 'The dimensions/metrics group the column belongs to.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'ui_name' => array(
+      ],
+      'ui_name' => [
         'description' => 'The name/label of the column used in user interfaces (UI).',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
         'default' => '',
-      ),
-      'description' => array(
+      ],
+      'description' => [
         'description' => 'The full description of the column.',
         'type' => 'text',
         'size' => 'medium',
-      ),
-      'calculation' => array(
+      ],
+      'calculation' => [
         'description' => 'This shows how the metric is calculated. Only available for calculated metrics.',
         'type' => 'varchar',
         'length' => 128,
-      ),
-    ),
-    'indexes' => array(
-      'type' => array('type'),
-    ),
-    'unique keys' => array(
-      'gaid' => array('gaid'),
-    ),
-    'primary key' => array('gaid'),
-  );
+      ],
+    ],
+    'indexes' => [
+      'type' => ['type'],
+    ],
+    'unique keys' => [
+      'gaid' => ['gaid'],
+    ],
+    'primary key' => ['gaid'],
+  ];
   return $schema;
 }
 

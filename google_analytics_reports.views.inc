@@ -1,10 +1,11 @@
 <?php
+
 /**
  * @file
  * Views hook implementations for Google Analytics Reports module.
  */
 
-use \Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Implements hook_views_data().
@@ -63,13 +64,13 @@ function google_analytics_reports_views_data() {
 
   foreach ($fields as $field_name => $field) {
     // Description of filed from Google Analytics.
-    $field->description = t($field->description) . '<br />' . t('Type: @type.', array('@type' => $field->type));
+    $field->description = $field->description . '<br />' . t('Type: @type.', ['@type' => $field->type]);
     if (isset($field->calculation)) {
       $field->description .= '<br />' . t('Calculation: <code>@formula</code>.',
-          array('@formula' => $field->calculation));
+          ['@formula' => $field->calculation]);
     }
     $field->description .= '<br />' . t('API name: <code>@ga</code>.',
-        array('@ga' => 'ga:' . $field_name));
+        ['@ga' => 'ga:' . $field_name]);
 
     // Provide default handler.
     $field_handler = 'standard';
@@ -78,35 +79,35 @@ function google_analytics_reports_views_data() {
     if (google_analytics_reports_is_custom($field_name)) {
       $field_handler = 'google_analytics_standard';
     }
-    elseif (in_array($field->data_type, array('date', 'time'))) {
+    elseif (in_array($field->data_type, ['date', 'time'])) {
       $field_handler = 'date';
     }
     elseif (in_array($field->data_type,
-      array('integer', 'float', 'percent', 'currency'))) {
+      ['integer', 'float', 'percent', 'currency'])) {
 
       $field_handler = 'numeric';
       $float = TRUE;
     }
-    $data['google_analytics'][$field_name] = array(
-      'title' => t($field->ui_name),
+    $data['google_analytics'][$field_name] = [
+      'title' => $field->ui_name,
       // Use this because of escaping markup in Views UI.
-      'help' => new FormattableMarkup($field->description, array()),
-      'group' => t($field->column_group),
-      'field' => array(
+      'help' => new FormattableMarkup($field->description, []),
+      'group' => $field->column_group,
+      'field' => [
         'id' => $field_handler,
         'click sortable' => TRUE,
         'float' => $float,
-      ),
-      'sort' => array(
+      ],
+      'sort' => [
         'id' => 'standard',
-      ),
-      'argument' => array(
+      ],
+      'argument' => [
         'id' => 'google_analytics_argument',
-      ),
-      'filter' => array(
+      ],
+      'filter' => [
         'id' => ($field->type == 'metric') ? 'google_analytics_numeric' : 'google_analytics_string',
-      ),
-    );
+      ],
+    ];
   }
 
   return $data;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Front-end interfaces that use the Google Analytics Reports API module.
@@ -22,7 +23,7 @@ function google_analytics_reports_google_analytics_reports_api_reported_data_alt
   $fields = google_analytics_reports_get_fields();
 
   // Date and time datatypes should not have the digits after the zero.
-  if ((isset($fields[$name])) && (in_array($fields[$name]->data_type, array('date', 'time')))) {
+  if ((isset($fields[$name])) && (in_array($fields[$name]->data_type, ['date', 'time']))) {
     $value = round($value);
   }
 
@@ -91,47 +92,3 @@ function google_analytics_reports_custom_to_variable_field($field, $number) {
 function google_analytics_reports_variable_to_custom_field($field) {
   return preg_replace('/\d+/', 'XX', $field);
 }
-
-/**
- * Adds custom CSS style for Google Analytics Reports views pages.
- */
-/*function google_analytics_reports_preprocess_views_view(&$vars) {
-  $view = &$vars['view'];
-  if (($view->name == 'google_analytics_reports_summary' && $view->current_display == 'page') ||
-    ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page') ||
-    ($view->name == 'google_analytics_reports_page' && $view->current_display == 'page_front')) {
-    $css['#attached']['css'][] = drupal_get_path('module', 'google_analytics_reports') . '/google_analytics_reports.css';
-    drupal_render($css);
-  }
-}*/
-
-
-/**
- * Implements hook_views_pre_build().
- */
-/*function google_analytics_reports_views_pre_build(\Drupal\views\ViewExecutable $view) {
-  if ($view->id() == 'google_analytics_reports_page' && $view->current_display == 'page') {
-    // Find page path for Google Analytics.
-    if (!empty($view->display_handler->options['path'])) {
-      // Decode current page url, that might appear due to browsers
-      // particularities.
-      $current_url = check_plain(urldecode(request_uri()));
-      // Return front page path ("/") if it is preview in Views UI.
-      if ($current_url == '/admin/structure/views/view/google_analytics_reports_page/preview/page/ajax') {
-        $view->args[0] = '/';
-        return;
-      }
-      // Menu path for current view without "%" at the end.
-      $menu_path = $view->display_handler->options['path'];
-      $menu_path = str_replace('%', '', $menu_path);
-      // Real url for Google Analytics.
-      $ga_url = str_replace($menu_path, '', $current_url);
-      // Remove old view arguments.
-      foreach ($view->args as $numb => $value) {
-        unset($view->args[$numb]);
-      }
-      // Set up real Google Analytics path as view argument.
-      $view->args[0] = $ga_url;
-    }
-  }
-}*/

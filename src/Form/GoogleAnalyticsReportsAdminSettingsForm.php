@@ -8,11 +8,14 @@ use Drupal\google_analytics_reports\GoogleAnalyticsReports;
 use Drupal\google_analytics_reports_api\Form\GoogleAnalyticsReportsApiAdminSettingsForm;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Implements Google Analytics Reports API Admin Settings form override.
  */
 class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiAdminSettingsForm {
+
+  use StringTranslationTrait;
 
   /**
    * Date Formatter Interface.
@@ -52,27 +55,27 @@ class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiA
       $collapsed = (!$last_time) ? TRUE : FALSE;
       $form['fields'] = [
         '#type' => 'details',
-        '#title' => t('Import and update fields'),
+        '#title' => $this->t('Import and update fields'),
         '#open' => $collapsed,
       ];
       if ($last_time) {
         $form['fields']['last_time'] = [
           '#type' => 'item',
-          '#title' => t('Google Analytics fields for Views integration'),
-          '#description' => t('Last import was @time.',
+          '#title' => $this->t('Google Analytics fields for Views integration'),
+          '#description' => $this->t('Last import was @time.',
             [
               '@time' => $this->dateFormatter->format($last_time, 'custom', 'd F Y H:i'),
             ]),
         ];
         $form['fields']['update'] = [
           '#type' => 'submit',
-          '#value' => t('Check updates'),
+          '#value' => $this->t('Check updates'),
           '#submit' => [[GoogleAnalyticsReports::class, 'checkUpdates']],
         ];
       }
       $form['fields']['settings'] = [
         '#type' => 'submit',
-        '#value' => t('Import fields'),
+        '#value' => $this->t('Import fields'),
         '#submit' => [[GoogleAnalyticsReports::class, 'importFields']],
       ];
     }

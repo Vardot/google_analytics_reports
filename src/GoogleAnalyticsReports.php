@@ -16,7 +16,7 @@ class GoogleAnalyticsReports {
    *
    * @var string
    */
-  public static $GoogleAnalyticsColumnsDefinitionUrl = 'https://www.googleapis.com/analytics/v3/metadata/ga/columns';
+  public static $googleAnalyticsColumnsDefinitionUrl = 'https://www.googleapis.com/analytics/v3/metadata/ga/columns';
 
   /**
    * Check updates for new Google Analytics fields.
@@ -28,7 +28,7 @@ class GoogleAnalyticsReports {
       $etag_old = \Drupal::config('google_analytics_reports.settings')->get('metadata_etag');
 
       try {
-        $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl . '?fields=etag', ['timeout' => 2.0]);
+        $response = \Drupal::httpClient()->request('GET', self::$googleAnalyticsColumnsDefinitionUrl . '?fields=etag', ['timeout' => 2.0]);
       }
       catch (RequestException $e) {
         \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
@@ -63,7 +63,7 @@ class GoogleAnalyticsReports {
   public static function importFields() {
     if (!defined('MAINTENANCE_MODE')) {
       try {
-        $response = \Drupal::httpClient()->request('GET', self::$GoogleAnalyticsColumnsDefinitionUrl, ['timeout' => 2.0]);
+        $response = \Drupal::httpClient()->request('GET', self::$googleAnalyticsColumnsDefinitionUrl, ['timeout' => 2.0]);
       }
       catch (RequestException $e) {
         \Drupal::logger('google_analytics_reports')->error('Failed to Google Analytics Column metadata definitions due to "%error".', ['%error' => $e->getMessage()]);
@@ -126,7 +126,7 @@ class GoogleAnalyticsReports {
    *
    * @param array $field
    *   Field definition.
-   * @param array|\ArrayAccess $context.
+   * @param array|\ArrayAccess $context
    *   Context.
    */
   public static function saveFields(array $field, &$context) {
@@ -164,7 +164,7 @@ class GoogleAnalyticsReports {
    * @param array $results
    *   Results information passed from the processing callback.
    */
-  public static function importFieldsFinished($success, $results) {
+  public static function importFieldsFinished(bool $success, array $results) {
     if ($success) {
       \Drupal::messenger()->addMessage(t('Imported @count Google Analytics fields.', ['@count' => count($results)]));
       // Hook_views_data() doesn't see the GA fields before cleaning cache.

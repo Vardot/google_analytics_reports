@@ -4,6 +4,7 @@ namespace Drupal\google_analytics_reports\Plugin\views\filter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Basic textfield filter to handle string filtering commands.
@@ -13,6 +14,8 @@ use Drupal\Core\Form\FormStateInterface;
  * @ViewsFilter("google_analytics_string")
  */
 class GoogleAnalyticsString extends GoogleAnalyticsBase {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -35,38 +38,38 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
   public function operators() {
     $operators = [
       '=' => [
-        'title' => t('Is equal to'),
-        'short' => t('='),
+        'title' => $this->t('Is equal to'),
+        'short' => $this->t('='),
         'method' => 'opEqual',
         'values' => 1,
       ],
       '!=' => [
-        'title' => t('Is not equal to'),
-        'short' => t('!='),
+        'title' => $this->t('Is not equal to'),
+        'short' => $this->t('!='),
         'method' => 'opInequal',
         'values' => 1,
       ],
       'contains' => [
-        'title' => t('Contains'),
-        'short' => t('contains'),
+        'title' => $this->t('Contains'),
+        'short' => $this->t('contains'),
         'method' => 'opContains',
         'values' => 1,
       ],
       'not' => [
-        'title' => t('Does not contain'),
-        'short' => t('!has'),
+        'title' => $this->t('Does not contain'),
+        'short' => $this->t('!has'),
         'method' => 'opNot',
         'values' => 1,
       ],
       'regular_expression' => [
-        'title' => t('Contains a match for the regular expression'),
-        'short' => t('regex'),
+        'title' => $this->t('Contains a match for the regular expression'),
+        'short' => $this->t('regex'),
         'method' => 'opRegex',
         'values' => 1,
       ],
       'not_regular_expression' => [
-        'title' => t('Does not match regular expression'),
-        'short' => t('!regex'),
+        'title' => $this->t('Does not match regular expression'),
+        'short' => $this->t('!regex'),
         'method' => 'opNotRegex',
         'values' => 1,
       ],
@@ -107,7 +110,7 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
     if ($which == 'all' || $which == 'value') {
       $form['value'] = [
         '#type' => 'textfield',
-        '#title' => t('Value'),
+        '#title' => $this->t('Value'),
         '#size' => 30,
         '#default_value' => $this->value,
       ];
@@ -196,7 +199,7 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
    */
   public function adminSummary() {
     if (!empty($this->options['exposed'])) {
-      return t('exposed');
+      return $this->t('exposed');
     }
 
     $options = $this->operatorOptions('short');

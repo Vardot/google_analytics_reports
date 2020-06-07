@@ -4,6 +4,7 @@ namespace Drupal\google_analytics_reports\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;
+
 /**
  * Subscriber for google analytics reports routes.
  */

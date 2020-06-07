@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Drush integration for Google Analytics Reports module.
@@ -11,17 +12,17 @@ use GuzzleHttp\Exception\RequestException;
  * Implements hook_drush_command().
  */
 function google_analytics_reports_drush_command() {
-  $commands = array();
+  $commands = [];
 
-  $commands['google-analytics-reports-fields'] = array(
-    'aliases' => array('garf'),
+  $commands['google-analytics-reports-fields'] = [
+    'aliases' => ['garf'],
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
     'description' => dt('Import Google Analytics fields.'),
-    'examples' => array(
+    'examples' => [
       'drush google-analytics-reports-fields' => dt('Import Google Analytics fields for Google Analytics Reports module.'),
-    ),
+    ],
     'callback' => 'drush_google_analytics_reports_fields',
-  );
+  ];
 
   return $commands;
 }
@@ -73,20 +74,20 @@ function drush_google_analytics_reports_fields() {
       ->save();
 
     if (!empty($data['items'])) {
-      $context = array();
+      $context = [];
       foreach ($data['items'] as $item) {
         // Do not import deprecated fields.
         if ($item['attributes']['status'] == 'PUBLIC') {
           GoogleAnalyticsReports::saveFields($item, $context);
         }
       }
-      drush_log(dt('Imported @count Google Analytics fields.', array('@count' => count($context['results']))), 'success');
+      drush_log(dt('Imported @count Google Analytics fields.', ['@count' => count($context['results'])]), 'success');
     }
     else {
       drush_log(dt('An error has occurred during importing Google Analytics fields.'), 'error');
     }
   }
   else {
-    drush_log(dt('There is a error during request to Google Analytics Metadata API: @error', array('@error' => $response->error)), 'error');
+    drush_log(dt('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->error]), 'error');
   }
 }

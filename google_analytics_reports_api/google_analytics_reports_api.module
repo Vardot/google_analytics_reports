@@ -7,7 +7,6 @@
 
 use Drupal\Core\Url;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
-Use \Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Instantiate a new GoogleAnalyticsReportsApiFeed object.
@@ -104,7 +103,7 @@ function google_analytics_reports_api_authenticate($code) {
  *   GoogleAnalyticsReportsApiFeed object to authorize access and request data
  *   from the Google Analytics Core Reporting API after reporting data.
  */
-function google_analytics_reports_api_report_data($params = [], $cache_options = []) {
+function google_analytics_reports_api_report_data(array $params = [], array $cache_options = []) {
   $config = \Drupal::config('google_analytics_reports_api.settings');
   if (isset($params['profile_id'])) {
     $params['profile_id'] = 'ga:' . $params['profile_id'];
@@ -166,7 +165,7 @@ function google_analytics_reports_api_cache_time() {
 /**
  * Google Analytics reports profiles for current authorized user.
  *
- * @return array/null
+ * @return arraynull
  *   An associative array containing:
  *   - options: list of current available profiles.
  *   - profile_id: current default profile id.
