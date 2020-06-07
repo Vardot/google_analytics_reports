@@ -32,7 +32,7 @@ class GoogleAnalyticsDate extends Date {
    * {@inheritdoc}
    */
   protected function opSimple($field) {
-    $origin = (!empty($this->value['type']) && $this->value['type'] == 'offset') ? REQUEST_TIME : 0;
+    $origin = (!empty($this->value['type']) && $this->value['type'] == 'offset') ? \Drupal::time()->getRequestTime() : 0;
     $value = intval(strtotime($this->value['value'], $origin));
 
     $this->query->addWhere($this->options['group'], $field, $value, $this->operator);

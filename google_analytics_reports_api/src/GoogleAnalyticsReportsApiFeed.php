@@ -336,7 +336,7 @@ class GoogleAnalyticsReportsApiFeed {
 
     $cache = \Drupal::cache($cache_options['bin'])->get($cache_options['cid']);
 
-    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > REQUEST_TIME)) {
+    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > \Drupal::time()->getRequestTime())) {
       $this->response = $cache->data;
       $this->results = json_decode($this->response);
       $this->fromCache = TRUE;

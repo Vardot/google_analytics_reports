@@ -61,7 +61,7 @@ function drush_google_analytics_reports_fields() {
     }
     $google_analytics_reports_settings = \Drupal::config('google_analytics_reports.settings')->get();
     // Save current time as last executed time.
-    $google_analytics_reports_settings['metadata_last_time'] = REQUEST_TIME;
+    $google_analytics_reports_settings['metadata_last_time'] = \Drupal::time()->getRequestTime();
     // Save etag identifier. It is used to check updates for the fields.
     // @see https://developers.google.com/analytics/devguides/reporting/metadata/v3/devguide#etag
     if (!empty($data['etag'])) {
