@@ -7,9 +7,13 @@ use Drupal\Core\Url;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Cache\CacheFactory;
+use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Class GoogleAnalyticsReportsApiFeed.
@@ -17,7 +21,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * GoogleAnalyticsReportsApiFeed class to authorize access to and request data
  * from the Google Analytics Core Reporting API.
  */
-class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
+class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
 
@@ -111,11 +115,32 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   protected $oAuthHost = 'www.google.com';
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Logger Factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   */
+  protected $loggerFactory;
+
+  /**
    * The RequestStack service.
    *
    * @var Symfony\Component\HttpFoundation\RequestStack
    */
   protected $requestStack;
+
+  /**
+   * The cache factory.
+   *
+   * @var \Drupal\Core\Cache\CacheFactory
+   */
+  protected $cacheFactory;
 
   /**
    * Check if object is authenticated with Google.
@@ -127,33 +152,59 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   /**
    * Google Analytics Reports Api Feed constructor.
    *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
-   *   The request service.
    * @param string|null $token
    *   The token.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler service.
+   * @param Drupal\Core\Logger\LoggerChannelFactory $logger_factory
+   *   The logger Factory.
+   * @param Drupal\Core\Cache\CacheFactory $cache_factory
+   *   The cache factory.
+   * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request service.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack, $token = NULL) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->requestStack = $request_stack;
+  public function __construct($token = NULL, ModuleHandlerInterface $module_handler = NULL, LoggerChannelFactory $logger_factory = NULL, CacheFactory $cache_factory = NULL, RequestStack $request_stack = NULL, TimeInterface $time = NULL) {
     $this->accessToken = $token;
+
+    if (is_null($module_handler)) {
+      $module_handler = \Drupal::service('module_handler');
+    }
+    $this->module_handler = $module_handler;
+
+    if (is_null($logger_factory)) {
+      $logger_factory = \Drupal::service('logger.factory');
+    }
+    $this->loggerFactory = $logger_factory->get('google_analytics_reports_api');
+
+    if (is_null($cache_factory)) {
+      $cache_factory = \Drupal::service('cache_factory');
+    }
+    $this->cacheFactory = $cache_factory;
+
+    if (is_null($request_stack)) {
+      $request_stack = \Drupal::service('request_stack');
+    }
+    $this->requestStack = $request_stack;
+
+    if (is_null($time)) {
+      $time = \Drupal::service('datetime.time');
+    }
+    $this->time = $time;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container) {
     return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
+      NULL,
+      $container->get('module_handler'),
+      $container->get('logger.factory')->get('google_analytics_reports_api'),
+      $container->get('cache_factory'),
       $container->get('request_stack'),
-      NULL
+      $container->get('datetime.time')
     );
   }
 
@@ -249,7 +300,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
           '@details' => print_r(json_decode($this->response), TRUE),
         ];
         $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
-        \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+        $this->loggerFactory->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
       }
     }
     catch (ClientException $e) {
@@ -262,7 +313,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
       $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
-      \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+      $this->loggerFactory->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
   }
 
@@ -357,7 +408,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
       $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
-      \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+      $this->loggerFactory->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
 
     return FALSE;
@@ -425,9 +476,9 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
       $cache_options['cid'] = 'google_analytics_reports_data:' . md5(serialize(array_merge($params, [$url, $method])));
     }
 
-    $cache = \Drupal::cache($cache_options['bin'])->get($cache_options['cid']);
+    $cache = $this->cacheFactory($cache_options['bin'])->get($cache_options['cid']);
 
-    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > \Drupal::time()->getRequestTime())) {
+    if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > $this->time->getRequestTime())) {
       $this->response = $cache->data;
       $this->results = json_decode($this->response);
       $this->fromCache = TRUE;
@@ -437,7 +488,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
     }
 
     if (empty($this->error)) {
-      \Drupal::cache($cache_options['bin'])->set($cache_options['cid'], $this->response, $cache_options['expire']);
+      $this->cacheFactory($cache_options['bin'])->set($cache_options['cid'], $this->response, $cache_options['expire']);
     }
 
     return (empty($this->error));
@@ -482,7 +533,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
           '@details' => print_r(json_decode($this->response), TRUE),
         ];
         $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
-        \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+        $this->loggerFactory->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
       }
     }
     catch (ClientException $e) {
@@ -495,7 +546,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
         '@details' => print_r(json_decode($this->response), TRUE),
       ];
       $this->error = $this->t('<strong>Code</strong>: @code, <strong>Error</strong>: @message, <strong>Message</strong>: <pre>@details</pre>', $error_vars);
-      \Drupal::logger('google_analytics_reports_api')->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
+      $this->loggerFactory->error('<strong>Code</strong>: @code, <strong>Error</strong>: <pre>@details</pre>', $error_vars);
     }
   }
 
@@ -652,7 +703,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
         $field_without_ga = str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name);
 
         // Allow other modules to alter executed data before display.
-        \Drupal::moduleHandler()->alter('google_analytics_reports_api_reported_data', $field_without_ga, $item_value);
+        $this->$module_handler->alter('google_analytics_reports_api_reported_data', $field_without_ga, $item_value);
 
         $this->results->rows[$row_key][$field_without_ga] = $item_value;
       }
