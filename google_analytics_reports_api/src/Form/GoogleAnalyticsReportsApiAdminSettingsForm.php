@@ -9,6 +9,9 @@ use Drupal\Core\Url;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Path\CurrentPathStack;
+use Drupal\Core\Datetime\DateFormatterInterface;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
@@ -16,6 +19,47 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
 
   use StringTranslationTrait;
+
+  /**
+   * The current path stack.
+   *
+   * @var \Drupal\Core\Path\CurrentPathStack
+   */
+  protected $currentPathStack;
+
+  /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
+   * Constructs a new Google Analytics Reports Api Admin Settings Form.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The Date formatter.
+   * @param \Drupal\Core\Path\CurrentPathStack $current_path_stack
+   *   The current path stack.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, DateFormatterInterface $date_formatter, CurrentPathStack $current_path_stack = NULL) {
+    $this->configFactory = $config_factory;
+    $this->dateFormatter = $date_formatter;
+    $this->currentPathStack = $current_path_stack;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('date.formatter'),
+      $container->get('path.current')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -59,7 +103,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       $dev_console_link = Link::fromTextAndUrl($this->t('Google Developers Console'), $dev_console_url)->toRenderable();
       $dev_console_link['#attributes']['target'] = '_blank';
 
-      $current_path = \Drupal::service('path.current')->getPath();
+      $current_path = $this->currentPathStack->getPath();
       $current_path_url = Url::fromUri('base:/' . $current_path, ['absolute' => TRUE]);
 
       $setup_help = $this->t('To access data from Google Analytics you have to create a new project in Google Developers Console.');
@@ -142,9 +186,8 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
         $times[] = $weeks * 60 * 60 * 24 * 7;
       }
 
-      $date_formatter = \Drupal::service('date.formatter');
       $options = array_map([
-        $date_formatter,
+        $this->dateFormatter,
         'formatInterval',
       ], array_combine($times, $times));
 
@@ -190,7 +233,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    * Save Google Analytics Reports API admin setup.
    */
   public function adminSubmitSetup(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
+    $config = $this->configFactory->getEditable('google_analytics_reports_api.settings');
     $config
       ->set('client_id', $form_state->getValue('client_id'))
       ->set('client_secret', $form_state->getValue('client_secret'))
@@ -209,7 +252,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    * Save Google Analytics Reports API settings.
    */
   public function adminSubmitSettings(array &$form, FormStateInterface $form_state) {
-    $config = \Drupal::configFactory()->getEditable('google_analytics_reports_api.settings');
+    $config = $this->configFactory->getEditable('google_analytics_reports_api.settings');
     $config
       ->set('profile_id', $form_state->getValue('profile_id'))
       ->set('cache_length', $form_state->getValue('cache_length'))

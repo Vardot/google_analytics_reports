@@ -7,6 +7,9 @@ use Drupal\Core\Url;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class GoogleAnalyticsReportsApiFeed.
@@ -14,7 +17,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  * GoogleAnalyticsReportsApiFeed class to authorize access to and request data
  * from the Google Analytics Core Reporting API.
  */
-class GoogleAnalyticsReportsApiFeed {
+class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
 
   use StringTranslationTrait;
 
@@ -108,6 +111,13 @@ class GoogleAnalyticsReportsApiFeed {
   protected $oAuthHost = 'www.google.com';
 
   /**
+   * The RequestStack service.
+   *
+   * @var Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * Check if object is authenticated with Google.
    */
   public function isAuthenticated() {
@@ -115,10 +125,26 @@ class GoogleAnalyticsReportsApiFeed {
   }
 
   /**
+   * Google Analytics Reports Api Feed constructor.
+   *
+   * @param Symfony\Component\HttpFoundation\RequestStack $requestStack
+   *   The request service.
+   * @param string|null $token
+   *   The token.
+   */
+  public function __construct(RequestStack $requestStack, $token = NULL) {
+    $this->requestStack = $requestStack;
+    $this->accessToken = $token;
+  }
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct($token = NULL) {
-    $this->accessToken = $token;
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('request_stack'),
+      NULL
+    );
   }
 
   /**
@@ -181,8 +207,9 @@ class GoogleAnalyticsReportsApiFeed {
       ];
     }
     else {
+      $current_request_code = $this->requestStack->getCurrentRequest()->query->get('code');
       $params = [
-        'code' => $_GET['code'],
+        'code' => $current_request_code,
         'grant_type' => 'authorization_code',
         'redirect_uri' => $redirect_uri,
         'client_id' => $client_id,
