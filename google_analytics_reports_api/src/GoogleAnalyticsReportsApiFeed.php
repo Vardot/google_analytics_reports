@@ -118,13 +118,6 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   protected $requestStack;
 
   /**
-   * The current path stack.
-   *
-   * @var \Drupal\Core\Path\CurrentPathStack
-   */
-  protected $currentPathStack;
-
-  /**
    * Check if object is authenticated with Google.
    */
   public function isAuthenticated() {
@@ -136,14 +129,11 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
    *
    * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request service.
-   * @param \Drupal\Core\Path\CurrentPathStack $current_path_stack
-   *   The current path stack.
    * @param string|null $token
    *   The token.
    */
-  public function __construct(RequestStack $request_stack, CurrentPathStack $current_path_stack, $token = NULL) {
+  public function __construct(RequestStack $request_stack, $token = NULL) {
     $this->requestStack = $request_stack;
-    $this->currentPathStack = $current_path_stack;
     $this->accessToken = $token;
   }
 
@@ -153,7 +143,6 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('request_stack'),
-      $container->get('path.current'),
       NULL
     );
   }
@@ -165,8 +154,8 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
    *   - current page url.
    */
   public static function currentUrl() {
-    $current_path = $this->currentPathStack->getPath();
-    return Url::fromUri('base:/' . $current_path, ['absolute' => TRUE])->toString();
+    $current_path_uri = $this->requestStack->getCurrentRequest()->getUri();
+    return Url::fromUri($current_path_uri, ['absolute' => TRUE])->toString();
   }
 
   /**
