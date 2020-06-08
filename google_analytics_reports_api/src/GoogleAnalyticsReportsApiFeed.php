@@ -127,12 +127,19 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   /**
    * Google Analytics Reports Api Feed constructor.
    *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
    * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request service.
    * @param string|null $token
    *   The token.
    */
-  public function __construct(RequestStack $request_stack, $token = NULL) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack, $token = NULL) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->requestStack = $request_stack;
     $this->accessToken = $token;
   }
@@ -140,8 +147,11 @@ class GoogleAnalyticsReportsApiFeed implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
       $container->get('request_stack'),
       NULL
     );

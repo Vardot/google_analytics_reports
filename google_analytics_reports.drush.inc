@@ -81,13 +81,14 @@ function drush_google_analytics_reports_fields() {
           GoogleAnalyticsReports::saveFields($item, $context);
         }
       }
-      drush_log(dt('Imported @count Google Analytics fields.', ['@count' => count($context['results'])]), 'success');
+
+      \Drupal::logger(dt('Imported @count Google Analytics fields.', ['@count' => count($context['results'])]), 'success');
     }
     else {
-      drush_log(dt('An error has occurred during importing Google Analytics fields.'), 'error');
+      \Drupal::logger(dt('An error has occurred during importing Google Analytics fields.'), 'error');
     }
   }
   else {
-    drush_log(dt('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->error]), 'error');
+    \Drupal::logger(dt('There is a error during request to Google Analytics Metadata API: @error', ['@error' => $response->error]), 'error');
   }
 }
