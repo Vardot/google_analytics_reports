@@ -41,13 +41,13 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    *   The configuration factory.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The Date formatter.
-   * @param \Drupal\Core\Path\CurrentPathStack $current_path_stack
-   *   The current path stack.
+   * @param \Drupal\Core\Path\CurrentPathStack $current_path
+   *   The current path.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, DateFormatterInterface $date_formatter, CurrentPathStack $current_path_stack = NULL) {
+  public function __construct(ConfigFactoryInterface $config_factory, DateFormatterInterface $date_formatter, CurrentPathStack $current_path) {
     $this->configFactory = $config_factory;
     $this->dateFormatter = $date_formatter;
-    $this->currentPathStack = $current_path_stack;
+    $this->currentPath = $current_path;
   }
 
   /**
@@ -103,7 +103,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       $dev_console_link = Link::fromTextAndUrl($this->t('Google Developers Console'), $dev_console_url)->toRenderable();
       $dev_console_link['#attributes']['target'] = '_blank';
 
-      $current_path = $this->currentPathStack->getPath();
+      $current_path = $this->currentPath->getPath();
       $current_path_url = Url::fromUri('base:/' . $current_path, ['absolute' => TRUE]);
 
       $setup_help = $this->t('To access data from Google Analytics you have to create a new project in Google Developers Console.');
