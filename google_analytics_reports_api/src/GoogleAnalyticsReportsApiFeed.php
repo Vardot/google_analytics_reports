@@ -171,7 +171,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
     if (is_null($module_handler)) {
       $module_handler = \Drupal::service('module_handler');
     }
-    $this->module_handler = $module_handler;
+    $this->moduleHandler = $module_handler;
 
     if (is_null($logger_factory)) {
       $logger_factory = \Drupal::service('logger.factory');
@@ -476,8 +476,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
       $cache_options['cid'] = 'google_analytics_reports_data:' . md5(serialize(array_merge($params, [$url, $method])));
     }
 
-    $cache = $this->cacheFactory($cache_options['bin'])->get($cache_options['cid']);
-
+    $cache = $this->cacheFactory->get($cache_options['bin'])->get($cache_options['cid']);
     if (!$cache_options['refresh'] && isset($cache) && !empty($cache->data) && ($cache->expire > $this->time->getRequestTime())) {
       $this->response = $cache->data;
       $this->results = json_decode($this->response);
@@ -488,7 +487,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
     }
 
     if (empty($this->error)) {
-      $this->cacheFactory($cache_options['bin'])->set($cache_options['cid'], $this->response, $cache_options['expire']);
+      $this->cacheFactory->get($cache_options['bin'])->set($cache_options['cid'], $this->response, $cache_options['expire']);
     }
 
     return (empty($this->error));
@@ -703,7 +702,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
         $field_without_ga = str_replace('ga:', '', $this->results->columnHeaders[$item_key]->name);
 
         // Allow other modules to alter executed data before display.
-        $this->$module_handler->alter('google_analytics_reports_api_reported_data', $field_without_ga, $item_value);
+        $this->moduleHandler->alter('google_analytics_reports_api_reported_data', $field_without_ga, $item_value);
 
         $this->results->rows[$row_key][$field_without_ga] = $item_value;
       }
