@@ -2,6 +2,7 @@
 
 namespace Drupal\google_analytics_reports_api\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Link;
@@ -10,6 +11,7 @@ use Drupal\Core\Datetime\DateFormatterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
