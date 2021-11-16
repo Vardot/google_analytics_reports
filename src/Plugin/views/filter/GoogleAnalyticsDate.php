@@ -17,7 +17,7 @@ class GoogleAnalyticsDate extends Date {
    * {@inheritdoc}
    */
   public function operators() {
-    $operators = [
+    return [
       '=' => [
         'title' => $this->t('Is equal to'),
         'method' => 'opSimple',
@@ -25,17 +25,24 @@ class GoogleAnalyticsDate extends Date {
         'values' => 1,
       ],
     ];
-    return $operators;
   }
 
   /**
    * {@inheritdoc}
    */
   protected function opSimple($field) {
-    $origin = (!empty($this->value['type']) && $this->value['type'] == 'offset') ? \Drupal::time()->getRequestTime() : 0;
-    $value = intval(strtotime($this->value['value'], $origin));
+    $origin =
+      !empty($this->value['type']) && $this->value['type'] === 'offset'
+        ? \Drupal::time()->getRequestTime()
+        : 0;
+    $value = (int) strtotime($this->value['value'], $origin);
 
-    $this->query->addWhere($this->options['group'], $field, $value, $this->operator);
+    $this->query->addWhere(
+      $this->options['group'],
+      $field,
+      $value,
+      $this->operator
+    );
   }
 
 }

@@ -5,8 +5,6 @@
  * Contains install and update functions for Google Analytics Reports module.
  */
 
-use Drupal\google_analytics_reports\GoogleAnalyticsReports;
-
 /**
  * Implements hook_schema().
  */
@@ -68,14 +66,8 @@ function google_analytics_reports_schema() {
     ],
     'primary key' => ['gaid'],
   ];
-  return $schema;
-}
 
-/**
- * Implements hook_install().
- */
-function google_analytics_reports_install() {
-  GoogleAnalyticsReports::importFields();
+  return $schema;
 }
 
 /**

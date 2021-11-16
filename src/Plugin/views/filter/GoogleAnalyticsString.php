@@ -14,8 +14,29 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  * @ViewsFilter("google_analytics_string")
  */
 class GoogleAnalyticsString extends GoogleAnalyticsBase {
-
   use StringTranslationTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function adminSummary() {
+    if (!empty($this->options['exposed'])) {
+      return $this->t('exposed');
+    }
+
+    $options = $this->operatorOptions('short');
+    $output = '';
+
+    if (!empty($options[$this->operator])) {
+      $output = Html::escape($options[$this->operator]);
+    }
+
+    if (\in_array($this->operator, $this->operatorValues(1), TRUE)) {
+      $output .= ' ' . Html::escape($this->value);
+    }
+
+    return $output;
+  }
 
   /**
    * {@inheritdoc}
@@ -23,7 +44,28 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
   public function defineOptions() {
     $options = parent::defineOptions();
     $options['expose']['contains']['required'] = ['default' => FALSE];
+
     return $options;
+  }
+
+  /**
+   * Operation contains.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opContains($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '=@');
+  }
+
+  /**
+   * Operation Equality.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opEqual($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '==');
   }
 
   /**
@@ -36,7 +78,7 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
    * {@inheritdoc}
    */
   public function operators() {
-    $operators = [
+    return [
       '=' => [
         'title' => $this->t('Is equal to'),
         'short' => $this->t('='),
@@ -74,7 +116,67 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
         'values' => 1,
       ],
     ];
-    return $operators;
+  }
+
+  /**
+   * Operator values.
+   *
+   * @param int $values
+   *   Value.
+   *
+   * @return array
+   *   Operator keys.
+   */
+  public function operatorValues($values = 1) {
+    $options = [];
+
+    foreach ($this->operators() as $id => $info) {
+      if (isset($info['values']) && $info['values'] === $values) {
+        $options[] = $id;
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * Operation non-equality.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opInequal($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '!=');
+  }
+
+  /**
+   * Operation not.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opNot($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '!@');
+  }
+
+  /**
+   * Operation regex not match.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opNotRegex($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '!~');
+  }
+
+  /**
+   * Operation regex match.
+   *
+   * @param string $field
+   *   Field name.
+   */
+  public function opRegex($field) {
+    $this->query->addWhere($this->options['group'], $field, $this->value, '=~');
   }
 
   /**
@@ -92,33 +194,45 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
     // not rendered, we can't render dependencies; instead we only
     // render the form items we need.
     $which = 'all';
+
     if (!empty($form['operator'])) {
-      $source = ($form['operator']['#type'] == 'radios') ? 'radio:options[operator]' : 'edit-options-operator';
+      $source =
+        $form['operator']['#type'] === 'radios'
+          ? 'radio:options[operator]'
+          : 'edit-options-operator';
     }
+
     if (!empty($values['exposed'])) {
       $identifier = $this->options['expose']['identifier'];
 
-      if (empty($this->options['expose']['use_operator']) || empty($this->options['expose']['operator_id'])) {
+      if (
+        empty($this->options['expose']['use_operator'])
+        || empty($this->options['expose']['operator_id'])
+      ) {
         // Exposed and locked.
-        $which = in_array($this->operator, $this->operatorValues(1)) ? 'value' : 'none';
+        $which = \in_array($this->operator, $this->operatorValues(1), TRUE)
+          ? 'value'
+          : 'none';
       }
       else {
-        $source = 'edit-' . Html::getUniqueId($this->options['expose']['operator_id']);
+        $source =
+          'edit-' . Html::getUniqueId($this->options['expose']['operator_id']);
       }
     }
 
-    if ($which == 'all' || $which == 'value') {
+    if ($which === 'all' || $which === 'value') {
       $form['value'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Value'),
         '#size' => 30,
         '#default_value' => $this->value,
       ];
+
       if (!empty($values['exposed']) && !isset($values['input'][$identifier])) {
         $values['input'][$identifier] = $this->value;
       }
 
-      if ($which == 'all') {
+      if ($which === 'all') {
         $form['value'] += [
           '#dependency' => [$source => $this->operatorValues(1)],
         ];
@@ -132,105 +246,6 @@ class GoogleAnalyticsString extends GoogleAnalyticsBase {
         '#value' => NULL,
       ];
     }
-  }
-
-  /**
-   * Operation Equality.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opEqual($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '==');
-  }
-
-  /**
-   * Operation non-equality.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opInequal($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '!=');
-  }
-
-  /**
-   * Operation contains.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opContains($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '=@');
-  }
-
-  /**
-   * Operation not.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opNot($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '!@');
-  }
-
-  /**
-   * Operation regex match.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opRegex($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '=~');
-  }
-
-  /**
-   * Operation regex not match.
-   *
-   * @param string $field
-   *   Field name.
-   */
-  public function opNotRegex($field) {
-    $this->query->addWhere($this->options['group'], $field, $this->value, '!~');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function adminSummary() {
-    if (!empty($this->options['exposed'])) {
-      return $this->t('exposed');
-    }
-
-    $options = $this->operatorOptions('short');
-    $output = '';
-    if (!empty($options[$this->operator])) {
-      $output = Html::escape($options[$this->operator]);
-    }
-    if (in_array($this->operator, $this->operatorValues(1))) {
-      $output .= ' ' . Html::escape($this->value);
-    }
-    return $output;
-  }
-
-  /**
-   * Operator values.
-   *
-   * @param int $values
-   *   Value.
-   *
-   * @return array
-   *   Operator keys.
-   */
-  public function operatorValues($values = 1) {
-    $options = [];
-    foreach ($this->operators() as $id => $info) {
-      if (isset($info['values']) && $info['values'] == $values) {
-        $options[] = $id;
-      }
-    }
-
-    return $options;
   }
 
 }

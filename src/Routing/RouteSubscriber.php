@@ -15,7 +15,10 @@ class RouteSubscriber extends RouteSubscriberBase {
    */
   protected function alterRoutes(RouteCollection $collection) {
     if ($route = $collection->get('google_analytics_reports_api.settings')) {
-      $route->setDefault('_form', 'Drupal\google_analytics_reports\Form\GoogleAnalyticsReportsAdminSettingsForm');
+      $route->setDefault(
+        '_form',
+        'Drupal\google_analytics_reports\Form\GoogleAnalyticsReportsAdminSettingsForm'
+      );
     }
   }
 
