@@ -5,7 +5,6 @@ namespace Drupal\google_analytics_reports\Plugin\views\query;
 use Filter\StringFilter\MatchType;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -289,13 +288,6 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    parent::buildOptionsForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function create(
     ContainerInterface $container,
     array $configuration,
@@ -311,13 +303,6 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $container->get('state'),
       $container->get('messenger')
     );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defineOptions() {
-    return parent::defineOptions();
   }
 
   /**
@@ -373,7 +358,18 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       $views_result = [];
       $count = 0;
 
-      foreach ([['DIMENSION', 'getDimensionHeaders'], ['METRIC', 'getMetricHeaders']] as $typeobj) {
+      $type_objects = [
+        [
+          'DIMENSION',
+          'getDimensionHeaders',
+        ],
+        [
+          'METRIC',
+          'getMetricHeaders',
+        ],
+      ];
+
+      foreach ($type_objects as $typeobj) {
         [$type, $att] = $typeobj;
         $index = -1;
         $mmap[$type] = array_reduce(
@@ -453,8 +449,11 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
   }
 
   /**
+   * Convert query.
+   *
+   * To link https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport.
+   *
    * {@inheritdoc}
-   * Convert query to https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport.
    */
   public function query($get_count = FALSE) {
     $available_fields = google_analytics_reports_get_fields();
@@ -580,7 +579,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
 
                       if (!$operator) {
                         \Drupal::messenger()->addMessage(
-                          t(
+                          $this->t(
                             'The chosen operator is not available! Try use regular expression! @op',
                             [
                               '@op' => print_r(

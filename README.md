@@ -14,12 +14,30 @@ Analytics reports using Views interface.
 ## GA4 Notes
 
 ```
-Familiarize yourself with the current list of dimensions and metrics supported by the Data API. Currently, all dimensions and metrics are compatible with each other, so there is no need to use the Dimensions and Metrics Explorer to determine compatible combinations. This behavior will change in the future.
-Custom dimensions in Google Analytics 4 can be accessed using the Data API v1 custom dimensions syntax, which should be used instead of the ga:dimensionXX dimension slots of the Reporting API v4.
-Custom metrics in Google Analytics 4 can be accessed using the Data API v1 custom metrics syntax, which should be used instead of the ga:metricXX metric slots of the Reporting API v4.
-Certain dimensions and metrics found in Universal Analytics have a direct equivalent in Google Analytics 4. See the UA/GA4 API schema equivalence chart for more information.
+Familiarize yourself with the current list of dimensions and metrics 
+supported by the Data API. Currently, all dimensions and metrics are
+compatible with each other, so there is no need to use the Dimensions
+and Metrics Explorer to determine compatible combinations. This behavior
+will change in the future.
+
+Custom dimensions in Google Analytics 4 can be accessed using the Data
+API v1 custom dimensions syntax, which should be used instead of the
+ga:dimensionXX dimension slots of the Reporting API v4.
+
+Custom metrics in Google Analytics 4 can be accessed using the
+Data API v1 custom metrics syntax, which should be used instead of
+the ga:metricXX metric slots of the Reporting API v4.
+
+Certain dimensions and metrics found in Universal Analytics have
+ a direct equivalent in Google Analytics 4. See the UA/GA4 API
+ schema equivalence chart for more information.
+
 Dimension and metric names no longer have ga: prefix in Google Analytics 4.
-Certain functionality present in Universal Analytics is not yet available in GA4 (e.g. Campaign Manager, DV360, Search Ads 360 integration). Once this functionality is implemented in Google Analytics 4, the Data API will support it, new dimensions and metrics will be added to the API schema.
+Certain functionality present in Universal Analytics is not yet
+ available in GA4 (e.g. Campaign Manager, DV360, Search Ads 360 integration).
+Once this functionality is implemented in Google Analytics 4, the
+ Data API will support it, new dimensions and metrics will be added
+ to the API schema.
 ```
 
 ## REQUIREMENTS
@@ -44,25 +62,10 @@ Certain functionality present in Universal Analytics is not yet available in GA4
 ## INSTALLATION
 
 - Install like normal Drupal module
-- Setup in composer.json to have Google lib installed. Check composer merge and
-  setting in following example config:
+- **Install with Composer:** 
 
 ```
-"require": {
-  "wikimedia/composer-merge-plugin": "^2.0"
-  ...
-},
-"extra": {
-  "merge-plugin": {
-      "include": [
-          "web/modules/contrib/google_analytics_reports/composer.libraries.json",
-      ],
-  }
-}
-
 composer require drupal/google_analytics_reports
-composer update drupal/google_analytics_reports
-
 ```
 
 ## CONFIGURATION
@@ -75,20 +78,20 @@ enable the analytics API for it:
 1. Setup the API via doc
    https://developers.google.com/analytics/devguides/reporting/data/v1
 
-1. Open Google Developers Console: https://console.developers.google.com. Find
+2. Open Google Developers Console: https://console.developers.google.com. Find
    Google Analytics Data API and enable for your project Get the credential at
    Credential tab
-1. Use the hamburger menu to select API & Services » Credentials.
-1. Click the pull-down menu "Create credentials". Select "Help me choose".
-1. Under "What API are you using", select "Google Analytics Reports API" and
+3. Use the hamburger menu to select API & Services » Credentials.
+4. Click the pull-down menu "Create credentials". Select "Help me choose".
+5. Under "What API are you using", select "Google Analytics Reports API" and
    choose "User Data" on the page
-1. Fill the information. Under "Oauth Client Id" => "Application Type" select
+6. Fill the information. Under "Oauth Client Id" => "Application Type" select
    "Web Application".
-1. Leave empty "Authorized JavaScript origins".
-1. Fill in "Authorized redirect URIs" with
+7. Leave empty "Authorized JavaScript origins".
+8. Fill in "Authorized redirect URIs" with
    "http://YOURSITEDOMAIN/admin/config/services/google-analytics-reports-api".
    Replace "YOURSITEDOMAIN" with the base URL of your site.
-1. Download client secret json and copy client + secret
+9. Download client secret json and copy client + secret
 
 On the Drupal site navigate to "Configuration » System » Google Analytics
 Reports API" and copy "Client ID" and "Client secret" from the Google Developers
@@ -114,10 +117,11 @@ specify in the admin settings. Our recommendation is at least three days.
 
 ## CREDITS
 
-- Joel Kitching (jkitching)
-- Tony Rasmussen (raspberryman)
-- Dylan Tack (grendzy)
-- Nickolay Leshchev (Plazik)
+- [Joel Kitching (jkitching)](https://www.drupal.org/user/159067)
+- [Tony Rasmussen (raspberryman)](https://www.drupal.org/user/71464)
+- [Dylan Tack (grendzy)](https://www.drupal.org/user/96647)
+- [Nickolay Leshchev (Plazik)](https://www.drupal.org/u/plazik)
+- [Vardot](https://www.drupal.org/vardot)
 
 # Google analytics 4
 

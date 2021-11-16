@@ -42,7 +42,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
     unset($display_options['fields']);
 
     // Add the title field.
-    // Field: Page tracking: Page Title
+    // Field: Page tracking: Page Title.
     $display_options['fields']['pageTitle'] = [
       'id' => 'pageTitle',
       'table' => 'google_analytics',
@@ -54,7 +54,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
     // Remove the default filters, since we are customizing them here.
     unset($display_options['filters']);
 
-    // Filter criterion: Google Analytics: Start date of report
+    // Filter criterion: Google Analytics: Start date of report.
     $display_options['filters']['start_date'] = [
       'id' => 'start_date',
       'plugin_id' => 'google_analytics_date',
@@ -67,7 +67,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
       'group' => 1,
       'expose' => ['operator' => FALSE],
     ];
-    // Filter criterion: Google Analytics: End date of report
+    // Filter criterion: Google Analytics: End date of report.
     $display_options['filters']['end_date'] = [
       'id' => 'end_date',
       'plugin_id' => 'google_analytics_date',

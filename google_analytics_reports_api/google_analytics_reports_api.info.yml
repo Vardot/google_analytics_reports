@@ -1,7 +1,6 @@
 name: 'Google Analytics Reports API'
 type: module
-description: 'API to access statistics from the <a href="https://developers.google.com/analytics/devguides/reporting/core/v3/">Google Analytics Core Reporting API</a>.'
+description: 'API to access statistics from the <a href="https://developers.google.com/analytics/devguides/reporting/core/v4/">Google Analytics Core Reporting API</a>.'
 package: Statistics
-core: 8.x
 core_version_requirement: ^8 || ^9
 configure: google_analytics_reports_api.settings

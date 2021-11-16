@@ -257,8 +257,8 @@ class GoogleAnalyticsNumeric extends GoogleAnalyticsBase {
       $form['value']['max'] = [
         '#type' => 'textfield',
         '#title' => empty($values['exposed'])
-          ? $this->t('And max')
-          : $this->t('And'),
+        ? $this->t('And max')
+        : $this->t('And'),
         '#size' => 30,
         '#default_value' => $this->value['max'],
       ];

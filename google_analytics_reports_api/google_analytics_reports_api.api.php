@@ -16,7 +16,7 @@
  * Allow modules to alter Google Analytics reported data after executing.
  *
  * @param string $name
- *   Name of Google Analytics field
+ *   Name of Google Analytics field.
  * @param mixed $value
  *   Value of current Google Analytics field.
  */

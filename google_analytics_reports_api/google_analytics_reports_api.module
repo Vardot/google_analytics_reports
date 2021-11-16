@@ -11,11 +11,14 @@ use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
 
 /**
  * Instantiate a new GoogleAnalyticsReportsApiFeed object.
- * All API here can be called via this function https://developers.google.com/analytics/devguides/reporting/data/v1
+ *
+ * All API here can be called via this function
+ * https://developers.google.com/analytics/devguides/reporting/data/v1
  * Ex: google_analytics_reports_api_gafeed()->runReport(['dateRange' => ...]);.
  *
  * @return object
- *   GoogleAnalyticsReportsApiFeed object to run needed API from new Analytics API
+ *   GoogleAnalyticsReportsApiFeed object to run needed API from
+ *   new Analytics API.
  */
 function google_analytics_reports_api_gafeed($settings = []) {
   static $mclient;
@@ -84,6 +87,9 @@ function google_analytics_reports_api_cache_time() {
     );
 }
 
+/**
+ * Convert an object to array.
+ */
 function _to_array($obj) {
   $temp = (array) $obj;
   $array = [];
@@ -96,6 +102,9 @@ function _to_array($obj) {
   return $array;
 }
 
+/**
+ * Google Analytics convert dimentrics.
+ */
 function _ga_convert_dimentrics($field_name, $cb1, $cb2) {
   $available_fields = google_analytics_reports_get_fields();
 

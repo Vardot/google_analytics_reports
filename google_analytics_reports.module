@@ -75,7 +75,7 @@ function google_analytics_reports_google_analytics_reports_api_reported_data_alt
  */
 function google_analytics_reports_get_fields() {
   $fields = &drupal_static(__FUNCTION__);
-  // todo: fetch data from cache.
+  // @todo fetch data from cache.
   if (!isset($fields)) {
     $fields = \Drupal::database()
       ->select('google_analytics_reports_fields', 'g')

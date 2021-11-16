@@ -11,16 +11,13 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Google\ApiCore\ApiException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Logger\LoggerChannelFactory;
-use Drupal\Core\Cache\CacheFactory;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Class GoogleAnalyticsReportsApiFeed.
  *
- * GoogleAnalyticsReportsApiFeed class that acts as a proxy for main google lib to call the API
+ * GoogleAnalyticsReportsApiFeed class that acts
+ * as a proxy for main google lib to call the API.
  */
 class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
   use StringTranslationTrait;
@@ -75,6 +72,13 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
   protected $requestStack;
 
   /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * Google Analytics Reports Api Feed constructor.
    *
    * @param object|null $client
@@ -91,6 +95,8 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    *   The request service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger.
    */
   public function __construct(
     $client = NULL,
@@ -99,37 +105,44 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
     LoggerChannelFactory $logger_factory = NULL,
     CacheFactory $cache_factory = NULL,
     RequestStack $request_stack = NULL,
-    TimeInterface $time = NULL
+    TimeInterface $time = NULL,
+    MessengerInterface $messenger = NULL
   ) {
     $this->client = $client;
     $this->property = $property;
-
-    if ($module_handler === NULL) {
-      $module_handler = \Drupal::service('module_handler');
-    }
-    $this->moduleHandler = $module_handler;
-
-    if ($logger_factory === NULL) {
-      $logger_factory = \Drupal::service('logger.factory');
-    }
-    $this->loggerFactory = $logger_factory->get('google_analytics_reports_api');
-
-    if ($cache_factory === NULL) {
-      $cache_factory = \Drupal::service('cache_factory');
-    }
-    $this->cacheFactory = $cache_factory;
-
-    if ($request_stack === NULL) {
-      $request_stack = \Drupal::service('request_stack');
-    }
-    $this->requestStack = $request_stack;
-
-    if ($time === NULL) {
-      $time = \Drupal::service('datetime.time');
-    }
-    $this->time = $time;
+    // phpcs:ignore
+    $this->moduleHandler = $module_handler ? $module_handler : \Drupal::service('module_handler');
+    // phpcs:ignore
+    $this->loggerFactory = $logger_factory ? $logger_factory->get('google_analytics_reports_api') : \Drupal::service('cache_factory')->get('google_analytics_reports_api');
+    // phpcs:ignore
+    $this->cacheFactory = $cache_factory ? $cache_factory : \Drupal::service('cache_factory');
+    // phpcs:ignore
+    $this->requestStack = $request_stack ? $request_stack : \Drupal::service('request_stack');
+    // phpcs:ignore
+    $this->time = $time ? $time : \Drupal::service('datetime.time');
+    // phpcs:ignore
+    $this->messenger = $messenger ? $messenger : \Drupal::service('messenger');
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      NULL,
+      NULL,
+      $container->get('module_handler'),
+      $container->get('logger.factory')->get('google_analytics_reports_api'),
+      $container->get('cache_factory'),
+      $container->get('request_stack'),
+      $container->get('datetime.time'),
+      $container->get('messenger')
+    );
+  }
+
+  /**
+   * Call a static drupal function.
+   */
   public function __call($func, $params) {
     $icached = &drupal_static(__FUNCTION__);
     $tthis = $this;
@@ -146,7 +159,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
     $params[0] = \is_array($params[0] ?? FALSE) ? $params[0] : [];
     $params[0] += ['property' => 'properties/' . $this->property];
 
-    // Check if cache is available
+    // Check if cache is available.
     $cache_options = [
       'cid' => NULL,
       'bin' => 'default',
@@ -160,12 +173,12 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
         md5(serialize(array_merge($params, [$func])));
     }
 
-    // Check for internal cached
+    // Check for internal cached.
     if ($icached[$cache_options['bin']][$cache_options['cid']] ?? FALSE) {
       return $icached[$cache_options['bin']][$cache_options['cid']];
     }
 
-    // Check for DB cache
+    // Check for DB cache.
     $cache = $this->cacheFactory
       ->get($cache_options['bin'])
       ->get($cache_options['cid']);
@@ -186,15 +199,12 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
         $ret = \call_user_func_array($bind[$func], $params);
       }
       else {
-        // Add property to the rest
+        // Add property to the rest.
         $ret = \call_user_func_array([$this->client, $func], $params);
       }
     }
     catch (ApiException $e) {
-      \Drupal::messenger()->addMessage(
-        t('Error occurred! @e', ['@e' => $e]),
-        'error'
-      );
+      $this->messenger->addMessage($this->t('Error occurred! @e', ['@e' => $e]), 'error');
 
       return FALSE;
     }
@@ -210,24 +220,10 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      NULL,
-      $container->get('module_handler'),
-      $container->get('logger.factory')->get('google_analytics_reports_api'),
-      $container->get('cache_factory'),
-      $container->get('request_stack'),
-      $container->get('datetime.time')
-    );
-  }
-
-  /**
    * Check if object is authenticated with Google.
    */
   public function isAuthenticated() {
-    // @TODO: Validate the json file here
+    // @todo Validate the json file here
     return !empty($this->client);
   }
 

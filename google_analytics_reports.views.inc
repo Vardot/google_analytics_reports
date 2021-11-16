@@ -114,8 +114,8 @@ function google_analytics_reports_views_data() {
       ],
       'filter' => [
         'id' => $field->type === 'metric'
-            ? 'google_analytics_numeric'
-            : 'google_analytics_string',
+        ? 'google_analytics_numeric'
+        : 'google_analytics_string',
       ],
     ];
   }

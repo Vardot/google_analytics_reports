@@ -8,9 +8,10 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\file\Entity\File;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
@@ -38,6 +39,20 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
   protected $requestStack;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * Constructs a new Google Analytics Reports Api Admin Settings Form.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -46,15 +61,36 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    *   The Date formatter.
    * @param Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     DateFormatterInterface $date_formatter,
-    RequestStack $request_stack
+    RequestStack $request_stack,
+    EntityTypeManagerInterface $entity_type_manager,
+    MessengerInterface $messenger
   ) {
     $this->configFactory = $config_factory;
     $this->dateFormatter = $date_formatter;
     $this->requestStack = $request_stack;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->messenger = $messenger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('date.formatter'),
+      $container->get('request_stack'),
+      $container->get('entity_type.manager'),
+      $container->get('messenger')
+    );
   }
 
   /**
@@ -70,22 +106,18 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
     $json = $config->get('json');
 
     if ((string) $json !== (string) $fid) {
-      $file = File::load($fid);
+      $file = $this->entityTypeManager->getStorage('file')->load($fid);
       $file->setPermanent();
       $file->save();
     }
-    $config = $this->configFactory->getEditable(
-      'google_analytics_reports_api.settings'
-    );
+    $config = $this->configFactory->getEditable('google_analytics_reports_api.settings');
     $config
       ->set('json', $fid)
       ->set('property', $form_state->getValue('property'))
       ->set('cache_length', $form_state->getValue('cache_length'))
       ->save();
 
-    \Drupal::messenger()->addMessage(
-      $this->t('Settings have been saved successfully.')
-    );
+    $this->messenge->addMessage($this->t('Settings have been saved successfully.'));
   }
 
   /**
@@ -119,12 +151,12 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
 
     $form['setup']['json'] = [
       '#type' => 'managed_file',
-      '#title' => t('Credential JSON'),
+      '#title' => $this->t('Credential JSON'),
       '#upload_validators' => [
         'file_validate_extensions' => ['doc docx txt pdf json'],
       ],
       '#upload_location' => 'private://',
-      '#description' => t('Ensure private file system is setup'),
+      '#description' => $this->t('Ensure private file system is setup'),
       '#default_value' => $config->get('json') !== NULL ? [$config->get('json')] : '',
     ];
 
@@ -196,17 +228,6 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('date.formatter'),
-      $container->get('request_stack')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getFormId() {
     return 'google_analytics_reports_api_settings';
   }
@@ -224,7 +245,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
     $image = $form_state->getValue(['json']);
     $fid = $image[0] ?? FALSE;
     $acc = FALSE;
-    // Maybe user is removing fid @TODO, so no validating
+    // Maybe user is removing fid @TODO, so no validating.
     if ($fid) {
       $acc = google_analytics_reports_api_gafeed(
         ['json' => $fid] + $form_state->getValues()
