@@ -8,9 +8,9 @@ use Drupal\views\Plugin\views\wizard\WizardPluginBase;
  * Tests creating Google Analytics views with the wizard.
  *
  * @ViewsWizard(
- *   id = "google_analytics_wizard",
- *   base_table = "google_analytics",
- *   title = @Translation("Google Analytics")
+ *     id="google_analytics_wizard",
+ *     base_table="google_analytics",
+ *     title=@Translation("Google Analytics")
  * )
  */
 class GoogleAnalyticsWizard extends WizardPluginBase {
@@ -35,13 +35,14 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
 
     // Add permission-based access control.
     $display_options['access']['type'] = 'perm';
-    $display_options['access']['options']['perm'] = 'access google analytics reports';
+    $display_options['access']['options']['perm'] =
+      'access google analytics reports';
 
     // Remove the default fields, since we are customizing them here.
     unset($display_options['fields']);
 
     // Add the title field.
-    /* Field: Page tracking: Page Title */
+    // Field: Page tracking: Page Title
     $display_options['fields']['pageTitle'] = [
       'id' => 'pageTitle',
       'table' => 'google_analytics',
@@ -53,7 +54,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
     // Remove the default filters, since we are customizing them here.
     unset($display_options['filters']);
 
-    /* Filter criterion: Google Analytics: Start date of report */
+    // Filter criterion: Google Analytics: Start date of report
     $display_options['filters']['start_date'] = [
       'id' => 'start_date',
       'plugin_id' => 'google_analytics_date',
@@ -66,7 +67,7 @@ class GoogleAnalyticsWizard extends WizardPluginBase {
       'group' => 1,
       'expose' => ['operator' => FALSE],
     ];
-    /* Filter criterion: Google Analytics: End date of report */
+    // Filter criterion: Google Analytics: End date of report
     $display_options['filters']['end_date'] = [
       'id' => 'end_date',
       'plugin_id' => 'google_analytics_date',

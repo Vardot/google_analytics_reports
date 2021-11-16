@@ -41,7 +41,7 @@
  */
 function hook_google_analytics_reports_field_import_alter(array &$field) {
   // Change data type for Date field.
-  if ($field['id'] == 'date') {
+  if ($field['id'] === 'date') {
     $field['attributes']['dataType'] = 'date';
   }
 }

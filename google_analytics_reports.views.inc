@@ -64,27 +64,35 @@ function google_analytics_reports_views_data() {
 
   foreach ($fields as $field_name => $field) {
     // Description of filed from Google Analytics.
-    $field->description = $field->description . '<br />' . t('Type: @type.', ['@type' => $field->type]);
-    if (isset($field->calculation)) {
-      $field->description .= '<br />' . t('Calculation: <code>@formula</code>.',
-          ['@formula' => $field->calculation]);
+    $field->description =
+      $field->description .
+      '<br />' .
+      t('Type: @type.', ['@type' => $field->type]);
+
+    if (isset($field->calculation) && $field->calculation) {
+      $field->description .=
+        '<br />' .
+        t('Calculation: <code>@formula</code>.', [
+          '@formula' => $field->calculation,
+        ]);
     }
-    $field->description .= '<br />' . t('API name: <code>@ga</code>.',
-        ['@ga' => 'ga:' . $field_name]);
+    $field->description .=
+      '<br />' . t('API name: <code>@ga</code>.', ['@ga' => $field_name]);
 
     // Provide default handler.
     $field_handler = 'standard';
     $float = FALSE;
 
-    if (google_analytics_reports_is_custom($field_name)) {
-      $field_handler = 'google_analytics_standard';
-    }
-    elseif (in_array($field->data_type, ['date', 'time'])) {
+    if (in_array($field->data_type, ['date', 'time'], TRUE)) {
       $field_handler = 'date';
     }
-    elseif (in_array($field->data_type,
-      ['integer', 'float', 'percent', 'currency'])) {
-
+    elseif (
+      in_array(
+        $field->data_type,
+        ['integer', 'float', 'percent', 'currency'],
+        TRUE
+      )
+    ) {
       $field_handler = 'numeric';
       $float = TRUE;
     }
@@ -105,7 +113,9 @@ function google_analytics_reports_views_data() {
         'id' => 'google_analytics_argument',
       ],
       'filter' => [
-        'id' => ($field->type == 'metric') ? 'google_analytics_numeric' : 'google_analytics_string',
+        'id' => $field->type === 'metric'
+            ? 'google_analytics_numeric'
+            : 'google_analytics_string',
       ],
     ];
   }

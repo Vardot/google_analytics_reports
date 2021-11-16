@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Implements Google Analytics Reports API Admin Settings form override.
  */
 class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiAdminSettingsForm {
-
   /**
    * Date Formatter Interface.
    *
@@ -31,43 +30,40 @@ class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiA
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('date.formatter')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
     $account = google_analytics_reports_api_gafeed();
-    if ($account instanceof GoogleAnalyticsReportsApiFeed && $account->isAuthenticated()) {
-      $google_analytics_reports_settings = $this->config('google_analytics_reports.settings')->get();
+
+    if (
+      $account instanceof GoogleAnalyticsReportsApiFeed
+      && $account->isAuthenticated()
+    ) {
+      $google_analytics_reports_settings = $this->config(
+        'google_analytics_reports.settings'
+      )->get();
       $last_time = '';
+
       if (!empty($google_analytics_reports_settings['metadata_last_time'])) {
         $last_time = $google_analytics_reports_settings['metadata_last_time'];
       }
-      $collapsed = (!$last_time) ? TRUE : FALSE;
+      $collapsed = !$last_time ? TRUE : FALSE;
       $form['fields'] = [
         '#type' => 'details',
         '#title' => $this->t('Import and update fields'),
         '#open' => $collapsed,
       ];
+
       if ($last_time) {
         $form['fields']['last_time'] = [
           '#type' => 'item',
           '#title' => $this->t('Google Analytics fields for Views integration'),
-          '#description' => $this->t('Last import was @time.',
-            [
-              '@time' => $this->dateFormatter->format($last_time, 'custom', 'd F Y H:i'),
-            ]),
-        ];
-        $form['fields']['update'] = [
-          '#type' => 'submit',
-          '#value' => $this->t('Check updates'),
-          '#submit' => [[GoogleAnalyticsReports::class, 'checkUpdates']],
+          '#description' => $this->t('Last import was @time.', [
+            '@time' => $this->dateFormatter->format(
+              $last_time,
+              'custom',
+              'd F Y H:i'
+            ),
+          ]),
         ];
       }
       $form['fields']['settings'] = [
@@ -76,7 +72,15 @@ class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiA
         '#submit' => [[GoogleAnalyticsReports::class, 'importFields']],
       ];
     }
+
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('date.formatter'));
   }
 
 }

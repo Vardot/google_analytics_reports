@@ -14,12 +14,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @ingroup views_argument_default_plugins
  *
  * @ViewsArgumentDefault(
- *   id = "google_analytics_path",
- *   title = @Translation("Current page path (Google Analytics Reports)")
+ *     id="google_analytics_path",
+ *     title=@Translation("Current page path (Google Analytics Reports)")
  * )
  */
 class GoogleAnalyticsPath extends ArgumentDefaultPluginBase implements CacheableDependencyInterface {
-
   /**
    * Request stack.
    *
@@ -30,7 +29,12 @@ class GoogleAnalyticsPath extends ArgumentDefaultPluginBase implements Cacheable
   /**
    * {@inheritdoc}
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, RequestStack $request_stack) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    RequestStack $request_stack
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->requestStack = $request_stack;
   }
@@ -38,7 +42,12 @@ class GoogleAnalyticsPath extends ArgumentDefaultPluginBase implements Cacheable
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(
+    ContainerInterface $container,
+    array $configuration,
+    $plugin_id,
+    $plugin_definition
+  ) {
     return new static(
       $configuration,
       $plugin_id,
@@ -57,15 +66,15 @@ class GoogleAnalyticsPath extends ArgumentDefaultPluginBase implements Cacheable
   /**
    * {@inheritdoc}
    */
-  public function getCacheMaxAge() {
-    return Cache::PERMANENT;
+  public function getCacheContexts() {
+    return ['url'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getCacheContexts() {
-    return ['url'];
+  public function getCacheMaxAge() {
+    return Cache::PERMANENT;
   }
 
 }

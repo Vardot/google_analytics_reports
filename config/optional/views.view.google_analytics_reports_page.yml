@@ -1,12 +1,9 @@
-uuid: cd98716f-49db-4792-8c94-035f609127ed
 langcode: da
 status: true
 dependencies:
   module:
     - google_analytics_reports
     - user
-_core:
-  default_config_hash: u6499D4WmLg1EJnJ6jmNSVaC1hIaTImEFVldhiwuNEo
 id: google_analytics_reports_page
 label: 'Google Analytics Reports Page'
 module: views
@@ -14,7 +11,6 @@ description: 'Display statistic information about website pages from Google Anal
 tag: 'Google Analytics Reports'
 base_table: google_analytics
 base_field: ''
-core: 8.x
 display:
   default:
     display_plugin: default
@@ -28,7 +24,7 @@ display:
           perm: 'access google analytics reports'
       cache:
         type: tag
-        options: {  }
+        options: {}
       query:
         type: views_query
       exposed_form:
@@ -50,400 +46,349 @@ display:
       row:
         type: fields
       fields:
-        pageviews:
-          id: pageviews
+        screenPageViews:
+          id: screenPageViews
           table: google_analytics
-          field: pageviews
+          field: screenPageViews
           relationship: none
           group_type: group
           admin_label: ''
-          label: Pageviews
-          exclude: false
+          label: Views
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: false
-          precision: 0
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: ''
-          suffix: ''
-          plugin_id: numeric
-        uniquePageviews:
-          id: uniquePageviews
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        activeUsers:
+          id: activeUsers
           table: google_analytics
-          field: uniquePageviews
+          field: activeUsers
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Unique Pageviews'
-          exclude: false
+          label: 'Active users'
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: false
-          precision: 0
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: ''
-          suffix: ''
-          plugin_id: numeric
-        avgTimeOnPage:
-          id: avgTimeOnPage
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        newUsers:
+          id: newUsers
           table: google_analytics
-          field: avgTimeOnPage
+          field: newUsers
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Avg. Time on Page'
-          exclude: false
+          label: 'New users'
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          date_format: custom
-          custom_date_format: 'i:s'
-          timezone: ''
-          plugin_id: date
-        entrances:
-          id: entrances
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        userEngagementDuration:
+          id: userEngagementDuration
           table: google_analytics
-          field: entrances
+          field: userEngagementDuration
           relationship: none
           group_type: group
           admin_label: ''
-          label: Entrances
-          exclude: false
+          label: 'User engagement'
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: false
-          precision: 0
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: ''
-          suffix: ''
-          plugin_id: numeric
-        bounceRate:
-          id: bounceRate
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        sessions:
+          id: sessions
           table: google_analytics
-          field: bounceRate
+          field: sessions
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Bounce Rate'
-          exclude: false
+          label: Sessions
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: true
-          precision: 2
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: ''
-          suffix: '%'
-          plugin_id: numeric
-        exitRate:
-          id: exitRate
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        engagedSessions:
+          id: engagedSessions
           table: google_analytics
-          field: exitRate
+          field: engagedSessions
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Exit Rate'
-          exclude: false
+          label: 'Engaged sessions'
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: true
-          precision: 2
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: ''
-          suffix: '%'
-          plugin_id: numeric
-        pageValue:
-          id: pageValue
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
+        engagementRate:
+          id: engagementRate
           table: google_analytics
-          field: pageValue
+          field: engagementRate
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Page Value'
-          exclude: false
+          label: 'Engagement rate'
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: 1
           element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: true
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          set_precision: true
-          precision: 2
-          decimal: .
-          separator: ','
-          format_plural: false
-          format_plural_string: "1\x03@count"
-          prefix: $
-          suffix: ''
-          plugin_id: numeric
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
+          plugin_id: standard
       filters:
         start_date:
           id: start_date
@@ -455,6 +400,8 @@ display:
           group: 1
           expose:
             operator: ''
+            operator_limit_selection: false
+            operator_list: {}
         end_date:
           id: end_date
           table: google_analytics
@@ -465,10 +412,12 @@ display:
           group: 1
           expose:
             operator: ''
-      sorts: {  }
+            operator_limit_selection: false
+            operator_list: {}
+      sorts: {}
       title: 'Google Analytics Reports Page'
-      header: {  }
-      footer: {  }
+      header: {}
+      footer: {}
       empty:
         area_text_custom:
           id: area_text_custom
@@ -481,7 +430,7 @@ display:
           tokenize: false
           content: '<h2>This page was not viewed</h2>'
           plugin_id: text_custom
-      relationships: {  }
+      relationships: {}
       arguments:
         pagePath:
           id: pagePath
@@ -514,32 +463,32 @@ display:
           validate:
             type: none
             fail: 'not found'
-          validate_options: {  }
+          validate_options: {}
           plugin_id: google_analytics_argument
-      display_extenders: {  }
+      display_extenders: {}
       filter_groups:
         operator: AND
         groups:
           1: AND
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
   attachment_top_keywords:
     display_plugin: attachment
     id: attachment_top_keywords
     display_title: 'Top Keywords'
     position: 4
     display_options:
-      display_extenders: {  }
+      display_extenders: {}
       display_description: ''
       style:
         type: html_list
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           type: ol
@@ -557,56 +506,56 @@ display:
         header: false
       row:
         type: fields
-        options: {  }
+        options: {}
       fields:
-        keyword:
-          id: keyword
+        sessionGoogleAdsKeyword:
+          id: sessionGoogleAdsKeyword
           table: google_analytics
-          field: keyword
+          field: sessionGoogleAdsKeyword
           relationship: none
           group_type: group
           admin_label: ''
           label: ''
-          exclude: false
+          exclude: 0
           alter:
-            alter_text: false
+            alter_text: 0
             text: ''
-            make_link: false
+            make_link: 0
             path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
+            absolute: 0
+            external: 0
+            replace_spaces: 0
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: 0
             alt: ''
             rel: ''
             link_class: ''
             prefix: ''
             suffix: ''
             target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
+            nl2br: 0
+            max_length: '0'
+            word_boundary: 1
+            ellipsis: 1
+            more_link: 0
             more_link_text: ''
             more_link_path: ''
-            strip_tags: false
-            trim: false
+            strip_tags: 0
+            trim: 0
             preserve_tags: ''
-            html: false
-          element_type: strong
+            html: 0
+          element_type: ''
           element_class: ''
-          element_label_type: '0'
+          element_label_type: ''
           element_label_class: ''
           element_label_colon: false
-          element_wrapper_type: '0'
+          element_wrapper_type: ''
           element_wrapper_class: ''
-          element_default_classes: false
+          element_default_classes: 1
           empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
+          hide_empty: 0
+          empty_zero: 0
+          hide_alter_empty: 1
           plugin_id: standard
         sessions:
           id: sessions
@@ -661,7 +610,7 @@ display:
           decimal: .
           separator: ','
           format_plural: false
-          format_plural_string: "1\x03@count"
+          format_plural_string: !!binary MQNAY291bnQ=
           prefix: ' - '
           suffix: ' sessions'
           plugin_id: numeric
@@ -676,6 +625,8 @@ display:
           group: 1
           expose:
             operator: ''
+            operator_limit_selection: false
+            operator_list: {}
         end_date:
           id: end_date
           table: google_analytics
@@ -686,6 +637,8 @@ display:
           group: 1
           expose:
             operator: ''
+            operator_limit_selection: false
+            operator_list: {}
       filter_groups:
         operator: AND
         groups:
@@ -751,7 +704,7 @@ display:
           validate:
             type: none
             fail: 'not found'
-          validate_options: {  }
+          validate_options: {}
           plugin_id: google_analytics_argument
       header:
         area_text_custom:
@@ -771,19 +724,19 @@ display:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
   attachment_top_referrals:
     display_plugin: attachment
     id: attachment_top_referrals
     display_title: 'Top Referrals'
     position: 4
     display_options:
-      display_extenders: {  }
+      display_extenders: {}
       display_description: ''
       style:
         type: html_list
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
           type: ol
@@ -801,7 +754,7 @@ display:
         header: false
       row:
         type: fields
-        options: {  }
+        options: {}
       fields:
         source:
           id: source
@@ -905,7 +858,7 @@ display:
           decimal: .
           separator: ','
           format_plural: false
-          format_plural_string: "1\x03@count"
+          format_plural_string: !!binary MQNAY291bnQ=
           prefix: ' - '
           suffix: ' sessions'
           plugin_id: numeric
@@ -920,6 +873,8 @@ display:
           group: 1
           expose:
             operator: ''
+            operator_limit_selection: false
+            operator_list: {}
         end_date:
           id: end_date
           table: google_analytics
@@ -930,6 +885,8 @@ display:
           group: 1
           expose:
             operator: ''
+            operator_limit_selection: false
+            operator_list: {}
         medium:
           id: medium
           table: google_analytics
@@ -953,6 +910,8 @@ display:
             multiple: false
             remember_roles:
               authenticated: authenticated
+            operator_limit_selection: false
+            operator_list: {}
           is_grouped: false
           group_info:
             label: ''
@@ -963,8 +922,8 @@ display:
             multiple: false
             remember: false
             default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
+            default_group_multiple: {}
+            group_items: {}
           plugin_id: google_analytics_string
       filter_groups:
         operator: AND
@@ -1031,7 +990,7 @@ display:
           validate:
             type: none
             fail: 'not found'
-          validate_options: {  }
+          validate_options: {}
           plugin_id: google_analytics_argument
       header:
         area_text_custom:
@@ -1051,14 +1010,14 @@ display:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
   block:
     display_plugin: block
     id: block
     display_title: Block
     position: 6
     display_options:
-      display_extenders: {  }
+      display_extenders: {}
       display_description: ''
       title: 'Page traffic over the past 30 days'
       defaults:
@@ -1070,12 +1029,12 @@ display:
       style:
         type: default
         options:
-          grouping: {  }
+          grouping: {}
           row_class: ''
           default_row_class: true
       row:
         type: fields
-        options: {  }
+        options: {}
       arguments:
         pagePath:
           id: pagePath
@@ -1108,7 +1067,7 @@ display:
           validate:
             type: none
             fail: 'not found'
-          validate_options: {  }
+          validate_options: {}
           plugin_id: google_analytics_argument
       empty:
         area_text_custom:
@@ -1120,7 +1079,7 @@ display:
           admin_label: ''
           empty: true
           tokenize: false
-          content: 'Page doesn''t have any statistics.'
+          content: "Page doesn't have any statistics."
           plugin_id: text_custom
       block_description: 'Google Analytics Reports Page Block'
     cache_metadata:
@@ -1129,30 +1088,30 @@ display:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
   page_front:
     display_plugin: page
     id: page_front
     display_title: 'Page - Front'
     position: 1
     display_options:
-      display_extenders: {  }
+      display_extenders: {}
       path: admin/reports/google-analytics-reports/page
       display_description: ''
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
   page_others:
     display_plugin: page
     id: page_others
     display_title: 'Page - Others'
     position: 3
     display_options:
-      display_extenders: {  }
+      display_extenders: {}
       path: admin/reports/google-analytics-reports/page/%
       display_description: ''
       arguments:
@@ -1187,14 +1146,14 @@ display:
           validate:
             type: none
             fail: 'not found'
-          validate_options: {  }
+          validate_options: {}
           plugin_id: google_analytics_argument
       defaults:
         arguments: false
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
         - url
         - user.permissions
-      tags: {  }
+      tags: {}
