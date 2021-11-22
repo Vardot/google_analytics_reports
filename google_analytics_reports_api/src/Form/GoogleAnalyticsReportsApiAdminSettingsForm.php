@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Represents the admin settings form for google_analytics_reports_api.
@@ -81,7 +82,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Save Google Analytics Reports API settings.
    */
   public static function create(ContainerInterface $container) {
     return new static(
@@ -124,7 +125,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $account = google_analytics_reports_api_gafeed();
+    $account = GoogleAnalyticsReportsApiFeed::service();
     $config = $this->config('google_analytics_reports_api.settings');
 
     $dev_console_url = Url::fromUri('https://console.developers.google.com');
@@ -247,7 +248,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
     $acc = FALSE;
     // Maybe user is removing fid @TODO, so no validating.
     if ($fid) {
-      $acc = google_analytics_reports_api_gafeed(
+      $acc = GoogleAnalyticsReportsApiFeed::service(
         ['json' => $fid] + $form_state->getValues()
       );
     }

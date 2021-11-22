@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Url;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Implements hook_requirements().
@@ -14,7 +15,7 @@ function google_analytics_reports_api_requirements($phase) {
   $requirements = [];
 
   if ($phase === 'runtime') {
-    $isFine = google_analytics_reports_api_gafeed() && google_analytics_reports_api_gafeed()->isAuthenticated();
+    $isFine = GoogleAnalyticsReportsApiFeed::service() && GoogleAnalyticsReportsApiFeed::service()->isAuthenticated();
     $value = ($isFine) ? t('You have successfully authorized.') :
       t('You must <a href="@url">authorize</a> Drupal to use your Google Analytics account before you can view reports.', [
         '@url' => Url::fromRoute('google_analytics_reports_api.settings')

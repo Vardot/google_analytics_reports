@@ -3,6 +3,7 @@
 namespace Drupal\google_analytics_reports;
 
 use GuzzleHttp\Exception\RequestException;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * GoogleAnalyticsReports service class.
@@ -17,7 +18,7 @@ class GoogleAnalyticsReports {
   public static function importFields() {
     if (!\defined('MAINTENANCE_MODE')) {
       try {
-        $data = google_analytics_reports_api_gafeed()->getMetadata();
+        $data = GoogleAnalyticsReportsApiFeed::service()->getMetadata();
       }
       catch (RequestException $e) {
         \Drupal::logger('google_analytics_reports')->error(

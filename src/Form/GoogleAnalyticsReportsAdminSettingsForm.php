@@ -8,6 +8,7 @@ use Drupal\google_analytics_reports\GoogleAnalyticsReports;
 use Drupal\google_analytics_reports_api\Form\GoogleAnalyticsReportsApiAdminSettingsForm;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Implements Google Analytics Reports API Admin Settings form override.
@@ -32,7 +33,7 @@ class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiA
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
-    $account = google_analytics_reports_api_gafeed();
+    $account = GoogleAnalyticsReportsApiFeed::service();
 
     if (
       $account instanceof GoogleAnalyticsReportsApiFeed

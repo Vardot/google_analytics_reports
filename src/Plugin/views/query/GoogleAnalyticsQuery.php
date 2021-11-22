@@ -25,6 +25,7 @@ use Google\Analytics\Data\V1beta\OrderBy\DimensionOrderBy;
 use Google\Analytics\Data\V1beta\OrderBy\DimensionOrderBy\OrderType;
 use Google\Analytics\Data\V1beta\OrderBy\MetricOrderBy;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Defines a Views query class for Google Analytics Reports API.
@@ -322,7 +323,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * {@inheritdoc}
    */
   public function execute(ViewExecutable $view) {
-    $account = google_analytics_reports_api_gafeed();
+    $account = GoogleAnalyticsReportsApiFeed::service();
     // Initial check to see if we should attempt to run the query.
     if (!$account) {
       // Optionally do not warn users on every query attempt before auth.
@@ -344,7 +345,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     $count_query = $view->build_info['count_query'];
     $start = microtime(TRUE);
     // Query for total number of items.
-    $count_feed = google_analytics_reports_api_gafeed()->runReport(
+    $count_feed = GoogleAnalyticsReportsApiFeed::service()->runReport(
       $count_query
     );
 
@@ -352,7 +353,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
     if ($count_feed && $count_feed->getRowCount()) {
       $view->pager->total_items = $count_feed->getRowCount();
       $view->pager->updatePageInfo();
-      $feed = google_analytics_reports_api_gafeed()->runReport($query);
+      $feed = GoogleAnalyticsReportsApiFeed::service()->runReport($query);
       $rows = $feed->getRows();
 
       $views_result = [];
@@ -454,6 +455,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * To link https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport.
    *
    * {@inheritdoc}
+   * Convert query to https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runReport.
    */
   public function query($get_count = FALSE) {
     $available_fields = google_analytics_reports_get_fields();

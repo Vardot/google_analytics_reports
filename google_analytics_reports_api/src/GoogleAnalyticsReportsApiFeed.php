@@ -12,6 +12,7 @@ use Google\ApiCore\ApiException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Drupal\Core\Messenger\MessengerInterface;
+use Google\Analytics\Data\V1beta\BetaAnalyticsDataClient;
 
 /**
  * Class GoogleAnalyticsReportsApiFeed.
@@ -125,6 +126,70 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
   }
 
   /**
+   * Instantiate a new GoogleAnalyticsReportsApiFeed object.
+   * All API here can be called via this function https://developers.google.com/analytics/devguides/reporting/data/v1
+   * Ex: GoogleAnalyticsReportsApiFeed::service()->runReport(['dateRange' => ...]);.
+   *
+   * All API here can be called via this function
+   * https://developers.google.com/analytics/devguides/reporting/data/v1
+   * Ex: GoogleAnalyticsReportsApiFeed::service()->runReport(['dateRange' => ...]);.
+   *
+   * @return object
+   *   GoogleAnalyticsReportsApiFeed object to run needed API from
+   *   new Analytics API.
+   */
+  public static function service($settings = [], $gclient = FALSE) {
+    static $mclient;
+
+    if (!$settings && isset($mclient)) {
+      return $mclient;
+    }
+
+    try {
+      $config = $settings
+        ? $settings
+        : \Drupal::configFactory()
+          ->get('google_analytics_reports_api.settings')
+          ->get();
+
+      $file = $config['json'] ?? FALSE ? \Drupal::entityTypeManager()->getStorage('file')->load($config['json']) : FALSE;
+      $absolute_path = $file
+        ? \Drupal::service('stream_wrapper_manager')
+          ->getViaUri($file->getFileUri())
+          ->realpath()
+        : FALSE;
+
+      if (!$absolute_path) {
+        return FALSE;
+      }
+
+      putenv("GOOGLE_APPLICATION_CREDENTIALS={$absolute_path}");
+      $property_id = $config['property'] ?? FALSE;
+
+      if (!$property_id) {
+        return FALSE;
+      }
+      $client = $gclient ? $gclient : new BetaAnalyticsDataClient();
+      $mclient = new GoogleAnalyticsReportsApiFeed($client, $property_id);
+
+      return $mclient;
+    }
+    catch (\Exception $e) {
+      \Drupal::messenger()->addMessage(
+        t('There was an authentication error. Message: @message.', [
+          '@message' => $e->getMessage(),
+        ]),
+        'error',
+        FALSE
+      );
+      \Drupal::logger('google_analytics_reports_api')->error(
+        'There was an authentication error. Message: @message.',
+        ['@message' => $e->getMessage()]
+      );
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -137,6 +202,21 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
       $container->get('request_stack'),
       $container->get('datetime.time'),
       $container->get('messenger')
+    );
+  }
+
+  /**
+   * Sets the expiry timestamp for cached queries.
+   *
+   * Default is 3 days.
+   *
+   * @return int
+   *   The UNIX timestamp to expire the query at.
+   */
+  public static function google_analytics_reports_api_cache_time() {
+    return time() +
+    \Drupal::config('google_analytics_reports_api.settings')->get(
+      'cache_length'
     );
   }
 
@@ -163,7 +243,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
     $cache_options = [
       'cid' => NULL,
       'bin' => 'default',
-      'expire' => google_analytics_reports_api_cache_time(),
+      'expire' => self::google_analytics_reports_api_cache_time(),
       'refresh' => FALSE,
     ];
 
@@ -180,8 +260,8 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
 
     // Check for DB cache.
     $cache = $this->cacheFactory
-      ->get($cache_options['bin'])
-      ->get($cache_options['cid']);
+      ->get($cache_options['bin']);
+    $cache = $cache ? $cache->get($cache_options['cid']) : FALSE;
 
     if (
       !$cache_options['refresh']
