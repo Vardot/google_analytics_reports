@@ -8,7 +8,6 @@ use Drupal\google_analytics_reports\GoogleAnalyticsReports;
 use Drupal\google_analytics_reports_api\Form\GoogleAnalyticsReportsApiAdminSettingsForm;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
 
 /**
  * Implements Google Analytics Reports API Admin Settings form override.
