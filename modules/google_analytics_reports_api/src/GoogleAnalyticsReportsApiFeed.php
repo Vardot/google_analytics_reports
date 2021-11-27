@@ -152,12 +152,21 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
           ->get('google_analytics_reports_api.settings')
           ->get();
 
-      $file = $config['json'] ?? FALSE ? \Drupal::entityTypeManager()->getStorage('file')->load($config['json']) : FALSE;
-      $absolute_path = $file
-        ? \Drupal::service('stream_wrapper_manager')
-          ->getViaUri($file->getFileUri())
-          ->realpath()
-        : FALSE;
+      $absolute_path = '';
+      if ($config['json'] ?? FALSE) {
+        if (is_numeric($config['json'])) {
+          $file = \Drupal::entityTypeManager()->getStorage('file')->load($config['json']);
+          $uri = $file ? $file->getFileUri() : FALSE;
+          $absolute_path = $file
+            ? \Drupal::service('stream_wrapper_manager')
+              ->getViaUri($uri)
+              ->realpath()
+            : FALSE;
+        }
+        else {
+          $absolute_path = realpath($config['json']);
+        }
+      }
 
       if (!$absolute_path) {
         return FALSE;
@@ -174,7 +183,9 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
 
       return $mclient;
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
+      // For the DrupalCI
+      // fwrite(STDERR, print_r($e->getMessage(), TRUE));
       \Drupal::messenger()->addMessage(
         t('There was an authentication error. Message: @message.', [
           '@message' => $e->getMessage(),

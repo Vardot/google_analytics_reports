@@ -1,3 +1,5 @@
 *.lock
 node_modules
 /*/node_modules
+tmp
+drupalci.local.yml

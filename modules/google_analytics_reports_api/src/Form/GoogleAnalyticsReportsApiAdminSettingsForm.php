@@ -118,7 +118,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       ->set('cache_length', $form_state->getValue('cache_length'))
       ->save();
 
-    $this->messenge->addMessage($this->t('Settings have been saved successfully.'));
+    $this->messenger->addMessage($this->t('Settings have been saved successfully.'));
   }
 
   /**

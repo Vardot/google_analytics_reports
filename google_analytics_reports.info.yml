@@ -5,4 +5,5 @@ package: Statistics
 core_version_requirement: ^8 || ^9
 configure: google_analytics_reports_api.settings
 dependencies:
+  - drupal:file
   - google_analytics_reports:google_analytics_reports_api

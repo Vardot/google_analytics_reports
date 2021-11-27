@@ -44,31 +44,23 @@ Configuration of Google Analytics Reports API module.
 Before you can get the credentials you may need to create a new project and
 enable the analytics API for it:
 
-1. Setup the API via doc
-   https://developers.google.com/analytics/devguides/reporting/data/v1
-
-2. Open Google Developers Console: https://console.developers.google.com. Find
-   Google Analytics Data API and enable for your project Get the credential at
-   Credential tab
-3. Use the hamburger menu to select API & Services » Credentials.
-4. Click the pull-down menu "Create credentials". Select "Help me choose".
-5. Under "What API are you using", select "Google Analytics Reports API" and
+1. Open Google Developers Console: https://console.developers.google.com. Find
+   `Google Analytics Data API` and enable for your project. 
+2. Use the hamburger menu to select API & Services » Credentials.
+3. Click the pull-down menu "Create credentials". Select "Help me choose".
+4. Under "What API are you using", select "Google Analytics Reports API" and
    choose "User Data" on the page
-6. Fill in the information. Under "Oauth Client Id" => "Application Type" select
+5. Fill in the information. Under "Oauth Client Id" => "Application Type" select
    "Web Application".
-7. Leave empty "Authorized JavaScript origins".
-8. Fill in "Authorized redirect URIs" with
+6. Leave empty "Authorized JavaScript origins".
+7. Fill in "Authorized redirect URIs" with
    "http://YOURSITEDOMAIN/admin/config/services/google-analytics-reports-api".
    Replace "YOURSITEDOMAIN" with the base URL of your site.
-9. Download client secret JSON and copy client + secret
-
-On the Drupal site navigate to "Configuration » System » Google Analytics
-Reports API" and copy "Client ID" and "Client secret" from the Google Developers
-console into the fields. Press "Start setup and authorize account" to allow the
-project access to Google Analytics data.
+8. Download client secret JSON. **For security reasons Google won't let you redownload it. So, store this credential file privately also.**
+9. On the Drupal site navigate to "Configuration » System » Google Analytics
+Reports API", upload the JSON file and fill the property ID. Save the form.
 
 Configuration of Google Analytics Reports module:
-
 1. Configure the Google Analytics Reports API module first.
 2. Enable Charts module and Google Charts or Highcharts sub-module to see graphical reports.
 3. Go to "admin/reports/google-analytics-reports/summary" page to see Google
