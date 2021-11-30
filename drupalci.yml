@@ -4,36 +4,21 @@ build:
       container_command:
         commands:
           - cd ${SOURCE_DIR}
-          - rm composer.lock
           - composer config minimum-stability dev
-          - composer config repositories.drupal composer https://packages.drupal.org/8
-          - composer config --unset repositories.0
-          - composer config repositories.assets composer https://asset-packagist.org
-          - composer require oomphinc/composer-installers-extender:~2.0
-          - composer require cweagans/composer-patches:~1.0
-          - composer require wikimedia/composer-merge-plugin:^2.0
-          - composer config extra.enable-patching true
-          - composer config extra.composer-exit-on-patch-failure true
-          - composer config --json extra.installer-types '["npm-asset", "bower-asset"]'
-          - composer config --unset extra.installer-paths.libraries\/\{\$name\}
-          - composer config --json extra.installer-paths.libraries\/\{\$name\} '["type:drupal-library", "type:bower-asset", "type:npm-asset"]'
-          - composer config --json extra.merge-plugin.include '["modules/contrib/*/composer.json"]'
           - rm composer.lock
+          - composer require google/analytics-data
           - composer require --dev phpspec/prophecy-phpunit:*
           - composer require phpunit/phpunit:~9.0 --with-all-dependencies
       phplint:
       csslint:
         halt-on-fail: false
       eslint:
-        # A test must pass eslinting standards check in order to continue processing.
         halt-on-fail: false
       phpcs:
-        # phpcs will use core's specified version of Coder.
         sniff-all-files: false
         halt-on-fail: false
     testing:
       run_tests.standard:
         types: 'PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
-        testgroups: '--all'
+        testgroups: 'google_analytics_reports'
         suppress-deprecations: true
-      nightwatchjs: null
