@@ -209,17 +209,6 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
   }
 
   /**
-   * Get the current page url.
-   *
-   * @return string
-   *   - current page url.
-   */
-  public static function currentUrl() {
-    $current_path_uri = $this->requestStack->getCurrentRequest()->getUri();
-    return Url::fromUri($current_path_uri, ['absolute' => TRUE])->toString();
-  }
-
-  /**
    * Create a URL to obtain user authorization.
    *
    * The authorization endpoint allows the user to first
