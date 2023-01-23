@@ -82,7 +82,13 @@ function google_analytics_reports_install() {
  * Implements hook_uninstall().
  */
 function google_analytics_reports_uninstall() {
-  drupal_uninstall_schema('google_analytics_reports');
+  // Uninstall table.
+  $table = 'google_analytics_reports_fields';
+  $schema = \Drupal::database()->schema();
+  if ($schema->tableExists($table)) {
+    $schema->dropTable($table);
+  }
+
   \Drupal::configFactory()->getEditable('views.view.google_analytics_summary')->delete();
   \Drupal::configFactory()->getEditable('views.view.google_analytics_reports_page')->delete();
 }
