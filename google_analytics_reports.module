@@ -5,6 +5,25 @@
  * Front-end interfaces that use the Google Analytics Reports API module.
  */
 
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function google_analytics_reports_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.google_analytics_reports':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Display statistics from Google Analytics using Views.') . '</p>';
+      $output .= '<p>' . t('Visit the <a href=":project_link">Project page</a> on Drupal.org for more information.', [
+        ':project_link' => 'https://www.drupal.org/project/google_analytics_reports',
+      ]);
+
+      return $output;
+  }
+}
+
 /**
  * Implements hook_google_analytics_reports_field_import_alter().
  */
