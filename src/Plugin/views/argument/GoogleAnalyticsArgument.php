@@ -18,9 +18,9 @@ class GoogleAnalyticsArgument extends ArgumentPluginBase {
   /**
    * Operator.
    *
-   * @var object
+   * @var string
    */
-  public $operator;
+  public string $operator;
 
   /**
    * {@inheritdoc}
