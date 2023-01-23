@@ -113,7 +113,7 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
 
       $setup_help = $this->t('To access data from Google Analytics you have to create a new project in Google Developers Console.');
       $setup_help .= '<ol>';
-      $setup_help .= ' <li>' . $this->t('Open %google_developers_console.', ['%google_developers_console' => render($dev_console_link)]) . '</li>';
+      $setup_help .= ' <li>' . $this->t('Open %google_developers_console.', ['%google_developers_console' => \Drupal::service('renderer')->render($dev_console_link)]) . '</li>';
       $setup_help .= ' <li>' . $this->t('Along the toolbar click the pull down arrow and the press <strong>Create a Project</strong> button, enter project name and press <strong>Create</strong>.') . '</li>';
       $setup_help .= ' <li>' . $this->t('Click <strong>Enable and manage APIs</strong>.') . '</li>';
       $setup_help .= ' <li>' . $this->t('In the search box type <strong>Analytics</strong> and then press <strong>Analytics API</strong>, this opens the API page, press <strong>Enable</strong>.') . '</li>';

@@ -30,9 +30,9 @@ class GoogleAnalyticsArgument extends ArgumentPluginBase {
   /**
    * Operator.
    *
-   * @var object
+   * @var String
    */
-  public $operator;
+  public string $operator;
 
   /**
    * {@inheritdoc}
