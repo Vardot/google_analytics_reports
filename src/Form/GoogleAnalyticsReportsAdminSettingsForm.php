@@ -2,17 +2,16 @@
 
 namespace Drupal\google_analytics_reports\Form;
 
-use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\google_analytics_reports\GoogleAnalyticsReports;
 use Drupal\google_analytics_reports_api\Form\GoogleAnalyticsReportsApiAdminSettingsForm;
 use Drupal\google_analytics_reports_api\GoogleAnalyticsReportsApiFeed;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements Google Analytics Reports API Admin Settings form override.
  */
 class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiAdminSettingsForm {
+
   /**
    * {@inheritdoc}
    */
@@ -61,4 +60,5 @@ class GoogleAnalyticsReportsAdminSettingsForm extends GoogleAnalyticsReportsApiA
 
     return $form;
   }
+
 }
