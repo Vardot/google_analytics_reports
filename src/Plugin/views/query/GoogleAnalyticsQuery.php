@@ -508,7 +508,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
       }
     }
 
-    if ($query['start_date']) {
+    if (isset($query['start_date'])) {
       $end_date = $query['end_date'] ?? time();
       $start_date = $query['start_date'] ?? time();
       $query['dateRanges'] = [
