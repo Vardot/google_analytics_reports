@@ -50,6 +50,13 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    * @var \Drupal\Core\Cache\CacheFactory
    */
   protected $cacheFactory;
+ 
+  /**
+   * The time variable.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
 
   /**
    * Logger Factory.
