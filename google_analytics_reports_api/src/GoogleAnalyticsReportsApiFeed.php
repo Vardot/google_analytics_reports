@@ -142,6 +142,13 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    */
   protected $cacheFactory;
 
+ /**
+   * The time variable.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
   /**
    * Check if object is authenticated with Google.
    */
