@@ -4,6 +4,7 @@ description = Display statistics from Google Analytics using Views.
 core = 7.x
 dependencies[] = google_analytics_reports_api
 dependencies[] = views
+php = 7.0
 
 configure = admin/config/system/google-analytics-reports-api
 

@@ -52,6 +52,7 @@ function google_analytics_reports_api_uninstall() {
   variable_del('google_analytics_reports_api_profile_id');
   variable_del('google_analytics_reports_api_redirect_uri');
   variable_del('google_analytics_reports_api_refresh_token');
+  variable_del('google_analytics_reports_api_query_timeout');
   // From old version.
   variable_del('google_analytics_reports_api_hd');
   variable_del('google_analytics_reports_api_oauth_token');

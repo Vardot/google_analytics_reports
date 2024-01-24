@@ -312,6 +312,12 @@ class GoogleAnalyticsReportsApiFeed {
       'method' => $method,
       'headers' => $headers,
     );
+    if (!empty($params['timeout'])) {
+      $options['timeout'] = $params['timeout'];
+    }
+
+    // Remove request timeout settings from GA query params.
+    unset($params['timeout']);
 
     if (count($params) > 0) {
       if ($method == 'GET') {
@@ -519,6 +525,11 @@ class GoogleAnalyticsReportsApiFeed {
     }
     $parameters['start-index'] = $params['start_index'];
     $parameters['max-results'] = $params['max_results'];
+
+    // The GA query timeout setting defaults to 30 seconds and can be changed
+    // globally via variable google_analytics_reports_api_query_timeout. In
+    // addition individual request can override it by passing the timeout param.
+    $parameters['timeout'] = $params['timeout'] ?? variable_get('google_analytics_reports_api_query_timeout', 30.0);
 
     $this->setQueryPath('data/ga');
     if ($this->query($this->queryPath, $parameters, 'GET', $this->generateAuthHeader(), $cache_options)) {
