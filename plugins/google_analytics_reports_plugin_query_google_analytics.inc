@@ -82,19 +82,19 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
   }
 
   /**
-   * Add a filter string to the query. 
+   * Add a filter string to the query.
    *
    * @param $group
    *   The filter group to add these to; groups are used to create AND/OR
-   *   sections of the Google Analytics query. Groups cannot be nested. 
-   *   Use 0 as the default group.  If the group does not yet exist it will 
+   *   sections of the Google Analytics query. Groups cannot be nested.
+   *   Use 0 as the default group.  If the group does not yet exist it will
    *   be created as an AND group.
    * @param $field
    *   The name of the metric/dimension/field to check.
    * @param $value
-   *   The value to test the field against. In most cases, this is a scalar. 
+   *   The value to test the field against. In most cases, this is a scalar.
    * @param $operator
-   *   The comparison operator, such as =, <, or >=. 
+   *   The comparison operator, such as =, <, or >=.
    */
   function add_where($group, $field, $value = NULL, $operator = NULL) {
     // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
@@ -247,50 +247,64 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
     }
 
     $query = $view->build_info['query'];
-    $count_query = $view->build_info['count_query'];
     $start = microtime(TRUE);
 
-    // Query for total number of items.
-    $count_query['max_results'] = 9999;
-    $count_query['start_index'] = 1;
-    $count_feed = google_analytics_reports_api_report_data($count_query);
+    // Execute count query if the view uses a pager.
+    if ($this->pager->use_pager()) {
+      $count_query = $view->build_info['count_query'];
+      // Query for total number of items.
+      $count_query['max_results'] = 1;
+      $count_query['start_index'] = 1;
+      $count_feed = google_analytics_reports_api_report_data($count_query);
+      // Process only if data is available.
+      if (!empty($count_feed->results->totalResults)) {
+        $this->pager->total_items = $count_feed->results->totalResults;
+        $this->pager->update_page_info();
 
-    // Process only if data is available.
-    if (!empty($count_feed->results->rows)) {
-      $this->pager->total_items = count($count_feed->results->rows);
-      $this->pager->update_page_info();
-
-      // Adjust based on the pager's modifications to limit and offset.
-      if (!empty($this->limit) || !empty($this->offset)) {
-        $query['max_results'] = intval(!empty($this->limit) ? $this->limit : 1000);
-        $query['start_index'] = intval(!empty($this->offset) ? $this->offset : 0) + 1;
+        // Adjust based on the pager's modifications to limit and offset.
+        if (!empty($this->limit) || !empty($this->offset)) {
+          $query['max_results'] = intval(!empty($this->limit) ? $this->limit : 1000);
+          $query['start_index'] = intval(!empty($this->offset) ? $this->offset : 0) + 1;
+        }
       }
+    }
 
+    if (($this->pager->use_pager() && !empty($count_feed->results->rows)) || !$this->pager->use_pager()) {
       $feed = google_analytics_reports_api_report_data($query);
 
-      $rows = $feed->results->rows;
-      foreach ($rows as $row) {
-        $views_result[] = (object) $row;
-      }
+      if (!empty($feed->results->rows)) {
+        $rows = $feed->results->rows;
+        foreach ($rows as $row) {
+          $views_result[] = (object) $row;
+        }
 
-      $view->result = isset($views_result) ? $views_result : array();
-      $view->execute_time = microtime(TRUE) - $start;
-      if ($this->pager->use_pager()) {
-        $view->total_rows = $this->pager->get_total_items();
+        $view->result = isset($views_result) ? $views_result : array();
+        $view->execute_time = microtime(TRUE) - $start;
+        if ($this->pager->use_pager()) {
+          $view->total_rows = $this->pager->get_total_items();
+        }
+        // Add to build_info['query'] to render query in Views UI query summary
+        // area.
+        $view->build_info['query'] = print_r($feed->results->query, TRUE);
       }
-
-      // Add to build_info['query'] to render query in Views UI query summary
-      // area.
-      $view->build_info['query'] = print_r($feed->results->query, TRUE);
     }
-    else {
+
+    if (empty($views_result)) {
       // Set empty query instead of current query array to prevent error
       // in Views UI.
       $view->build_info['query'] = '';
       // Display the error from Google.
-      $response_data = drupal_json_decode($count_feed->response->data);
-      if (isset($response_data['error']['message'])) {
-        drupal_set_message(check_plain($response_data['error']['message']), 'error');
+      if (isset($count_feed)) {
+        $response_data = drupal_json_decode($count_feed->response->data);
+        if (isset($response_data['error']['message'])) {
+          drupal_set_message(check_plain($response_data['error']['message']), 'error');
+        }
+      }
+      elseif (isset($feed)) {
+        $response_data = drupal_json_decode($feed->response->data);
+        if (isset($response_data['error']['message'])) {
+          drupal_set_message(check_plain($response_data['error']['message']), 'error');
+        }
       }
     }
 
