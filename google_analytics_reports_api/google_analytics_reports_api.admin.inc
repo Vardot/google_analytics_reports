@@ -231,8 +231,27 @@ function google_analytics_reports_api_admin_submit_setup(&$form, &$form_state) {
  * Save Google Analytics Reports API settins.
  */
 function google_analytics_reports_api_admin_submit_settings(&$form, &$form_state) {
-  variable_set('google_analytics_reports_api_profile_id', $form_state['values']['google_analytics_reports_api_profile_id']);
+  $profile_id = $form_state['values']['google_analytics_reports_api_profile_id'];
+
+  variable_set('google_analytics_reports_api_profile_id', $profile_id);
   variable_set('google_analytics_reports_api_cache_length', $form_state['values']['google_analytics_reports_api_cache_length']);
+
+  // Try to get the profile for the selected profile id.
+  $ga = google_analytics_reports_api_gafeed();
+  $profiles = $ga->queryProfiles()->results->items;
+  $profile = array_filter($profiles, function ($profile) use ($profile_id) {
+    return $profile->id == $profile_id;
+  });
+
+  if (!empty($profile)) {
+    $profile = reset($profile);
+
+    // Save the account and web property id as well, which are required for
+    // certain API requests.
+    variable_set('google_analytics_reports_api_account_id', $profile->accountId);
+    variable_set('google_analytics_reports_api_web_property_id', $profile->webPropertyId);
+  }
+
   drupal_set_message(t('Settings have been saved successfully.'));
 }
 

@@ -341,3 +341,104 @@ function google_analytics_reports_views_pre_build(&$view) {
     }
   }
 }
+
+/**
+ * Returns the raw id of a custom metric or dimension.
+ *
+ * The management API returns the full ID of a custom metric or dimension, e.g.:
+ * ga:dimensions1
+ *
+ * The reports api query function adds the ga: prefix by it self, so we have
+ * to remove it when returning the IDs to the views ui.
+ *
+ * @param string $id
+ *   A custom dimension or metric id that has the ga: prefix.
+ *
+ * @return string
+ *   The id without the ga: prefix.
+ */
+function google_analytics_reports_simple_id($id) {
+  return preg_replace('/^(ga:)/', '', $id);
+}
+
+/**
+ * Returns the custom dimensions names for a select list.
+ *
+ * @return string[]
+ *   The name of the custom dimensions as value and key.
+ */
+function googleanalytics_reports_custom_dimension_options() {
+  $ga = google_analytics_reports_api_gafeed();
+  $dimensions = $ga->queryCustomDimensions();
+
+  $result = [];
+  foreach ($dimensions as $dimension) {
+    $result[$dimension->name] = $dimension->name;
+  }
+
+  return $result;
+}
+
+/**
+ * Return the id for the name of custom dimension.
+ *
+ * @param string $dim_name
+ *   The name of the custom dimension.
+ *
+ * @return string
+ *   The id with the custom dimension without the ga: prefix.
+ */
+function google_analytics_reports_custom_dimension_id(string $dim_name) {
+  $ga = google_analytics_reports_api_gafeed();
+  $dimensions = $ga->queryCustomDimensions();
+
+  foreach ($dimensions as $dimension) {
+    if ($dimension->name == $dim_name) {
+      // Remove the ga prefixed, that is later added by the reports api module.
+      return google_analytics_reports_simple_id($dimension->id);
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Returns the custom dimensions names for a select list.
+ *
+ * @return string[]
+ *   The name of the custom dimensions as value and key.
+ */
+function googleanalytics_reports_custom_metric_options() {
+  $ga = google_analytics_reports_api_gafeed();
+  $dimensions = $ga->queryCustomMetrics();
+
+  $result = [];
+  foreach ($dimensions as $dimension) {
+    $result[$dimension->name] = $dimension->name;
+  }
+
+  return $result;
+}
+
+/**
+ * Return the id for the name of custom dimension.
+ *
+ * @param string $metric_name
+ *   The name of the custom dimension.
+ *
+ * @return string
+ *   The id with the custom dimension without the ga: prefix.
+ */
+function google_analytics_reports_custom_metric_id(string $metric_name) {
+  $ga = google_analytics_reports_api_gafeed();
+  $dimensions = $ga->queryCustomMetrics();
+
+  foreach ($dimensions as $metric) {
+    if ($metric->name == $metric_name) {
+      // Remove the ga prefixed, that is later added by the reports api module.
+      return google_analytics_reports_simple_id($metric->id);
+    }
+  }
+
+  return '';
+}

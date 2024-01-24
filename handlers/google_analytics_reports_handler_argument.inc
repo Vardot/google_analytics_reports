@@ -32,7 +32,18 @@ class google_analytics_reports_handler_argument extends views_handler_argument {
    */
   function query($group_by = FALSE) {
     if ($this->is_custom) {
-      $this->real_field = google_analytics_reports_custom_to_variable_field($this->real_field, $this->options['custom_field_number']);
+      if ($this->real_field == 'metricXX') {
+        $field_label = google_analytics_reports_custom_metric_id($this->options['custom_field_label']);
+      }
+      elseif ($this->real_field == 'dimensionXX') {
+        $field_label = google_analytics_reports_custom_dimension_id($this->options['custom_field_label']);
+      }
+
+      if (!empty($field_label)) {
+        // The dimensions id has a ga: prefix, which is actually added later by
+        // the google_analytics_reports_api query, so we need to remove it here.
+        $this->real_field = $field_label;
+      }
     }
 
     $this->operator = '==';
@@ -46,7 +57,7 @@ class google_analytics_reports_handler_argument extends views_handler_argument {
     $options = parent::option_definition();
 
     if ($this->is_custom) {
-      $options['custom_field_number'] = array('default' => 1);
+      $options['custom_field_label'] = array('default' => '');
     }
 
     return $options;
@@ -57,15 +68,24 @@ class google_analytics_reports_handler_argument extends views_handler_argument {
    */
   function options_form(&$form, &$form_state) {
     if ($this->is_custom) {
-      $form['custom_field_number'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Custom field number'),
-        '#default_value' => isset($this->options['custom_field_number']) ? $this->options['custom_field_number'] : 1,
-        '#size' => 2,
-        '#maxlength' => 2,
-        '#required' => TRUE,
-        '#element_validate' => array('element_validate_integer_positive'),
-      );
+      if ($this->real_field == 'metricXX') {
+        $options = googleanalytics_reports_custom_metric_options();
+        $label = t('Custom metric');
+      }
+      elseif ($this->real_field == 'dimensionXX') {
+        $options = googleanalytics_reports_custom_dimension_options();
+        $label = t('Custom dimension');
+      }
+
+      if (!empty($options)) {
+        $form['custom_field_label'] = [
+          '#type' => 'select',
+          '#title' => $label,
+          '#default_value' => isset($this->options['custom_field_label']) ? $this->options['custom_field_label'] : '',
+          '#options' => $options,
+          '#required' => TRUE,
+        ];
+      }
     }
 
     parent::options_form($form, $form_state);

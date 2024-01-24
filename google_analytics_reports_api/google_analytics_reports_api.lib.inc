@@ -364,6 +364,50 @@ class GoogleAnalyticsReportsApiFeed {
   }
 
   /**
+   * Retrieve all custom dimensions.
+   */
+  public function queryCustomDimensions() {
+    $account_id = variable_get('google_analytics_reports_api_account_id', FALSE);
+    $web_property_id = variable_get('google_analytics_reports_api_web_property_id', FALSE);
+
+    if (!$account_id || !$web_property_id) {
+      watchdog('google_analytics_reports_api', "Account or web property id are not set, can't fetch custom dimensions.");
+      return [];
+    }
+
+    $this->setQueryPath('management/accounts/' . $account_id . '/webproperties/' . $web_property_id . '/customDimensions');
+    $this->query($this->queryPath, [], 'GET', $this->generateAuthHeader(), []);
+
+    if (isset($this->results->items)) {
+      return $this->results->items;
+    }
+
+    return [];
+  }
+
+  /**
+   * Retrieve all custom metrics.
+   */
+  public function queryCustomMetrics() {
+    $account_id = variable_get('google_analytics_reports_api_account_id', FALSE);
+    $web_property_id = variable_get('google_analytics_reports_api_web_property_id', FALSE);
+
+    if (!$account_id || !$web_property_id) {
+      watchdog('google_analytics_reports_api', "Account or web property id are not set, can't fetch custom metrics.");
+      return [];
+    }
+
+    $this->setQueryPath('management/accounts/' . $account_id . '/webproperties/' . $web_property_id . '/customMetrics');
+    $this->query($this->queryPath, [], 'GET', $this->generateAuthHeader(), []);
+
+    if (isset($this->results->items)) {
+      return $this->results->items;
+    }
+
+    return [];
+  }
+
+  /**
    * Query Management API - Profiles.
    */
   public function queryProfiles($params = array(), $cache_options = array()) {

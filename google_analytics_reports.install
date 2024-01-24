@@ -131,6 +131,8 @@ function google_analytics_reports_uninstall() {
   // Delete module variables.
   variable_del('google_analytics_reports_metadata_etag');
   variable_del('google_analytics_reports_metadata_last_time');
+  variable_del('google_analytics_reports_api_account_id');
+  variable_del('google_analytics_reports_api_web_property_id');
 }
 
 /**
