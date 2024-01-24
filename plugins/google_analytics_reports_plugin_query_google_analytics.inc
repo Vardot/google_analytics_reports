@@ -130,8 +130,16 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
    *   Don't use this yet (at all?).
    */
   function add_orderby($table, $field = NULL, $order = 'ASC', $alias = '', $params = array()) {
+    $sort_by = $field;
+
+    // In case the field is not set, for example by
+    // views_handler_field::click_sort, used for the view table style sorting.
+    if (empty($field)) {
+      $sort_by = $alias;
+    }
+
     $this->orderby[] = array(
-      'field' => $field,
+      'field' => $sort_by,
       'direction' => (strtoupper($order) == 'DESC') ? '-' : '',
     );
   }
