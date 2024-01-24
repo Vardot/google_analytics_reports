@@ -369,3 +369,66 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
 
   }
 }
+
+/**
+ *  Batch helper for views_data_export which will make requests to GA and fill temp table.
+ */
+class google_analytics_reports_plugin_query_google_analytics_batched extends google_analytics_reports_plugin_query_google_analytics {
+  /**
+   * {@inheritdoc}
+   */
+  function execute(&$view) {
+    $display_handler = &$view->display_handler;
+    // Get total results from GA.
+    $query = $view->build_info['query'];
+    // Set max results per query.
+    $query['max_results'] = 10000;
+    $count_query = $view->build_info['count_query'];
+    // Set minimum value of results in query because we need only
+    // totalResults value.
+    $count_query['max_results'] = 1;
+    $count_feed = google_analytics_reports_api_report_data($count_query);
+
+    // Process only if data is available.
+    if (!empty($count_feed->results->totalResults)) {
+      $start = microtime(TRUE);
+      // Create table for results. This table required for batch export.
+      $weight_alias = 'vde_weight';
+      $table_name = $display_handler->index_tablename();
+      $display_handler->batched_execution_state->sandbox['weight_field_alias'] = $weight_alias;
+      $schema = [
+        'fields' => [
+          $weight_alias => ['type' => 'int'],
+          'data' => ['type' => 'blob'],
+        ]
+      ];
+      db_create_table($table_name, $schema);
+      $insert_query = db_insert($table_name)->fields([$weight_alias, 'data']);
+
+      $view->total_rows = $count_feed->results->totalResults;
+      $offset = 1;
+      $weight = 0;
+      // Get all results and save them to temp table.
+      while ($offset <= $view->total_rows) {
+        $query['start_index'] = $offset;
+        $feed = google_analytics_reports_api_report_data($query);
+        if (!empty($feed->results->rows)) {
+          foreach ($feed->results->rows as $row) {
+            $insert_query->values([
+              $weight_alias => $weight,
+              'data' => serialize((object) $row),
+            ]);
+            $weight++;
+          }
+        }
+        $offset += $query['max_results'];
+        $insert_query->execute();
+        // Make a sleep for 1 sec to prevent 10 QPS limit.
+        sleep(1);
+      }
+      db_add_unique_key($table_name, $weight_alias, [$weight_alias]);
+      $view->execute_time = microtime(TRUE) - $start;
+    }
+    $view->result = [];
+  }
+}
