@@ -265,7 +265,7 @@ class GoogleAnalyticsReportsApiFeed {
   /**
    * Public query method for all Core Reporting API features.
    */
-  public function query($url, $params = array(), $method = 'GET', $headers, $cache_options = array()) {
+  public function query($url, $params = array(), $method = 'GET', $headers = array(), $cache_options = array()) {
     $params_defaults = array(
       'start-index' => 1,
       'max-results' => 1000,
