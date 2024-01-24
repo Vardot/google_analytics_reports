@@ -71,7 +71,7 @@ class GoogleAnalyticsReportsApiFeed {
    *   - current page url.
    */
   public static function currentUrl() {
-    return url(request_path(), array('absolute' => TRUE));
+    return url(current_path(), array('absolute' => TRUE));
   }
 
   /**

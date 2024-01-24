@@ -27,7 +27,7 @@ function google_analytics_reports_api_admin() {
     $setup_help .= '<li>' . t('Click on <strong>Go to Credentials</strong>') . '</li>';
     $setup_help .= '<li>' . t('Under <strong>Where will you be calling the API from?</strong> select <strong>Web Browser Javascript</strong> and then select <strong>User Data</strong>') . '</li>';
     $setup_help .= '<li>' . t('Hit <strong>What credentials do I need</strong>, edit the name if necessary.') . '</li>';
-    $setup_help .= '<li>' . t('Leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => url(request_path(), array('absolute' => TRUE)))) . '</li>';
+    $setup_help .= '<li>' . t('Leave empty <strong>Authorized JavaScript origins</strong>, fill in <strong>Authorized redirect URIs</strong> with <code>@url</code> and press <strong>Create Client ID</strong> button.', array('@url' => url(current_path(), array('absolute' => TRUE)))) . '</li>';
     $setup_help .= '<li>' . t('Type a Product name to show to users and hit <strong>Continue</strong> and then <strong>Done</strong>') . '</li>';
     $setup_help .= '<li>' . t('Click on the name of your new client ID to be shown both the <strong>Client ID</strong> and <strong>Client Secret</strong>.') . '</li>';
     $setup_help .= '<li>' . t('Copy <strong>Client ID</strong> and <strong>Client secret</strong> from opened page to the form below.') . '</li>';
