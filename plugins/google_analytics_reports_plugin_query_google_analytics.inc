@@ -150,8 +150,13 @@ class google_analytics_reports_plugin_query_google_analytics extends views_plugi
     foreach ($this->fields as $field) {
       $field_name = google_analytics_reports_variable_to_custom_field($field['field']);
 
-      if ($available_fields[$field_name]) {
+      if (isset($available_fields[$field_name])) {
         $type = $available_fields[$field_name]->type;
+        $type = ($type == 'dimension') ? 'dimensions' : 'metrics';
+        $query[$type][] = 'ga:' . $field['field'];
+      }
+      elseif (google_analytics_reports_is_calc_metric($field_name)) {
+        $type = $available_fields['calcMetric_<NAME>']->type;
         $type = ($type == 'dimension') ? 'dimensions' : 'metrics';
         $query[$type][] = 'ga:' . $field['field'];
       }

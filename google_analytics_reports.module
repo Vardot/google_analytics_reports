@@ -279,6 +279,20 @@ function google_analytics_reports_custom_to_variable_field($field, $number) {
 }
 
 /**
+ * Checks if a given field name is one for a calculated metric.
+ */
+function google_analytics_reports_is_calc_metric($field) {
+  return preg_match('/^(calcMetric_)/', $field) ? TRUE : FALSE;
+}
+
+/**
+ * Returns the real field name for a calculated metric field.
+ */
+function google_analytics_reports_calc_metric_name($field, $name) {
+  return preg_replace('/^(calcMetric_)(.+)$/', "$1$name", $field);
+}
+
+/**
  * Converts a specific field name into a base custom field name.
  */
 function google_analytics_reports_variable_to_custom_field($field) {

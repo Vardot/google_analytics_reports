@@ -78,6 +78,9 @@ function google_analytics_reports_views_data() {
     elseif (in_array($field->data_type, array('date', 'time'))) {
       $field_handler = 'views_handler_field_date';
     }
+    elseif (google_analytics_reports_is_calc_metric($field_name)) {
+      $field_handler = 'google_analytics_reports_handler_field_calc_metric';
+    }
     elseif (in_array($field->data_type,
       array('integer', 'float', 'percent', 'currency'))) {
 
