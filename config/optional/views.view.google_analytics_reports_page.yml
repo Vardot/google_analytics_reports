@@ -1,12 +1,9 @@
-uuid: cd98716f-49db-4792-8c94-035f609127ed
 langcode: da
 status: true
 dependencies:
   module:
     - google_analytics_reports
     - user
-_core:
-  default_config_hash: u6499D4WmLg1EJnJ6jmNSVaC1hIaTImEFVldhiwuNEo
 id: google_analytics_reports_page
 label: 'Google Analytics Reports Page'
 module: views
@@ -14,7 +11,6 @@ description: 'Display statistic information about website pages from Google Anal
 tag: 'Google Analytics Reports'
 base_table: google_analytics
 base_field: ''
-core: 8.x
 display:
   default:
     display_plugin: default

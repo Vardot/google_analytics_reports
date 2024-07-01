@@ -1,5 +1,5 @@
-DESCRIPTION
------------
+# DESCRIPTION
+
 Google Analytics Reports module provides graphical reporting of your site's
 tracking data. Graphical reports include small path-based report in blocks,
 and a full path-based report.
@@ -12,35 +12,30 @@ Google Analytics Reports module provide Views query plugin to create Google
 Analytics reports using Views interface.
 
 
-REQUIREMENTS
-------------
+## REQUIREMENTS
 * Google Analytics user account https://www.google.com/analytics
 
 
-DEPENDENCIES
-------------
+## DEPENDENCIES
 * Google Analytics Reports API has no dependencies.
 * Google Analytics Reports depends on Google Analytics Reports API and Views
   modules.
 
 
-RECOMMENDED MODULES
--------------------
+## RECOMMENDED MODULES
 * Charts module https://www.drupal.org/project/charts. Enable Google Charts or
   Highcharts sub-module to see graphical reports.
 * Ajax Blocks module https://www.drupal.org/project/ajaxblocks for better page
   loading with Google Analytics Reports blocks.
 
 
-INSTALLATION
-------------
+## INSTALLATION
 1. Copy the 'google_analytics_reports' module directory in to your Drupal
    sites/all/modules directory as usual. See https://www.drupal.org/documentati
    on/install/modules-themes/modules-7 for details.
 
 
-CONFIGURATION
--------------
+## CONFIGURATION
 Configuration of Google Analytics Reports API module.
 
 Before you can get the credentials you may need to create a new
@@ -101,16 +96,14 @@ Configuration of Google Analytics Reports module:
    Summary Block" and/or "Google Analytics Reports Page Block" blocks.
 
 
-CACHING
--------
+## CACHING
 Note that Google has a moderately strict Quota Policy https://developers.google
 .com/analytics/devguides/reporting/core/v3/limits-quotas#core_reporting. To aid
 with this limitation, this module caches query results for a time that you
 specify in the admin settings. Our recommendation is at least three days.
 
 
-CREDITS
--------
+## CREDITS
 * Joel Kitching (jkitching)
 * Tony Rasmussen (raspberryman)
 * Dylan Tack (grendzy)
