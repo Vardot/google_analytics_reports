@@ -9,7 +9,7 @@
     {
       "name": "Vardot",
       "homepage": "https://www.drupal.org/vardot",
-      "role": "Maintenance for Drupal 8 and Drupal 9 versions"
+      "role": "Maintenance for Drupal 8/9/10/11 versions"
     },
     {
       "name": "Nickolay Leshchev",
@@ -28,7 +28,7 @@
     }
   },
   "require": {
-    "drupal/core": "^8 || ^9 || ^10",
+    "drupal/core": "^10 || ^11",
     "google/analytics-data" : "*"
   }
 }
