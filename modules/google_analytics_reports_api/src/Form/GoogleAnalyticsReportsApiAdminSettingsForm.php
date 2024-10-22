@@ -128,19 +128,28 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
     $account = GoogleAnalyticsReportsApiFeed::service();
     $config = $this->config('google_analytics_reports_api.settings');
 
-    $dev_console_url = Url::fromUri('https://console.developers.google.com');
-    $dev_console_link = Link::fromTextAndUrl(
-      $this->t('Google Developers Console'),
-      $dev_console_url
-    )->toRenderable();
-    $dev_console_link['#attributes']['target'] = '_blank';
-
     $setup_help = $this->t(
       'To access data from Google Analytics you have to create a new project in Google Developers Console.'
     );
     $setup_help .= '<ol>';
     $setup_help .=
-      ' <li>Add a credential and put json file here https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart-client-libraries#step_2_add_service_account_to_the_google_analytics_4_property</li>';
+      $this->t('<li>Open <a href="@google_link" target="_blank">Google Cloud Console</a>. Find <em>Google Analytics Data API</em> and enable it for your project.</li>', [
+        '@google_link' => 'https://console.cloud.google.com',
+      ]);
+    $setup_help .=
+      $this->t('<li>Use the hamburger menu to select API & Services » Credentials.</li>');
+    $setup_help .=
+      $this->t('<li>Open the pull-down menu "Create credentials." Select "Service account."</li>');
+    $setup_help .=
+      $this->t('<li>Follow the steps to create the service account. (It is not necessary to grant the service account any specific access to the project.)</li>');
+    $setup_help .=
+      $this->t('<li>Navigate into the service account, then select Keys from the navigation.</li>');
+    $setup_help .=
+      $this->t('<li>Under the "Add key" dropdown, create a new key in JSON format.</li>');
+    $setup_help .=
+      $this->t("<li>Within Google Analytics, navigate to the property's access management, then add the email address on the service account with Viewer permissions.</li>");
+    $setup_help .=
+      $this->t('<li>On the Drupal site, navigate to "Configuration » System » Google Analytics Reports API," fill in the Google Analytics property ID, then upload the JSON file. Save the form.</li>');
     $setup_help .= '</ol>';
 
     $form['setup'] = [
@@ -150,6 +159,15 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
       '#open' => !$account || !$account->isAuthenticated(),
     ];
 
+    $form['setup']['property'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Property ID'),
+      '#default_value' => $config->get('property'),
+      '#size' => 75,
+      '#description' => $this->t('Enter the numeric property ID for your Google Analytics property.'),
+      '#required' => TRUE,
+    ];
+
     $form['setup']['json'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('Credential JSON'),
@@ -157,18 +175,12 @@ class GoogleAnalyticsReportsApiAdminSettingsForm extends FormBase {
         'file_validate_extensions' => ['doc docx txt pdf json'],
       ],
       '#upload_location' => 'private://',
-      '#description' => $this->t('Ensure private file system is setup'),
+      '#description' => $this->t('Upload a JSON file with credentials obtained from your service account in Google Cloud Console. <a href="@file_configuration">Ensure your site supports private file uploads.</a>', [
+        '@file_configuration' => Url::fromRoute('system.file_system_settings')->toString(),
+      ]),
       '#default_value' => $config->get('json') !== NULL ? [$config->get('json')] : '',
     ];
 
-    $form['setup']['property'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Property'),
-      '#default_value' => $config->get('property'),
-      '#size' => 75,
-      '#description' => $this->t('A GA4 property to grab the data'),
-      '#required' => TRUE,
-    ];
     $form['setup']['settings_submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save settings'),

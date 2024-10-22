@@ -44,21 +44,19 @@ Configuration of Google Analytics Reports API module.
 Before you can get the credentials you may need to create a new project and
 enable the analytics API for it:
 
-1. Open Google Developers Console: https://console.developers.google.com. Find
-   `Google Analytics Data API` and enable for your project. 
+1. Open [Google Cloud Console](https://console.cloud.google.com). Find
+   *Google Analytics Data API* and enable it for your project.
 2. Use the hamburger menu to select API & Services » Credentials.
-3. Click the pull-down menu "Create credentials". Select "Help me choose".
-4. Under "What API are you using", select "Google Analytics Reports API" and
-   choose "User Data" on the page
-5. Fill in the information. Under "Oauth Client Id" => "Application Type" select
-   "Web Application".
-6. Leave empty "Authorized JavaScript origins".
-7. Fill in "Authorized redirect URIs" with
-   "http://YOURSITEDOMAIN/admin/config/services/google-analytics-reports-api".
-   Replace "YOURSITEDOMAIN" with the base URL of your site.
-8. Download client secret JSON. **For security reasons Google won't let you redownload it. So, store this credential file privately also.**
-9. On the Drupal site navigate to "Configuration » System » Google Analytics
-Reports API", upload the JSON file and fill the property ID. Save the form.
+3. Open the pull-down menu "Create credentials." Select "Service account."
+4. Follow the steps to create the service account. (It is not necessary to grant
+   the service account any specific access to the project.)
+5. Navigate into the service account, then select Keys from the navigation.
+6. Under the "Add key" dropdown, create a new key in JSON format.
+7. Within Google Analytics, navigate to the property's access management, then
+   add the email address on the service account with Viewer permissions.
+8. On the Drupal site, navigate to "Configuration » System » Google Analytics
+   Reports API," fill in the Google Analytics property ID, then upload the JSON
+   file. Save the form.
 
 Configuration of Google Analytics Reports module:
 1. Configure the Google Analytics Reports API module first.
