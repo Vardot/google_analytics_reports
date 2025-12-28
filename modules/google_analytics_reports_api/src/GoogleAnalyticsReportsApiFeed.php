@@ -107,14 +107,14 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    *   The messenger.
    */
   public function __construct(
-    $client = NULL,
-    $property = NULL,
-    ModuleHandlerInterface $module_handler = NULL,
-    LoggerChannelFactory $logger_factory = NULL,
-    CacheFactory $cache_factory = NULL,
-    RequestStack $request_stack = NULL,
-    TimeInterface $time = NULL,
-    MessengerInterface $messenger = NULL
+    ?object $client = NULL,
+    ?string $property = NULL,
+    ?ModuleHandlerInterface $module_handler = NULL,
+    ?LoggerChannelFactory $logger_factory = NULL,
+    ?CacheFactory $cache_factory = NULL,
+    ?RequestStack $request_stack = NULL,
+    ?TimeInterface $time = NULL,
+    ?MessengerInterface $messenger = NULL
   ) {
     $this->client = $client;
     $this->property = $property;

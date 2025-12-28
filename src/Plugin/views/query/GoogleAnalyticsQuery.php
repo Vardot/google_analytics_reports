@@ -218,7 +218,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    */
   public function addOrderBy(
     $table,
-    $field = NULL,
+    ?string $field = NULL,
     $order = 'ASC',
     $alias = '',
     array $params = []
@@ -244,7 +244,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @param string $operator
    *   The comparison operator, such as =, <, or >=.
    */
-  public function addWhere($group, $field, $value = NULL, $operator = NULL) {
+  public function addWhere($group, $field, mixed $value = NULL, ?string $operator = NULL) {
     // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
     // the default group.
     if (empty($group)) {
@@ -316,7 +316,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    * @param string $join
    *   Join.
    */
-  public function ensureTable($table, $relationship = NULL, $join = NULL) {
+  public function ensureTable($table, ?string $relationship = NULL, mixed $join = NULL) {
   }
 
   /**
