@@ -172,7 +172,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    */
-  public function __construct($token = NULL, ModuleHandlerInterface $module_handler = NULL, LoggerChannelFactory $logger_factory = NULL, CacheFactory $cache_factory = NULL, RequestStack $request_stack = NULL, TimeInterface $time = NULL) {
+  public function __construct($token = NULL, ?ModuleHandlerInterface $module_handler = NULL, ?LoggerChannelFactory $logger_factory = NULL, ?CacheFactory $cache_factory = NULL, ?RequestStack $request_stack = NULL, ?TimeInterface $time = NULL) {
     $this->accessToken = $token;
 
     if (is_null($module_handler)) {

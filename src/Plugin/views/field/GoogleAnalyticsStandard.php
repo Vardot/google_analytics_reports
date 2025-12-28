@@ -30,7 +30,7 @@ class GoogleAnalyticsStandard extends FieldPluginBase {
   /**
    * {@inheritdoc}
    */
-  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+  public function init(ViewExecutable $view, DisplayPluginBase $display, ?array &$options = NULL) {
     parent::init($view, $display, $options);
     $this->isCustom = google_analytics_reports_is_custom($this->realField);
   }

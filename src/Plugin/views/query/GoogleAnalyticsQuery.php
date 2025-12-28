@@ -133,7 +133,7 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
    *
    * {@inheritdoc}
    */
-  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+  public function init(ViewExecutable $view, DisplayPluginBase $display, ?array &$options = NULL) {
     parent::init($view, $display, $options);
     $this->unpackOptions($this->options, $options);
   }
