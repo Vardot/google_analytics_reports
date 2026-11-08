@@ -25,7 +25,7 @@ class GoogleAnalyticsReportsApiFeedTest extends UnitTestCase {
     require_once dirname(__DIR__) . '/mock.php';
 
     $config_map = [
-      'google_analytics_reports_api.settings' => $this->providerTestObj()[1][1],
+      'google_analytics_reports_api.settings' => static::providerTestObj()[1][1],
     ];
     mock_drupal_services($this, $config_map);
   }
@@ -54,7 +54,7 @@ class GoogleAnalyticsReportsApiFeedTest extends UnitTestCase {
    * @return array
    *   Data and expected results.
    */
-  public function providerTestObj() {
+  public static function providerTestObj() {
     return [
       [FALSE, []],
       [TRUE, [
@@ -92,7 +92,7 @@ class GoogleAnalyticsReportsApiFeedTest extends UnitTestCase {
    * @return array
    *   Data and expected results.
    */
-  public function providerTestObjMethod() {
+  public static function providerTestObjMethod() {
     return [
       [FALSE, 'invalidMethod'],
       [TRUE, 'runReport'],

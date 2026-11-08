@@ -50,7 +50,7 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    * @var \Drupal\Core\Cache\CacheFactory
    */
   protected $cacheFactory;
- 
+
   /**
    * The time variable.
    *
@@ -141,9 +141,9 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
    * https://developers.google.com/analytics/devguides/reporting/data/v1
    * Ex: GoogleAnalyticsReportsApiFeed::service()->runReport(['dateRange' => ...]);.
    *
-   * @return object
+   * @return object|false
    *   GoogleAnalyticsReportsApiFeed object to run needed API from
-   *   new Analytics API.
+   *   new Analytics API, or FALSE when it is not configured or fails.
    */
   public static function service($settings = [], $gclient = FALSE) {
     static $mclient;
@@ -204,6 +204,8 @@ class GoogleAnalyticsReportsApiFeed implements ContainerInjectionInterface {
         'There was an authentication error. Message: @message.',
         ['@message' => $e->getMessage()]
       );
+
+      return FALSE;
     }
   }
 

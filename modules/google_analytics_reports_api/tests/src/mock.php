@@ -11,26 +11,34 @@ if (!function_exists('t')) {
   require_once './web/core/includes/bootstrap.inc';
 }
 
+/**
+ * Creates a mock in the test case's own scope.
+ *
+ * TestCase::createMock() is protected, so it is called through a closure bound
+ * to the test case rather than from this file's global scope.
+ */
+function mock_drupal_create_mock($item, string $class) {
+  return (function (string $class) {
+    return $this->createMock($class);
+  })->call($item, $class);
+}
+
 function mock_drupal_services($item, $config_map = []) {
 
   foreach ([
     ['Drupal\\Core\\StreamWrapper\\StreamWrapperManager', 'stream_wrapper_manager', function ($item, &$themock) {
-      $fake = $item->getMockBuilder('Drupal\Core\StreamWrapper\PrivateStream')
-        ->disableOriginalConstructor()
-        ->getMock();
+      $fake = mock_drupal_create_mock($item, 'Drupal\Core\StreamWrapper\PrivateStream');
       $file = realpath(__DIR__ . '/credential.json');
-      $fake->expects($item->any())
-        ->method('realpath')
+      $fake->method('realpath')
         ->willReturn($file);
 
-      $themock->expects($item->any())
-        ->method('getViaUri')
+      $themock->method('getViaUri')
         ->willReturn($fake);
     },
 ],
     ['Drupal\\Core\\Logger\\LoggerChannelFactory', 'logger.factory', function ($item, &$themock) {
       $themock->method('get')
-        ->will($item->returnValue(new LoggerChannel('test')));
+        ->willReturn(new LoggerChannel('test'));
     },
 ],
     ['Drupal\\Core\\Messenger\\Messenger', 'messenger'],
@@ -39,16 +47,13 @@ function mock_drupal_services($item, $config_map = []) {
     },
 ],
     ['Drupal\\Core\\Cache\\CacheFactory', 'cache_factory', function ($item, &$themock) {
-      $file = $item->getMockBuilder('Drupal\Core\Cache\NullBackend')
-        ->disableOriginalConstructor()
-        ->getMock();
+      $file = mock_drupal_create_mock($item, 'Drupal\Core\Cache\NullBackend');
 
-      $themock->expects($item->any())
-        ->method('get')
-        ->will($item->returnValueMap([
+      $themock->method('get')
+        ->willReturnMap([
           ['default', $file],
           ['google_analytics_reports_api', $file],
-        ]));
+        ]);
     },
 ],
     ['Drupal\\Component\\Datetime\\Time', 'datetime.time'],
@@ -69,12 +74,7 @@ function mock_drupal_services($item, $config_map = []) {
 function mock_drupal_service($item, $class, $key, $callback) {
   static $container;
   if (!is_object($class)) {
-    $methods = get_class_methods($class);
-    $sv = $item
-      ->getMockBuilder($class)
-      ->disableOriginalConstructor()
-      ->setMethods($methods)
-      ->getMock($key);
+    $sv = mock_drupal_create_mock($item, $class);
   }
   else {
     $sv = $class;

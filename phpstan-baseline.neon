@@ -1,0 +1,25 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 6
+			path: modules/google_analytics_reports_api/src/GoogleAnalyticsReportsApiFeed.php
+
+		-
+			message: '#^Path in require_once\(\) "\./web/core/includes/bootstrap\.inc" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: modules/google_analytics_reports_api/tests/src/mock.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 1
+			path: src/Plugin/views/filter/GoogleAnalyticsDate.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 2
+			path: src/Plugin/views/query/GoogleAnalyticsQuery.php

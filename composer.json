@@ -29,6 +29,6 @@
   },
   "require": {
     "drupal/core": "^10 || ^11",
-    "google/analytics-data" : "*"
+    "google/analytics-data" : ">=0.16 <0.22"
   }
 }

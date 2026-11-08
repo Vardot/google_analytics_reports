@@ -7,6 +7,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -580,8 +581,9 @@ class GoogleAnalyticsQuery extends QueryPluginBase {
                       [$operator, $callback] = $operator;
 
                       if (!$operator) {
+                        // A static closure has no $this.
                         \Drupal::messenger()->addMessage(
-                          $this->t(
+                          new TranslatableMarkup(
                             'The chosen operator is not available! Try use regular expression! @op',
                             [
                               '@op' => print_r(
